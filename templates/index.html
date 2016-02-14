@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}index{% endblock title %}
+{% block extra_head %}
+<link rel="stylesheet" href="./assets/css/style.css">
+<link rel="icon" href="./assets/img/favicon.ico">
+{% endblock extra_head %}
+{% block body %}
+<div id="article-list">
+  {% for article in articles %}
+    <div class="created-date">
+      {{ article.created_date }}
+    </div>
+    {% for entry in article.entries %}
+      <div class="title">
+        <a href="{{ entry.href }}">{{ entry.title }}</a>
+      </div>
+    {% endfor %}
+  {% endfor %}
+</div>
+{% endblock body %}
