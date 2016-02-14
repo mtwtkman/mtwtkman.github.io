@@ -2,7 +2,6 @@
 import sys
 import os
 import time
-from collections import defaultdict
 
 from jinja2 import Environment, FileSystemLoader
 import yaml
@@ -26,6 +25,7 @@ tags:
 active: false
 body: |-
 '''
+
 REQUIRED = ['title', 'slug', 'utime', 'date', 'active', 'body']
 
 MD_EXTS = ['markdown.extensions.' + x for x in [
@@ -36,11 +36,13 @@ md = Markdown(extensions=MD_EXTS)
 env = Environment(loader=FileSystemLoader('./templates', encoding='utf8'))
 
 
-def create(slug):
-    assert slug
+def create(args):
+    assert args
+    slug = args[0]
 
     utime = int(time.time())
-    path = os.path.join('./post', time.strftime('%Y/%m/%d', time.localtime(utime)))
+    path = os.path.join('./post', time.strftime(
+      '%Y/%m/%d', time.localtime(utime)))
     os.makedirs(path, exist_ok=True)
 
     article_path = os.path.join(path, slug + '.yml')
@@ -53,8 +55,9 @@ def create(slug):
     print('vim {}'.format(article_path))
 
 
-def parse(path):
-    assert path
+def parse(args):
+    assert args
+    path = args[0]
 
     if path in ('--all', '-a'):
         parse_all()
@@ -67,7 +70,8 @@ def parse_all():
         if not files:
             continue
         for f in files:
-            parse_one(os.path.join(root.replace('./post/', ''), f.replace('.yml', '')))
+            parse_one(os.path.join(
+                root.replace('./post/', ''), f.replace('.yml', '')))
 
 
 def parse_one(path):
@@ -108,15 +112,16 @@ def build(args):
         parse_all()
 
     articles = []
-    m_paths = list(os.walk('./article'))[3:]
-
-    for root, dirs, files in m_paths:
+    for root, dirs, files in os.walk('./article'):
+        if not files:
+            continue
         entries = []
         for article in files:
-            with open(os.path.join(root.replace('article', 'post'), article.replace('html', 'yml'))) as f:
+            with open(os.path.join(root.replace('article', 'post'),
+                                   article.replace('html', 'yml'))) as f:
                 data = yaml.load(f)
             entries.append({
-                'href': os.path.join(root, article),
+                'href': os.path.join(root, article.replace('.html', '')),
                 'title': data['title']
             })
         articles.insert(-1, {
@@ -134,15 +139,12 @@ if __name__ == '__main__':
     name = sys.argv[1]
     args = None
     if len(sys.argv) > 2:
-        args = sys.argv[2]
+        args = sys.argv[2:]
 
     CMDS = {
         'create': create,
-        'c': create,
         'parse': parse,
-        'p': parse,
-        'build': build,
-        'b': build
+        'build': build
     }
 
     func = CMDS[name](args)
