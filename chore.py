@@ -108,9 +108,11 @@ def parse_one(path):
 
 
 def build(args):
-    if args in ('--parse', '-p'):
+    if args and args[0] in ('--parse', '-p'):
+        print('parsing...')
         parse_all()
 
+    print('building...')
     articles = []
     for root, dirs, files in os.walk('./article'):
         if not files:
