@@ -4,7 +4,8 @@ utime: 1455438723
 date: 2016/02/14 17:32:03
 tags:
   - misc
-active: true
+publish: true
+edit: false
 body: |-
   jekyllとか色々覚えることが多そうなのでpythonで必要最低限のhtmlのジェネレータを作ってgithub pagesにお引越ししてみました。
 

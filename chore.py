@@ -16,17 +16,18 @@ class RequiredError(Exception):
     pass
 
 
-TEMPLATE = '''title:
+ARTICLE_TEMPLATE = '''title:
 slug: {slug}
 utime: {utime}
 date: {date}
 tags:
   -
-active: false
+publish: false
+edit: true
 body: |-
 '''
 
-REQUIRED = ['title', 'slug', 'utime', 'date', 'active', 'body']
+REQUIRED = ['title', 'slug', 'utime', 'date', 'publish', 'edit', 'body']
 
 MD_EXTS = ['markdown.extensions.' + x for x in [
     'fenced_code', 'tables', 'smart_strong', 'sane_lists'
@@ -51,30 +52,20 @@ def create(args):
 
     with open(article_path, 'w') as f:
         date = time.strftime('%Y/%m/%d %H:%M:%S', time.localtime(utime))
-        f.write(TEMPLATE.format(slug=slug, utime=utime, date=date))
+        f.write(ARTICLE_TEMPLATE.format(slug=slug, utime=utime, date=date))
     print('vim {}'.format(article_path))
 
 
-def parse(args):
-    assert args
-    path = args[0]
-
-    if path in ('--all', '-a'):
-        parse_all()
-    else:
-        parse_one(path)
-
-
-def parse_all():
+def convert_all():
     for root, dirs, files in os.walk('./post'):
         if not files:
             continue
         for f in files:
-            parse_one(os.path.join(
+            convert_one(os.path.join(
                 root.replace('./post/', ''), f.replace('.yml', '')))
 
 
-def parse_one(path):
+def convert_one(path):
     article_path = os.path.join('./post', path + '.yml')
     try:
         with open(article_path) as f:
@@ -93,7 +84,7 @@ def parse_one(path):
     if required:
         raise RequiredError('required: {}'.format(', '.join(required)))
 
-    if data['active'] is False:
+    if data['edit']:
         return
 
     data['body'] = md.convert(data['body'])
@@ -107,12 +98,42 @@ def parse_one(path):
         f.write(template.render(data))
 
 
-def build(args):
-    if args and args[0] in ('--parse', '-p'):
-        print('parsing...')
-        parse_all()
+def tagging():
+    tags = {}
+    for root, dirs, files in os.walk('./post'):
+        if not files:
+            continue
+        for article in files:
+            article_path = os.path.join(root, article)
+            with open(article_path) as f:
+                data = yaml.load(f)
+            if not data['publish']:
+                continue
+            if data['tags'] and all(data['tags']):
+                for tag in data['tags']:
+                    t = tags.setdefault(tag, [])
+                    t.append({
+                        'path': os.path.splitext(
+                            article_path.replace('./post', './article'))[0],
+                        'title': data['title'],
+                        'utime': data['utime']
+                    })
 
-    print('building...')
+    for name, articles in tags.items():
+        with open(os.path.join('./tag', name + '.html'), 'w') as f:
+            template = env.get_template('tag.html')
+            articles.sort(key=lambda x: -x['utime'])
+            f.write(template.render({'name': name, 'articles': articles}))
+
+
+def build(args):
+    print('converting yaml to html.')
+    convert_all()
+
+    print('tagging.')
+    tagging()
+
+    print('building.')
     articles = []
     for root, dirs, files in os.walk('./article'):
         if not files:
@@ -123,7 +144,7 @@ def build(args):
                                    article.replace('html', 'yml'))) as f:
                 data = yaml.load(f)
             entries.append({
-                'href': os.path.join(root, article.replace('.html', '')),
+                'href': os.path.join(root, os.path.splitext(article)[0]),
                 'title': data['title']
             })
         articles.insert(-1, {
@@ -145,7 +166,6 @@ if __name__ == '__main__':
 
     CMDS = {
         'create': create,
-        'parse': parse,
         'build': build
     }
 

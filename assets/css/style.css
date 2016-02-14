@@ -61,6 +61,12 @@ div#article-header {
 
 div#tags {
   height: 20px;
+  color: #848484;
+}
+
+span.tag > a {
+  text-decoration: none;
+  color: #848484;
 }
 
 div#content {
