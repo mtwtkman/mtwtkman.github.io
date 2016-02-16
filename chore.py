@@ -37,7 +37,7 @@ md = Markdown(extensions=MD_EXTS)
 env = Environment(loader=FileSystemLoader('./templates', encoding='utf8'))
 
 
-def create(args):
+def new(args):
     assert args
     slug = args[0]
 
@@ -165,7 +165,7 @@ if __name__ == '__main__':
         args = sys.argv[2:]
 
     CMDS = {
-        'create': create,
+        'new': new,
         'build': build
     }
 
