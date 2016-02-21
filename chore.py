@@ -3,6 +3,7 @@ import os
 import sys
 import time
 import shutil
+import functools
 
 import yaml
 
@@ -18,11 +19,10 @@ date: {date}
 tags:
   -
 publish: false
-edit: true
 body: |-
 '''
 
-REQUIRED = ['title', 'slug', 'utime', 'date', 'publish', 'edit', 'body']
+REQUIRED = ['title', 'slug', 'utime', 'date', 'publish', 'body']
 
 
 def build():
@@ -58,11 +58,16 @@ def delete(path):
         pass
     reindex()
 
+
 def reindex():
     paths = []
     for root, dirs, files in os.walk('./articles'):
         for _file in files:
             if not _file.endswith('.yml'):
+                continue
+            with open(os.path.join(root, _file)) as f:
+                data = yaml.safe_load(f.read())
+            if not data['publish']:
                 continue
             paths.append(os.path.join(root.replace('./articles/', ''), _file))
     paths.sort(reverse=True)
@@ -79,8 +84,8 @@ def tagging():
                 continue
             with open(os.path.join(root, _file)) as f:
                 data = yaml.safe_load(f.read())
-                if not data['publish']:
-                    continue
+            if not data['publish']:
+                continue
             for tag in data['tags']:
                 t = result.setdefault(tag, [])
                 t.append({
