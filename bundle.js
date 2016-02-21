@@ -58,7 +58,7 @@
 
 	var _component4 = _interopRequireDefault(_component3);
 
-	var _component5 = __webpack_require__(20);
+	var _component5 = __webpack_require__(19);
 
 	var _component6 = _interopRequireDefault(_component5);
 
@@ -1583,11 +1583,11 @@
 	  value: true
 	});
 
-	var _lodash = __webpack_require__(17);
+	var _lodash = __webpack_require__(7);
 
 	var _lodash2 = _interopRequireDefault(_lodash);
 
-	var _index = __webpack_require__(7);
+	var _index = __webpack_require__(8);
 
 	var _index2 = _interopRequireDefault(_index);
 
@@ -1595,7 +1595,7 @@
 
 	function parseYaml() {
 	  return _lodash2.default.compact(_index2.default.split('\n').map(function (yamlPath) {
-	    var article = __webpack_require__(8)("./" + yamlPath);
+	    var article = __webpack_require__(9)("./" + yamlPath);
 	    if (article.publish) return article;
 	  }));
 	}
@@ -1604,166 +1604,6 @@
 
 /***/ },
 /* 7 */
-/***/ function(module, exports) {
-
-	module.exports = "2016/02/14/moved-to-gh-page.yml"
-
-/***/ },
-/* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var map = {
-		"./2016/02/14/moved-to-gh-page.yml": 9,
-		"./index.txt": 12
-	};
-	function webpackContext(req) {
-		return __webpack_require__(webpackContextResolve(req));
-	};
-	function webpackContextResolve(req) {
-		return map[req] || (function() { throw new Error("Cannot find module '" + req + "'.") }());
-	};
-	webpackContext.keys = function webpackContextKeys() {
-		return Object.keys(map);
-	};
-	webpackContext.resolve = webpackContextResolve;
-	module.exports = webpackContext;
-	webpackContext.id = 8;
-
-
-/***/ },
-/* 9 */
-/***/ function(module, exports) {
-
-	module.exports = {
-		"title": "github pagesに引越し",
-		"slug": "moved-to-gh-page",
-		"utime": 1455438723,
-		"date": "2016/02/14 17:32:03",
-		"tags": [
-			"misc"
-		],
-		"publish": true,
-		"edit": false,
-		"body": "jekyllとか色々覚えることが多そうなのでpythonで必要最低限のhtmlのジェネレータを作ってgithub pagesにお引越ししてみました。\n\n記事の情報はyamlで管理して、そいつをパースしてhtmlに吐き出すという感じにしてるのですが、自分しか使わないしかなり雑。\n\n記事の情報管理をyamlでやるのはすごくいいということがわかってきました。\n\nyamlは\n```yaml\ntitle: github pagesに引越し\nslug: moved_to_gh_page\nutime: 1455438723\ndate: 2016/02/14 17:32:03\ntags:\n  - タグ\nactive: true\nbody: |-\n  ほにゃらら\n```\n\nという構成にしていて、こいつをpythonのPyYamlで読み込んだ結果をjinja2で書いたテンプレートにrenderしてやるようにしています。\n\n面倒なのが、リポジトリのトップにあるindex.htmlへ記事の追加を反映しなくてはいけないので都度ビルドコマンドを叩くようにしています。\n\nこの辺はいちいちコマンドを叩かずに変更を監視して自動でビルドするようにしたいなぁと。\n\nまあとにかくブログに特化するというのであればgithub pagesでもイケそうな気がする。"
-	};
-
-/***/ },
-/* 10 */,
-/* 11 */,
-/* 12 */
-/***/ function(module, exports) {
-
-	module.exports = "2016/02/14/moved-to-gh-page.yml";
-
-/***/ },
-/* 13 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _mithril = __webpack_require__(1);
-
-	var _mithril2 = _interopRequireDefault(_mithril);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function view(ctrl) {
-	  var props = ctrl.props;
-	  return (0, _mithril2.default)('div#article-list', props.map(function (prop) {
-	    return (0, _mithril2.default)('div', [(0, _mithril2.default)('a[href=\'/article/' + prop.href + '\']', { config: _mithril2.default.route }, prop.title), (0, _mithril2.default)('span.post-date', '(' + prop.date + ')')]);
-	  }));
-	}
-
-	exports.default = view;
-
-/***/ },
-/* 14 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _controller = __webpack_require__(15);
-
-	var _controller2 = _interopRequireDefault(_controller);
-
-	var _view = __webpack_require__(18);
-
-	var _view2 = _interopRequireDefault(_view);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	exports.default = { controller: _controller2.default, view: _view2.default };
-
-/***/ },
-/* 15 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _mithril = __webpack_require__(1);
-
-	var _mithril2 = _interopRequireDefault(_mithril);
-
-	var _model = __webpack_require__(16);
-
-	var _model2 = _interopRequireDefault(_model);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function controller() {
-	  return {
-	    data: (0, _model2.default)(_mithril2.default.route.param('date'), _mithril2.default.route.param('slug'))
-	  };
-	}
-
-	exports.default = controller;
-
-/***/ },
-/* 16 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _utils = __webpack_require__(6);
-
-	var _utils2 = _interopRequireDefault(_utils);
-
-	var _lodash = __webpack_require__(17);
-
-	var _lodash2 = _interopRequireDefault(_lodash);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function model(date, slug) {
-	  var data = _utils2.default.parseYaml();
-	  var target = _lodash2.default.compact(data.map(function (d) {
-	    if (d.date.split(' ')[0] === date && d.slug === slug) {
-	      return d;
-	    }
-	  }));
-	  return target[0];
-	}
-
-	exports.default = model;
-
-/***/ },
-/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/**
@@ -16668,7 +16508,77 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)(module), (function() { return this; }())))
 
 /***/ },
-/* 18 */
+/* 8 */
+/***/ function(module, exports) {
+
+	module.exports = "2016/02/21/mithrilify.yml\n2016/02/14/moved-to-gh-page.yml"
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var map = {
+		"./2016/02/14/moved-to-gh-page.yml": 10,
+		"./2016/02/21/mithrilify.yml": 11,
+		"./index.txt": 12
+	};
+	function webpackContext(req) {
+		return __webpack_require__(webpackContextResolve(req));
+	};
+	function webpackContextResolve(req) {
+		return map[req] || (function() { throw new Error("Cannot find module '" + req + "'.") }());
+	};
+	webpackContext.keys = function webpackContextKeys() {
+		return Object.keys(map);
+	};
+	webpackContext.resolve = webpackContextResolve;
+	module.exports = webpackContext;
+	webpackContext.id = 9;
+
+
+/***/ },
+/* 10 */
+/***/ function(module, exports) {
+
+	module.exports = {
+		"title": "github pagesに引越し",
+		"slug": "moved-to-gh-page",
+		"utime": 1455438723,
+		"date": "2016/02/14 17:32:03",
+		"tags": [
+			"misc"
+		],
+		"publish": true,
+		"body": "jekyllとか色々覚えることが多そうなのでpythonで必要最低限のhtmlのジェネレータを作ってgithub pagesにお引越ししてみました。\n\n記事の情報はyamlで管理して、そいつをパースしてhtmlに吐き出すという感じにしてるのですが、自分しか使わないしかなり雑。\n\n記事の情報管理をyamlでやるのはすごくいいということがわかってきました。\n\nyamlは\n```yaml\ntitle: github pagesに引越し\nslug: moved_to_gh_page\nutime: 1455438723\ndate: 2016/02/14 17:32:03\ntags:\n  - タグ\nactive: true\nbody: |-\n  ほにゃらら\n```\n\nという構成にしていて、こいつをpythonのPyYamlで読み込んだ結果をjinja2で書いたテンプレートにrenderしてやるようにしています。\n\n面倒なのが、リポジトリのトップにあるindex.htmlへ記事の追加を反映しなくてはいけないので都度ビルドコマンドを叩くようにしています。\n\nこの辺はいちいちコマンドを叩かずに変更を監視して自動でビルドするようにしたいなぁと。\n\nまあとにかくブログに特化するというのであればgithub pagesでもイケそうな気がする。"
+	};
+
+/***/ },
+/* 11 */
+/***/ function(module, exports) {
+
+	module.exports = {
+		"title": "github pagesの構成を変えた",
+		"slug": "mithrilify",
+		"utime": 1456047517,
+		"date": "2016/02/21 18:38:37",
+		"tags": [
+			"python",
+			"javascript",
+			"mithril",
+			"webpack"
+		],
+		"publish": true,
+		"body": "引越しをした時は、pythonで記事データになるyamlファイルをビルドしてhtmlをした後にindex.htmlにリンクを載せるという方法を取っていました。\n\nこのやり方でも問題はないんですが、yamlとhtmlが重複してしまいなんともいけてない感じがしたので、yamlをjsで読み取る方法にしました。\n\nどうせgithubがストレージなんだし記事の目録を作ってやってjsでyamlファイルをパースしてやればええがなという動機です。SPAの利です。\n\njsのフレームワークはなんとなく好きなmithrilを使って組んでいます。ブログみたいな単純なものならちょろっと書けるので最高。\n\nでも結局は、目録を作るというのに変わっただけで記事を新規作成ないし削除をしたら目録を更新しないといけません。circleciとか使ってうまくできないか調べよう。\n\nところで、webpackのloaderは本当に最高で何も考えずにただただ`yaml-loader`を使えば全てが丸く収まるのでもうwebpackから抜け出せなくなりました。\n\nガンガン使っていきましょう。"
+	};
+
+/***/ },
+/* 12 */
+/***/ function(module, exports) {
+
+	module.exports = "2016/02/21/mithrilify.yml 2016/02/14/moved-to-gh-page.yml";
+
+/***/ },
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16681,7 +16591,114 @@
 
 	var _mithril2 = _interopRequireDefault(_mithril);
 
-	var _marked = __webpack_require__(19);
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function view(ctrl) {
+	  var props = ctrl.props;
+	  return (0, _mithril2.default)('div#article-list', props.map(function (prop) {
+	    return (0, _mithril2.default)('div', [(0, _mithril2.default)('a[href=\'/article/' + prop.href + '\']', { config: _mithril2.default.route }, prop.title), (0, _mithril2.default)('span.post-date', '(' + prop.date + ')')]);
+	  }));
+	}
+
+	exports.default = view;
+
+/***/ },
+/* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _controller = __webpack_require__(15);
+
+	var _controller2 = _interopRequireDefault(_controller);
+
+	var _view = __webpack_require__(17);
+
+	var _view2 = _interopRequireDefault(_view);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	exports.default = { controller: _controller2.default, view: _view2.default };
+
+/***/ },
+/* 15 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _mithril = __webpack_require__(1);
+
+	var _mithril2 = _interopRequireDefault(_mithril);
+
+	var _model = __webpack_require__(16);
+
+	var _model2 = _interopRequireDefault(_model);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function controller() {
+	  return {
+	    data: (0, _model2.default)(_mithril2.default.route.param('date'), _mithril2.default.route.param('slug'))
+	  };
+	}
+
+	exports.default = controller;
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _utils = __webpack_require__(6);
+
+	var _utils2 = _interopRequireDefault(_utils);
+
+	var _lodash = __webpack_require__(7);
+
+	var _lodash2 = _interopRequireDefault(_lodash);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function model(date, slug) {
+	  var data = _utils2.default.parseYaml();
+	  var target = _lodash2.default.compact(data.map(function (d) {
+	    if (d.date.split(' ')[0] === date && d.slug === slug) {
+	      return d;
+	    }
+	  }));
+	  return target[0];
+	}
+
+	exports.default = model;
+
+/***/ },
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _mithril = __webpack_require__(1);
+
+	var _mithril2 = _interopRequireDefault(_mithril);
+
+	var _marked = __webpack_require__(18);
 
 	var _marked2 = _interopRequireDefault(_marked);
 
@@ -16701,7 +16718,7 @@
 	exports.default = view;
 
 /***/ },
-/* 19 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -17993,7 +18010,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 20 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -18002,11 +18019,11 @@
 	  value: true
 	});
 
-	var _controller = __webpack_require__(21);
+	var _controller = __webpack_require__(20);
 
 	var _controller2 = _interopRequireDefault(_controller);
 
-	var _view = __webpack_require__(22);
+	var _view = __webpack_require__(23);
 
 	var _view2 = _interopRequireDefault(_view);
 
@@ -18015,7 +18032,7 @@
 	exports.default = { controller: _controller2.default, view: _view2.default };
 
 /***/ },
-/* 21 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -18028,7 +18045,7 @@
 
 	var _mithril2 = _interopRequireDefault(_mithril);
 
-	var _model = __webpack_require__(23);
+	var _model = __webpack_require__(21);
 
 	var _model2 = _interopRequireDefault(_model);
 
@@ -18043,7 +18060,69 @@
 	exports.default = controller;
 
 /***/ },
+/* 21 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _tagging = __webpack_require__(22);
+
+	var _tagging2 = _interopRequireDefault(_tagging);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function model(name) {
+	  return {
+	    tag: name,
+	    data: _tagging2.default[name]
+	  };
+	}
+
+	exports.default = model;
+
+/***/ },
 /* 22 */
+/***/ function(module, exports) {
+
+	module.exports = {
+		"javascript": [
+			{
+				"path": "2016/02/21/mithrilify",
+				"title": "github pagesの構成を変えた"
+			}
+		],
+		"misc": [
+			{
+				"path": "2016/02/14/moved-to-gh-page",
+				"title": "github pagesに引越し"
+			}
+		],
+		"mithril": [
+			{
+				"path": "2016/02/21/mithrilify",
+				"title": "github pagesの構成を変えた"
+			}
+		],
+		"python": [
+			{
+				"path": "2016/02/21/mithrilify",
+				"title": "github pagesの構成を変えた"
+			}
+		],
+		"webpack": [
+			{
+				"path": "2016/02/21/mithrilify",
+				"title": "github pagesの構成を変えた"
+			}
+		]
+	};
+
+/***/ },
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -18066,44 +18145,6 @@
 	}
 
 	exports.default = view;
-
-/***/ },
-/* 23 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _tagging = __webpack_require__(24);
-
-	var _tagging2 = _interopRequireDefault(_tagging);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function model(name) {
-	  return {
-	    tag: name,
-	    data: _tagging2.default[name]
-	  };
-	}
-
-	exports.default = model;
-
-/***/ },
-/* 24 */
-/***/ function(module, exports) {
-
-	module.exports = {
-		"misc": [
-			{
-				"path": "2016/02/14/moved-to-gh-page",
-				"title": "github pagesに引越し"
-			}
-		]
-	};
 
 /***/ }
 /******/ ]);
