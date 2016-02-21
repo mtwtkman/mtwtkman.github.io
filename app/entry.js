@@ -1,12 +1,14 @@
 import m from 'mithril';
-import Index from './components/index/component';
-import Article from './components/article/component';
-import Tag from './components/tag/component';
+import Top from './components/top/component';
+import Blog from './components/blog/index/component';
+import Article from './components/blog/article/component';
+import Tag from './components/blog/tag/component';
 
 
 m.route.mode = 'hash';
 m.route(document.getElementById('main'), '/', {
-  '/': Index,
-  '/article/:date.../:slug': Article,
-  '/tag/:name': Tag
+  '/': Top,
+  '/blog': Blog,
+  '/blog/article/:date.../:slug': Article,
+  '/blog/tag/:name': Tag
 });

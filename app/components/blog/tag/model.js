@@ -1,4 +1,4 @@
-import Tagging from 'json!yaml!../../../tagging.yml';
+import Tagging from 'json!yaml!../../../../tagging.yml';
 
 
 function model(name) {

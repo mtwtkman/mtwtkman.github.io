@@ -2,6 +2,18 @@
   background: #f5f5f5 !important
 }
 
+.glyphicon-time:before {
+  vertical-align: middle;
+}
+
+.glyphicon-tag:before {
+  vertical-align: middle;
+}
+
+.glyphicon {
+  letter-spacing: 5px;
+}
+
 .outer-width {
   padding-left: 30px;
 }
@@ -11,34 +23,24 @@
 }
 
 #main {
-  margin-top: 92px;
+  margin-top: 50px;
 }
 
-div#header {
-  font-size: 48pt;
-  font-weight: bold;
+/*
+ * top
+ */
+div#top-header {
+  font-size: 120px;
   text-align: center;
-  position: fixed;
-  width: 100%;
-  top: 0;
-  right: 0;
-  background: white;
-  height:92px;
 }
 
-div#header > a {
-  text-decoration: none;
-  color: black;
-}
-
-div#header > a:hover {
-  text-decoration: none;
-  color: black;
-}
-
+/*
+ * article page
+ */
 div#article-list {
   list-style: none;
   font-size: 18pt;
+  padding-top: 15px;
 }
 
 span.post-date {
@@ -53,15 +55,18 @@ div.title > a:hover {
 }
 
 div#article-header {
-  position: fixed;
-  height: 115px;
-  background: white;
-  padding-left: 0;
+  text-align: center;
+  padding-left: 0px;
+}
+
+div#article-header > h1 {
+  margin-top: 10px;
 }
 
 div#tags {
   height: 20px;
   color: #848484;
+  padding-top: 5px;
 }
 
 span.tag > a {
@@ -70,13 +75,10 @@ span.tag > a {
   padding-right: 5px;
 }
 
-div#content {
-  padding-top: 120px;
-}
-
 div#article-date {
   font-weight: bold;
   color: #848484;
+  font-size: 14pt;
 }
 
 div#border {
@@ -84,4 +86,16 @@ div#border {
   border-color: #eee;
   margin-top: 5px;
   margin-bottom: 5px;
+}
+
+/*
+ * tag page
+ */
+div#tag-header {
+  text-align: center;
+  padding-top: 15px;
+}
+
+div#tag-header > h2 > span {
+  font-size: 15pt;
 }

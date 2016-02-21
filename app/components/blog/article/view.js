@@ -12,9 +12,12 @@ function view(ctrl) {
     m('div#article-header.container', [
       m('h1', data.title),
       m('div#description', data.description),
-      m('div#article-date', data.date),
+      m('div#article-date', [
+        m('span.glyphicon.glyphicon-time[aria-hidden="true"]'),
+        data.date
+      ]),
       m('div#tags', data.tags.map(tag => {
-        return m('span.tag', m(`a[href='/tag/${tag}']`, {config: m.route}, [
+        return m('span.tag', m(`a[href='/blog/tag/${tag}']`, {config: m.route}, [
           m('span.glyphicon.glyphicon-tag[aria-hidden="true"]'),
           tag
         ]));
