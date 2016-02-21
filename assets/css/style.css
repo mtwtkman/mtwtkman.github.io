@@ -67,6 +67,7 @@ div#tags {
 span.tag > a {
   text-decoration: none;
   color: #848484;
+  padding-right: 5px;
 }
 
 div#content {
