@@ -58,7 +58,7 @@
 
 	var _component4 = _interopRequireDefault(_component3);
 
-	var _component5 = __webpack_require__(10);
+	var _component5 = __webpack_require__(17);
 
 	var _component6 = _interopRequireDefault(_component5);
 
@@ -1572,7 +1572,7 @@
 
 	var _controller2 = _interopRequireDefault(_controller);
 
-	var _view = __webpack_require__(9);
+	var _view = __webpack_require__(16);
 
 	var _view2 = _interopRequireDefault(_view);
 
@@ -1594,11 +1594,11 @@
 
 	var _mithril2 = _interopRequireDefault(_mithril);
 
-	var _utils = __webpack_require__(13);
+	var _utils = __webpack_require__(8);
 
 	var _utils2 = _interopRequireDefault(_utils);
 
-	var _model = __webpack_require__(8);
+	var _model = __webpack_require__(15);
 
 	var _model2 = _interopRequireDefault(_model);
 
@@ -1623,147 +1623,11 @@
 	  value: true
 	});
 
-	var _utils = __webpack_require__(13);
-
-	var _utils2 = _interopRequireDefault(_utils);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function model() {
-	  var data = _utils2.default.parseYaml();
-	  return data.map(function (d) {
-	    return {
-	      title: d.title,
-	      date: d.date,
-	      href: d.date.split(' ')[0] + '/' + d.slug
-	    };
-	  });
-	}
-
-	exports.default = model;
-
-/***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _mithril = __webpack_require__(1);
-
-	var _mithril2 = _interopRequireDefault(_mithril);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function view(ctrl) {
-	  var props = ctrl.props;
-	  return (0, _mithril2.default)('div#article-list', props.map(function (prop) {
-	    return (0, _mithril2.default)('div.title', [(0, _mithril2.default)('a[href=\'/blog/article/' + prop.href + '\']', { config: _mithril2.default.route }, prop.title), (0, _mithril2.default)('span.post-date', '(' + prop.date + ')')]);
-	  }));
-	}
-
-	exports.default = view;
-
-/***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _controller = __webpack_require__(11);
-
-	var _controller2 = _interopRequireDefault(_controller);
-
-	var _view = __webpack_require__(20);
-
-	var _view2 = _interopRequireDefault(_view);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	exports.default = { controller: _controller2.default, view: _view2.default };
-
-/***/ },
-/* 11 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _mithril = __webpack_require__(1);
-
-	var _mithril2 = _interopRequireDefault(_mithril);
-
-	var _model = __webpack_require__(12);
-
-	var _model2 = _interopRequireDefault(_model);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function controller() {
-	  return {
-	    data: (0, _model2.default)(_mithril2.default.route.param('date'), _mithril2.default.route.param('slug'))
-	  };
-	}
-
-	exports.default = controller;
-
-/***/ },
-/* 12 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _utils = __webpack_require__(13);
-
-	var _utils2 = _interopRequireDefault(_utils);
-
-	var _lodash = __webpack_require__(14);
+	var _lodash = __webpack_require__(9);
 
 	var _lodash2 = _interopRequireDefault(_lodash);
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function model(date, slug) {
-	  var data = _utils2.default.parseYaml();
-	  var target = _lodash2.default.compact(data.map(function (d) {
-	    if (d.date.split(' ')[0] === date && d.slug === slug) {
-	      return d;
-	    }
-	  }));
-	  return target[0];
-	}
-
-	exports.default = model;
-
-/***/ },
-/* 13 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _lodash = __webpack_require__(14);
-
-	var _lodash2 = _interopRequireDefault(_lodash);
-
-	var _index = __webpack_require__(15);
+	var _index = __webpack_require__(10);
 
 	var _index2 = _interopRequireDefault(_index);
 
@@ -1781,7 +1645,7 @@
 
 	function parseYaml() {
 	  return _lodash2.default.compact(_index2.default.split('\n').map(function (yamlPath) {
-	    var article = __webpack_require__(16)("./" + yamlPath);
+	    var article = __webpack_require__(11)("./" + yamlPath);
 	    if (article.publish) return article;
 	  }));
 	}
@@ -1792,7 +1656,7 @@
 	};
 
 /***/ },
-/* 14 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/**
@@ -16697,19 +16561,19 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)(module), (function() { return this; }())))
 
 /***/ },
-/* 15 */
+/* 10 */
 /***/ function(module, exports) {
 
 	module.exports = "2016/02/21/mithrilify.yml\n2016/02/14/moved-to-gh-page.yml"
 
 /***/ },
-/* 16 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var map = {
-		"./2016/02/14/moved-to-gh-page.yml": 17,
-		"./2016/02/21/mithrilify.yml": 18,
-		"./index.txt": 19
+		"./2016/02/14/moved-to-gh-page.yml": 12,
+		"./2016/02/21/mithrilify.yml": 13,
+		"./index.txt": 14
 	};
 	function webpackContext(req) {
 		return __webpack_require__(webpackContextResolve(req));
@@ -16722,11 +16586,11 @@
 	};
 	webpackContext.resolve = webpackContextResolve;
 	module.exports = webpackContext;
-	webpackContext.id = 16;
+	webpackContext.id = 11;
 
 
 /***/ },
-/* 17 */
+/* 12 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -16742,7 +16606,7 @@
 	};
 
 /***/ },
-/* 18 */
+/* 13 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -16761,10 +16625,146 @@
 	};
 
 /***/ },
-/* 19 */
+/* 14 */
 /***/ function(module, exports) {
 
 	module.exports = "2016/02/21/mithrilify.yml 2016/02/14/moved-to-gh-page.yml";
+
+/***/ },
+/* 15 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _utils = __webpack_require__(8);
+
+	var _utils2 = _interopRequireDefault(_utils);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function model() {
+	  var data = _utils2.default.parseYaml();
+	  return data.map(function (d) {
+	    return {
+	      title: d.title,
+	      date: d.date,
+	      href: d.date.split(' ')[0] + '/' + d.slug
+	    };
+	  });
+	}
+
+	exports.default = model;
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _mithril = __webpack_require__(1);
+
+	var _mithril2 = _interopRequireDefault(_mithril);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function view(ctrl) {
+	  var props = ctrl.props;
+	  return (0, _mithril2.default)('div#article-list', props.map(function (prop) {
+	    return (0, _mithril2.default)('div.title', [(0, _mithril2.default)('a[href=\'/blog/article/' + prop.href + '\']', { config: _mithril2.default.route }, prop.title), (0, _mithril2.default)('span.post-date', '(' + prop.date + ')')]);
+	  }));
+	}
+
+	exports.default = view;
+
+/***/ },
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _controller = __webpack_require__(18);
+
+	var _controller2 = _interopRequireDefault(_controller);
+
+	var _view = __webpack_require__(20);
+
+	var _view2 = _interopRequireDefault(_view);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	exports.default = { controller: _controller2.default, view: _view2.default };
+
+/***/ },
+/* 18 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _mithril = __webpack_require__(1);
+
+	var _mithril2 = _interopRequireDefault(_mithril);
+
+	var _model = __webpack_require__(19);
+
+	var _model2 = _interopRequireDefault(_model);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function controller() {
+	  return {
+	    data: (0, _model2.default)(_mithril2.default.route.param('date'), _mithril2.default.route.param('slug'))
+	  };
+	}
+
+	exports.default = controller;
+
+/***/ },
+/* 19 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _utils = __webpack_require__(8);
+
+	var _utils2 = _interopRequireDefault(_utils);
+
+	var _lodash = __webpack_require__(9);
+
+	var _lodash2 = _interopRequireDefault(_lodash);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function model(date, slug) {
+	  var data = _utils2.default.parseYaml();
+	  var target = _lodash2.default.compact(data.map(function (d) {
+	    if (d.date.split(' ')[0] === date && d.slug === slug) {
+	      return d;
+	    }
+	  }));
+	  return target[0];
+	}
+
+	exports.default = model;
 
 /***/ },
 /* 20 */
@@ -18105,7 +18105,7 @@
 
 	var _controller2 = _interopRequireDefault(_controller);
 
-	var _view = __webpack_require__(25);
+	var _view = __webpack_require__(26);
 
 	var _view2 = _interopRequireDefault(_view);
 
@@ -18151,7 +18151,7 @@
 	  value: true
 	});
 
-	var _tagging = __webpack_require__(26);
+	var _tagging = __webpack_require__(25);
 
 	var _tagging2 = _interopRequireDefault(_tagging);
 
@@ -18168,31 +18168,6 @@
 
 /***/ },
 /* 25 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _mithril = __webpack_require__(1);
-
-	var _mithril2 = _interopRequireDefault(_mithril);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function view(ctrl) {
-	  var props = ctrl.props;
-	  return (0, _mithril2.default)('div', [(0, _mithril2.default)('div#tag-header', (0, _mithril2.default)('h2', [(0, _mithril2.default)('span.glyphicon.glyphicon-tag[aria-hidden="true"]'), props.tag])), (0, _mithril2.default)('div#tag-list', props.data.map(function (prop) {
-	    return (0, _mithril2.default)('div', [(0, _mithril2.default)('a[href=\'/blog/article/' + prop.path + '\']', { config: _mithril2.default.route }, prop.title)]);
-	  }))]);
-	}
-
-	exports.default = view;
-
-/***/ },
-/* 26 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -18227,6 +18202,31 @@
 			}
 		]
 	};
+
+/***/ },
+/* 26 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _mithril = __webpack_require__(1);
+
+	var _mithril2 = _interopRequireDefault(_mithril);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function view(ctrl) {
+	  var props = ctrl.props;
+	  return (0, _mithril2.default)('div', [(0, _mithril2.default)('div#tag-header', (0, _mithril2.default)('h2', [(0, _mithril2.default)('span.glyphicon.glyphicon-tag[aria-hidden="true"]'), props.tag])), (0, _mithril2.default)('div#tag-list', props.data.map(function (prop) {
+	    return (0, _mithril2.default)('div', [(0, _mithril2.default)('a[href=\'/blog/article/' + prop.path + '\']', { config: _mithril2.default.route }, prop.title)]);
+	  }))]);
+	}
+
+	exports.default = view;
 
 /***/ }
 /******/ ]);
