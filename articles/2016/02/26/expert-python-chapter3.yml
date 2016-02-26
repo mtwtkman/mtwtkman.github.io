@@ -1,0 +1,162 @@
+title: pythonの__new__とかtypesなど
+slug: expert-python-chapter3
+utime: 1456457568
+date: 2016/02/26 12:32:48
+tags:
+  - python
+publish: true
+body: |-
+  pythonコードの読み書き練習のために便利ツールの[percol](https://github.com/mooz/percol)のリファクタリングを始めました。
+
+  `percol.finder`という文字列検索処理をしてるっぽいモジュールでメタクラスが使われていたのでメタクラスについてエキパイを読み直しました。
+
+  つっても、`percol.finder.Finder`クラスは[ただの抽象基底クラスというだけっぽい。](https://github.com/mooz/percol/blob/master/percol/finder.py#L11-L37)
+
+  メタプログラミングなんて高度なことをする場面は中々ないと思うけど、とりあえず`__new__`と`type()`について忘れたくないのでメモ。
+
+  ```
+  $ python -V
+  Python 3.5.0
+  ```
+
+  # \_\_new\_\_
+  `__new__`はインスタンスを作成しようとする時に毎回実行される。エキパイ的には`meta-constructor`と説明されている。
+
+  ```python
+  class C(object):
+    def __new__(cls, *args, **kwargs):
+        print('args: {}'.format(args))
+        print('kargs: {}'.format(kwargs))
+        print('__new__ called.')
+        ins = object.__new__(cls)
+        print('created instance')
+        ins.hoge = 'hoge'
+        return ins
+
+    def __init__(self, arg):
+        print('__init__ called.')
+        self._fuga = arg
+
+    @property
+    def fuga(self):
+        return self._fuga + self.hoge
+
+
+  print(C('fuga').fuga)
+  # args: ('fuga',)
+  # kargs: {}
+  # __new__ called.
+  # created instance
+  # __init__ called.
+  # fugahoge
+  ```
+
+  `__new__`はクラスオブジェクトを引数にとって必ずインスタンスを返さなくてはいけない。つまり、インスタンスを作成する前にクラスオブジェクトを煮るなる焼くなり自由にいじり倒すことができるわけだ。
+
+  で、この`C`クラスを継承した場合、子クラスから親クラスの`__init__()`を呼び出すには`super()`をしないといけない。
+
+  ```pytyhon
+  class C(object):
+      def __new__(cls, *args, **kwargs):
+          print('C.__new__ called.')
+          return object.__new__(cls)
+
+      def __init__(self):
+          print('C.__init__ called.')
+
+
+  class D(C):
+      def __init__(self):
+          print('D.__init__() called')
+
+
+  class E(C):
+      def __init__(self):
+          super().__init__()
+          print('E.__init__() called')
+
+
+  print(D())
+  # C.__new__ called.
+  # D.__init__() called
+  # <__main__.D object at 0x104616f28>
+
+  print(E())
+  # C.__new__ called.
+  # C.__init__ called.
+  # E.__init__() called
+  # <__main__.E object at 0x104616f98>
+  ```
+
+  なるほど。
+
+  # metaclassとtype
+  `metaclass`はクラスのコンストラクタに渡すキーワード引数になる。python2では`__metaclass__`というクラス属性。
+
+  `metaclass`は`type()`と同じ形式の引数を取る関数が指定する。
+
+  ```python
+  def mymetaclass(cls, base, _dict):
+    if '__cat__' in _dict:
+        _dict['__cat__'] = \
+            'oh! my {}'.format(_dict.get('__cat__', ''))
+    return type(cls, base, _dict)
+
+
+  class A(object, metaclass=mymetaclass):
+      __cat__ = 'neko'
+
+
+  print(a.__cat__)
+  # oh! my neko
+  ```
+
+  全く実用的な例ではないけど、クラスの属性を自由に操作できる。というか、`type()`に渡す基底クラスを変えてしまえば自由にクラスオブジェクトを変更できてしまう。
+
+  エキパイにも
+
+  >For changing the read-write attributes or adding new ones, metaclasses can be avoided for simpler solutions, based on dynamic changes over the class instance.
+
+  というふうに書いてあるし、そう気軽に使っていいものではないことがわかる。(というか、使えないだろう。)
+
+  で、エキパイのこのチャプタの最後にクラスを拡張するパッチの実装があるのでほぼ丸コピ。
+
+  ```python
+  def enhancer_1(cls):
+    cls.contracted_name = ''.join(
+        l for l in cls.__name__ if l.isupper()
+    )
+
+
+  def enhancer_2(cls):
+      def logger(func):
+          def wrapper(*args, **kwargs):
+              print('logging!')
+              return func(*args, **kwargs)
+          return wrapper
+      for el in dir(cls):
+          if el.startswith('_'):
+              continue
+          v = getattr(cls, el)
+          if not hasattr(v, '__func__'):
+              continue
+          setattr(cls, el, logger(v))
+
+
+  def enhance(cls, *enhancers):
+      for e in enhancers:
+          e(cls)
+
+
+  class ThisIsMyClass(object):
+      def hi(self):
+          return 'hi'
+
+
+  enhance(ThisIsMyClass, enhancer_1, enhancer_2)
+  ins = ThisIsMyClass()
+  assert ins.hi() == 'hi'
+  assert ins.__class__.contracted_name == 'TIMC'
+  ```
+
+  なお、メタプログラミングを使うべき時が来、適切に使える時が来るのかガチ不明。

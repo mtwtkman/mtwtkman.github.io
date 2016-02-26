@@ -58,11 +58,11 @@
 
 	var _component4 = _interopRequireDefault(_component3);
 
-	var _component5 = __webpack_require__(17);
+	var _component5 = __webpack_require__(18);
 
 	var _component6 = _interopRequireDefault(_component5);
 
-	var _component7 = __webpack_require__(22);
+	var _component7 = __webpack_require__(23);
 
 	var _component8 = _interopRequireDefault(_component7);
 
@@ -1553,7 +1553,7 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function view(ctrl) {
-	  return (0, _mithril2.default)('div#top-header', 'hi');
+	  return (0, _mithril2.default)('div#top-header', [(0, _mithril2.default)('img#top-img[src="../../../assets/img/avatar.png"]'), (0, _mithril2.default)('div#social-links', [(0, _mithril2.default)('a[href="https://github.com/mtwtkman"]', (0, _mithril2.default)('i.fa.fa-github-alt.my-i-size')), (0, _mithril2.default)('a[href="https://twitter.com/mtwtkman"]', (0, _mithril2.default)('i.fa.fa-twitter.my-i-size'))])]);
 	}
 
 	exports.default = view;
@@ -1572,7 +1572,7 @@
 
 	var _controller2 = _interopRequireDefault(_controller);
 
-	var _view = __webpack_require__(16);
+	var _view = __webpack_require__(17);
 
 	var _view2 = _interopRequireDefault(_view);
 
@@ -1598,7 +1598,7 @@
 
 	var _utils2 = _interopRequireDefault(_utils);
 
-	var _model = __webpack_require__(15);
+	var _model = __webpack_require__(16);
 
 	var _model2 = _interopRequireDefault(_model);
 
@@ -16564,7 +16564,7 @@
 /* 10 */
 /***/ function(module, exports) {
 
-	module.exports = "2016/02/21/mithrilify.yml\n2016/02/14/moved-to-gh-page.yml"
+	module.exports = "2016/02/26/expert-python-chapter3.yml\n2016/02/21/mithrilify.yml\n2016/02/14/moved-to-gh-page.yml"
 
 /***/ },
 /* 11 */
@@ -16573,7 +16573,8 @@
 	var map = {
 		"./2016/02/14/moved-to-gh-page.yml": 12,
 		"./2016/02/21/mithrilify.yml": 13,
-		"./index.txt": 14
+		"./2016/02/26/expert-python-chapter3.yml": 14,
+		"./index.txt": 15
 	};
 	function webpackContext(req) {
 		return __webpack_require__(webpackContextResolve(req));
@@ -16628,10 +16629,26 @@
 /* 14 */
 /***/ function(module, exports) {
 
-	module.exports = "2016/02/21/mithrilify.yml 2016/02/14/moved-to-gh-page.yml";
+	module.exports = {
+		"title": "pythonの__new__とかtypesなど",
+		"slug": "expert-python-chapter3",
+		"utime": 1456457568,
+		"date": "2016/02/26 12:32:48",
+		"tags": [
+			"python"
+		],
+		"publish": true,
+		"body": "pythonコードの読み書き練習のために便利ツールの[percol](https://github.com/mooz/percol)のリファクタリングを始めました。\n\n`percol.finder`という文字列検索処理をしてるっぽいモジュールでメタクラスが使われていたのでメタクラスについてエキパイを読み直しました。\n\nつっても、`percol.finder.Finder`クラスは[ただの抽象基底クラスというだけっぽい。](https://github.com/mooz/percol/blob/master/percol/finder.py#L11-L37)\n\nメタプログラミングなんて高度なことをする場面は中々ないと思うけど、とりあえず`__new__`と`type()`について忘れたくないのでメモ。\n\n```\n$ python -V\nPython 3.5.0\n```\n\n# \\_\\_new\\_\\_\n`__new__`はインスタンスを作成しようとする時に毎回実行される。エキパイ的には`meta-constructor`と説明されている。\n\n```python\nclass C(object):\n  def __new__(cls, *args, **kwargs):\n      print('args: {}'.format(args))\n      print('kargs: {}'.format(kwargs))\n      print('__new__ called.')\n      ins = object.__new__(cls)\n      print('created instance')\n      ins.hoge = 'hoge'\n      return ins\n\n  def __init__(self, arg):\n      print('__init__ called.')\n      self._fuga = arg\n\n  @property\n  def fuga(self):\n      return self._fuga + self.hoge\n\n\nprint(C('fuga').fuga)\n# args: ('fuga',)\n# kargs: {}\n# __new__ called.\n# created instance\n# __init__ called.\n# fugahoge\n```\n\n`__new__`はクラスオブジェクトを引数にとって必ずインスタンスを返さなくてはいけない。つまり、インスタンスを作成する前にクラスオブジェクトを煮るなる焼くなり自由にいじり倒すことができるわけだ。\n\nで、この`C`クラスを継承した場合、子クラスから親クラスの`__init__()`を呼び出すには`super()`をしないといけない。\n\n```pytyhon\nclass C(object):\n    def __new__(cls, *args, **kwargs):\n        print('C.__new__ called.')\n        return object.__new__(cls)\n\n    def __init__(self):\n        print('C.__init__ called.')\n\n\nclass D(C):\n    def __init__(self):\n        print('D.__init__() called')\n\n\nclass E(C):\n    def __init__(self):\n        super().__init__()\n        print('E.__init__() called')\n\n\nprint(D())\n# C.__new__ called.\n# D.__init__() called\n# <__main__.D object at 0x104616f28>\n\nprint(E())\n# C.__new__ called.\n# C.__init__ called.\n# E.__init__() called\n# <__main__.E object at 0x104616f98>\n```\n\nなるほど。\n\n# metaclassとtype\n`metaclass`はクラスのコンストラクタに渡すキーワード引数になる。python2では`__metaclass__`というクラス属性。\n\n`metaclass`は`type()`と同じ形式の引数を取る関数が指定する。\n\n```python\ndef mymetaclass(cls, base, _dict):\n  if '__cat__' in _dict:\n      _dict['__cat__'] = \\\n          'oh! my {}'.format(_dict.get('__cat__', ''))\n  return type(cls, base, _dict)\n\n\nclass A(object, metaclass=mymetaclass):\n    __cat__ = 'neko'\n\n\nprint(a.__cat__)\n# oh! my neko\n```\n\n全く実用的な例ではないけど、クラスの属性を自由に操作できる。というか、`type()`に渡す基底クラスを変えてしまえば自由にクラスオブジェクトを変更できてしまう。\n\nエキパイにも\n\n>For changing the read-write attributes or adding new ones, metaclasses can be avoided for simpler solutions, based on dynamic changes over the class instance.\n\nというふうに書いてあるし、そう気軽に使っていいものではないことがわかる。(というか、使えないだろう。)\n\nで、エキパイのこのチャプタの最後にクラスを拡張するパッチの実装があるのでほぼ丸コピ。\n\n```python\ndef enhancer_1(cls):\n  cls.contracted_name = ''.join(\n      l for l in cls.__name__ if l.isupper()\n  )\n\n\ndef enhancer_2(cls):\n    def logger(func):\n        def wrapper(*args, **kwargs):\n            print('logging!')\n            return func(*args, **kwargs)\n        return wrapper\n    for el in dir(cls):\n        if el.startswith('_'):\n            continue\n        v = getattr(cls, el)\n        if not hasattr(v, '__func__'):\n            continue\n        setattr(cls, el, logger(v))\n\n\ndef enhance(cls, *enhancers):\n    for e in enhancers:\n        e(cls)\n\n\nclass ThisIsMyClass(object):\n    def hi(self):\n        return 'hi'\n\n\nenhance(ThisIsMyClass, enhancer_1, enhancer_2)\nins = ThisIsMyClass()\nassert ins.hi() == 'hi'\nassert ins.__class__.contracted_name == 'TIMC'\n```\n\nなお、メタプログラミングを使うべき時が来、適切に使える時が来るのかガチ不明。"
+	};
 
 /***/ },
 /* 15 */
+/***/ function(module, exports) {
+
+	module.exports = "2016/02/26/expert-python-chapter3.yml 2016/02/21/mithrilify.yml 2016/02/14/moved-to-gh-page.yml";
+
+/***/ },
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16660,7 +16677,7 @@
 	exports.default = model;
 
 /***/ },
-/* 16 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16685,7 +16702,7 @@
 	exports.default = view;
 
 /***/ },
-/* 17 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16694,11 +16711,11 @@
 	  value: true
 	});
 
-	var _controller = __webpack_require__(18);
+	var _controller = __webpack_require__(19);
 
 	var _controller2 = _interopRequireDefault(_controller);
 
-	var _view = __webpack_require__(20);
+	var _view = __webpack_require__(21);
 
 	var _view2 = _interopRequireDefault(_view);
 
@@ -16707,7 +16724,7 @@
 	exports.default = { controller: _controller2.default, view: _view2.default };
 
 /***/ },
-/* 18 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16720,7 +16737,7 @@
 
 	var _mithril2 = _interopRequireDefault(_mithril);
 
-	var _model = __webpack_require__(19);
+	var _model = __webpack_require__(20);
 
 	var _model2 = _interopRequireDefault(_model);
 
@@ -16735,7 +16752,7 @@
 	exports.default = controller;
 
 /***/ },
-/* 19 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16767,7 +16784,7 @@
 	exports.default = model;
 
 /***/ },
-/* 20 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16780,7 +16797,7 @@
 
 	var _mithril2 = _interopRequireDefault(_mithril);
 
-	var _marked = __webpack_require__(21);
+	var _marked = __webpack_require__(22);
 
 	var _marked2 = _interopRequireDefault(_marked);
 
@@ -16800,7 +16817,7 @@
 	exports.default = view;
 
 /***/ },
-/* 21 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -18092,7 +18109,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 22 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -18101,11 +18118,11 @@
 	  value: true
 	});
 
-	var _controller = __webpack_require__(23);
+	var _controller = __webpack_require__(24);
 
 	var _controller2 = _interopRequireDefault(_controller);
 
-	var _view = __webpack_require__(26);
+	var _view = __webpack_require__(27);
 
 	var _view2 = _interopRequireDefault(_view);
 
@@ -18114,7 +18131,7 @@
 	exports.default = { controller: _controller2.default, view: _view2.default };
 
 /***/ },
-/* 23 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -18127,7 +18144,7 @@
 
 	var _mithril2 = _interopRequireDefault(_mithril);
 
-	var _model = __webpack_require__(24);
+	var _model = __webpack_require__(25);
 
 	var _model2 = _interopRequireDefault(_model);
 
@@ -18142,7 +18159,7 @@
 	exports.default = controller;
 
 /***/ },
-/* 24 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -18151,7 +18168,7 @@
 	  value: true
 	});
 
-	var _tagging = __webpack_require__(25);
+	var _tagging = __webpack_require__(26);
 
 	var _tagging2 = _interopRequireDefault(_tagging);
 
@@ -18167,7 +18184,7 @@
 	exports.default = model;
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -18193,6 +18210,10 @@
 			{
 				"path": "2016/02/21/mithrilify",
 				"title": "github pagesの構成を変えた"
+			},
+			{
+				"path": "2016/02/26/expert-python-chapter3",
+				"title": "pythonの__new__とかtypesなど"
 			}
 		],
 		"webpack": [
@@ -18204,7 +18225,7 @@
 	};
 
 /***/ },
-/* 26 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';

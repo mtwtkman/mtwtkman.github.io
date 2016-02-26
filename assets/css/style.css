@@ -1,3 +1,13 @@
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
 .hljs {
   background: #f5f5f5 !important
 }
@@ -30,8 +40,33 @@
  * top
  */
 div#top-header {
-  font-size: 120px;
+  margin: -200px 0 0 -200px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 400px;
+  height: 400px;
   text-align: center;
+}
+
+img#top-img {
+  border-radius: 50%;
+  width: 200px;
+}
+
+div#social-links {
+  margin-top: 10px;
+}
+
+div#social-links > a {
+  text-decoration: none;
+  color: #6e6e6e;
+}
+
+i.my-i-size {
+  padding-right: 3px;
+  padding-left: 3px;
+  font-size: 30px;
 }
 
 /*

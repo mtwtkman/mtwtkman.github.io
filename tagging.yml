@@ -9,6 +9,8 @@ mithril:
 python:
 - {path: 2016/02/21/mithrilify, title: "github pages\u306E\u69CB\u6210\u3092\u5909\
     \u3048\u305F"}
+- {path: 2016/02/26/expert-python-chapter3, title: "python\u306E__new__\u3068\u304B\
+    types\u306A\u3069"}
 webpack:
 - {path: 2016/02/21/mithrilify, title: "github pages\u306E\u69CB\u6210\u3092\u5909\
     \u3048\u305F"}
