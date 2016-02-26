@@ -16737,6 +16737,10 @@
 
 	var _mithril2 = _interopRequireDefault(_mithril);
 
+	var _utils = __webpack_require__(8);
+
+	var _utils2 = _interopRequireDefault(_utils);
+
 	var _model = __webpack_require__(20);
 
 	var _model2 = _interopRequireDefault(_model);
@@ -16744,6 +16748,7 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function controller() {
+	  _utils2.default.toggleNavbar('blog');
 	  return {
 	    data: (0, _model2.default)(_mithril2.default.route.param('date'), _mithril2.default.route.param('slug'))
 	  };
@@ -18144,6 +18149,10 @@
 
 	var _mithril2 = _interopRequireDefault(_mithril);
 
+	var _utils = __webpack_require__(8);
+
+	var _utils2 = _interopRequireDefault(_utils);
+
 	var _model = __webpack_require__(25);
 
 	var _model2 = _interopRequireDefault(_model);
@@ -18151,6 +18160,7 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function controller() {
+	  _utils2.default.toggleNavbar('blog');
 	  return {
 	    props: (0, _model2.default)(_mithril2.default.route.param('name'))
 	  };
