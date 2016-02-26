@@ -3,6 +3,10 @@
   "version": "0.0.0",
   "description": "",
   "main": "index.js",
+  "scripts": {
+    "webpack": "webpack",
+    "watch": "webpack --watch"
+  },
   "dependencies": {
     "lodash": "~4.5.0",
     "marked": "^0.3.5",
@@ -16,9 +20,6 @@
     "raw-loader": "^0.5.1",
     "webpack": "~1.12.13",
     "yaml-loader": "^0.1.0"
-  },
-  "scripts": {
-    "webpack": "webpack"
   },
   "repository": {
     "type": "git",
