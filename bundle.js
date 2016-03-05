@@ -17419,7 +17419,7 @@
 /***/ function(module, exports) {
 
 	module.exports = {
-		"title": "pythonの__new__とかtypesなど",
+		"title": "pythonの__new__とかtypeなど",
 		"slug": "expert-python-chapter3",
 		"utime": 1456457568,
 		"date": "2016/02/26 12:32:48",
@@ -17569,9 +17569,9 @@
 
 	function view(ctrl) {
 	  var data = ctrl.data;
-	  return (0, _mithril2.default)('div', [(0, _mithril2.default)('div#article-header.container', [(0, _mithril2.default)('h1', data.title), (0, _mithril2.default)('div#description', data.description), (0, _mithril2.default)('div#article-date', [(0, _mithril2.default)('span.glyphicon.glyphicon-time[aria-hidden="true"]'), data.date]), (0, _mithril2.default)('div#tags', data.tags.map(function (tag) {
+	  return (0, _mithril2.default)('section', [(0, _mithril2.default)('header', [(0, _mithril2.default)('h1', data.title), (0, _mithril2.default)('div#description', data.description), (0, _mithril2.default)('div#article-date', [(0, _mithril2.default)('span.glyphicon.glyphicon-time[aria-hidden="true"]'), data.date]), (0, _mithril2.default)('div#tags', data.tags.map(function (tag) {
 	    return (0, _mithril2.default)('span.tag', (0, _mithril2.default)('a[href=\'/blog/tag/' + tag + '\']', { config: _mithril2.default.route }, [(0, _mithril2.default)('span.glyphicon.glyphicon-tag[aria-hidden="true"]'), tag]));
-	  })), (0, _mithril2.default)('div#border')]), (0, _mithril2.default)('div#content', [(0, _mithril2.default)('div#utime=\'' + data.utime + '\'', _mithril2.default.trust((0, _marked2.default)(data.body)))])]);
+	  })), (0, _mithril2.default)('div#border')]), (0, _mithril2.default)('article', [(0, _mithril2.default)('div#utime=\'' + data.utime + '\'', _mithril2.default.trust((0, _marked2.default)(data.body)))]), (0, _mithril2.default)('footer', [(0, _mithril2.default)('div#back', [(0, _mithril2.default)('a.btn.btn-default[href="/blog/"]', { config: _mithril2.default.route }, 'back')])])]);
 	}
 
 	exports.default = view;
@@ -18973,7 +18973,7 @@
 			},
 			{
 				"path": "2016/02/26/expert-python-chapter3",
-				"title": "pythonの__new__とかtypesなど"
+				"title": "pythonの__new__とかtypeなど"
 			}
 		],
 		"webpack": [

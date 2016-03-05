@@ -8,8 +8,8 @@ marked.setOptions({
 
 function view(ctrl) {
   let data = ctrl.data;
-  return m('div', [
-    m('div#article-header.container', [
+  return m('section', [
+    m('header', [
       m('h1', data.title),
       m('div#description', data.description),
       m('div#article-date', [
@@ -24,10 +24,15 @@ function view(ctrl) {
       })),
       m('div#border')
     ]),
-    m('div#content', [
+    m('article', [
       m(`div#utime='${data.utime}'`, m.trust(marked(data.body)))
+    ]),
+    m('footer', [
+      m('div#back', [
+        m('a.btn.btn-default[href="/blog/"]', {config: m.route}, 'back')
+      ])
     ])
-  ])
+  ]);
 }
 
 export default view;
