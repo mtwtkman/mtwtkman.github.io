@@ -3,9 +3,12 @@ import os
 import sys
 import time
 import shutil
-import functools
+import itertools
+import subprocess
 
 import yaml
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 
 
 class FileExistsError(Exception):
@@ -23,11 +26,13 @@ body: |-
 '''
 
 REQUIRED = ['title', 'slug', 'utime', 'date', 'publish', 'body']
+NODE_BIN = 'node_modules/.bin'
 
 
 def build():
     reindex()
     tagging()
+
 
 def new(slug):
     utime = int(time.time())
@@ -89,12 +94,58 @@ def tagging():
             for tag in data['tags']:
                 t = result.setdefault(tag, [])
                 t.append({
-                    'path': os.path.join(root.replace('./articles/', ''), _file.replace('.yml', '')),
+                    'path': os.path.join(root.replace('./articles/', ''),
+                                         _file.replace('.yml', '')),
                     'title': data['title']
                 })
 
     with open('tagging.yml', 'w') as f:
         f.write(yaml.dump(result))
+
+
+def css():
+    os.mkdir('tmp')
+    i = itertools.count(1)
+    for root, dirs, files in os.walk('./assets/styl'):
+        for _file in files:
+            subprocess.call([
+                os.path.join(NODE_BIN, 'stylus'),
+                os.path.join(root, _file),
+                '-o',
+                './tmp/{}.css'.format(next(i))
+            ])
+    cmd = ' '.join([
+        os.path.join(NODE_BIN, 'cleancss'),
+        './tmp/*.css',
+        '-o',
+        'bundle.css'
+    ])
+    subprocess.call([cmd], shell=True)
+    shutil.rmtree('./tmp')
+
+
+class StylEventHandler(FileSystemEventHandler):
+    def on_modified(self, event):
+        print('build styl.')
+        css()
+
+
+def watch():
+
+    # stylus watch
+    observer = Observer()
+    handler = StylEventHandler()
+    observer.schedule(handler, './assets/styl', recursive=True)
+    observer.start()
+    try:
+        # webpack watch
+        subprocess.call([os.path.join(NODE_BIN, 'webpack'), '--watch'])
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        observer.stop()
+    observer.join()
+
 
 if __name__ == '__main__':
     assert len(sys.argv) != 1
@@ -111,5 +162,9 @@ if __name__ == '__main__':
         tagging()
     elif cmd == 'build':
         build()
+    elif cmd == 'css':
+        css()
+    elif cmd == 'watch':
+        watch()
     else:
         print('invalid command')
