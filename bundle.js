@@ -17454,9 +17454,9 @@
 
 	function view(ctrl) {
 	  var props = ctrl.props;
-	  return (0, _mithril2.default)('div#article-list', props.map(function (prop) {
+	  return (0, _mithril2.default)('div#article-list-wrapper', [(0, _mithril2.default)('div#article-list', props.map(function (prop) {
 	    return (0, _mithril2.default)('div.title', [(0, _mithril2.default)('a[href=\'/blog/article/' + prop.href + '\']', { config: _mithril2.default.route }, prop.title), (0, _mithril2.default)('span.post-date', '(' + prop.date + ')')]);
-	  }));
+	  })), (0, _mithril2.default)('div#footer-trans'), (0, _mithril2.default)('div#footer', [(0, _mithril2.default)('a[href="/"]', { config: _mithril2.default.route }, (0, _mithril2.default)('img[src="../../../../assets/img/avatar.png"]'))])]);
 	}
 
 	exports.default = view;
