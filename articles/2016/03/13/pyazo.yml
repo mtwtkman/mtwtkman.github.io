@@ -1,0 +1,17 @@
+title: Gyazo APIのクライアントを雑に作った
+slug: pyazo
+utime: 1457828361
+date: 2016/03/13 09:19:21
+tags:
+  - python
+publish: true
+body: |-
+  Gyazo APIが非常にシンプルなため本当にシンプルな面白みのない実装になりました。
+
+  [pypi](https://pypi.python.org/pypi/pyazo)
+
+  [github](https://github.com/mtwtkman/pyazo)
+
+  pyazoって名前は別言語でかぶってたりしてアレ感ある。
+
+  ところでこういう外部のAPIのテストってどうしたらいいんじゃろ

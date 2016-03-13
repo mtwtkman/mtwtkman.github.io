@@ -58,11 +58,11 @@
 
 	var _component4 = _interopRequireDefault(_component3);
 
-	var _component5 = __webpack_require__(18);
+	var _component5 = __webpack_require__(19);
 
 	var _component6 = _interopRequireDefault(_component5);
 
-	var _component7 = __webpack_require__(23);
+	var _component7 = __webpack_require__(24);
 
 	var _component8 = _interopRequireDefault(_component7);
 
@@ -2313,7 +2313,7 @@
 
 	var _controller2 = _interopRequireDefault(_controller);
 
-	var _view = __webpack_require__(17);
+	var _view = __webpack_require__(18);
 
 	var _view2 = _interopRequireDefault(_view);
 
@@ -17353,7 +17353,7 @@
 /* 11 */
 /***/ function(module, exports) {
 
-	module.exports = "2016/02/26/expert-python-chapter3.yml\n2016/02/21/mithrilify.yml\n2016/02/14/moved-to-gh-page.yml"
+	module.exports = "2016/03/13/pyazo.yml\n2016/02/26/expert-python-chapter3.yml\n2016/02/21/mithrilify.yml\n2016/02/14/moved-to-gh-page.yml"
 
 /***/ },
 /* 12 */
@@ -17363,7 +17363,8 @@
 		"./2016/02/14/moved-to-gh-page.yml": 13,
 		"./2016/02/21/mithrilify.yml": 14,
 		"./2016/02/26/expert-python-chapter3.yml": 15,
-		"./index.txt": 16
+		"./2016/03/13/pyazo.yml": 16,
+		"./index.txt": 17
 	};
 	function webpackContext(req) {
 		return __webpack_require__(webpackContextResolve(req));
@@ -17434,10 +17435,26 @@
 /* 16 */
 /***/ function(module, exports) {
 
-	module.exports = "2016/02/26/expert-python-chapter3.yml 2016/02/21/mithrilify.yml 2016/02/14/moved-to-gh-page.yml";
+	module.exports = {
+		"title": "Gyazo APIのクライアントを雑に作った",
+		"slug": "pyazo",
+		"utime": 1457828361,
+		"date": "2016/03/13 09:19:21",
+		"tags": [
+			"python"
+		],
+		"publish": true,
+		"body": "Gyazo APIが非常にシンプルなため本当にシンプルな面白みのない実装になりました。\n\n[pypi](https://pypi.python.org/pypi/pyazo)\n\n[github](https://github.com/mtwtkman/pyazo)\n\npyazoって名前は別言語でかぶってたりしてアレ感ある。\n\nところでこういう外部のAPIのテストってどうしたらいいんじゃろ"
+	};
 
 /***/ },
 /* 17 */
+/***/ function(module, exports) {
+
+	module.exports = "2016/03/13/pyazo.yml 2016/02/26/expert-python-chapter3.yml 2016/02/21/mithrilify.yml 2016/02/14/moved-to-gh-page.yml";
+
+/***/ },
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -17462,7 +17479,7 @@
 	exports.default = view;
 
 /***/ },
-/* 18 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -17471,11 +17488,11 @@
 	  value: true
 	});
 
-	var _controller = __webpack_require__(19);
+	var _controller = __webpack_require__(20);
 
 	var _controller2 = _interopRequireDefault(_controller);
 
-	var _view = __webpack_require__(21);
+	var _view = __webpack_require__(22);
 
 	var _view2 = _interopRequireDefault(_view);
 
@@ -17484,7 +17501,7 @@
 	exports.default = { controller: _controller2.default, view: _view2.default };
 
 /***/ },
-/* 19 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -17497,7 +17514,7 @@
 
 	var _mithril2 = _interopRequireDefault(_mithril);
 
-	var _model = __webpack_require__(20);
+	var _model = __webpack_require__(21);
 
 	var _model2 = _interopRequireDefault(_model);
 
@@ -17512,7 +17529,7 @@
 	exports.default = controller;
 
 /***/ },
-/* 20 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -17544,7 +17561,7 @@
 	exports.default = model;
 
 /***/ },
-/* 21 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -17557,7 +17574,7 @@
 
 	var _mithril2 = _interopRequireDefault(_mithril);
 
-	var _marked = __webpack_require__(22);
+	var _marked = __webpack_require__(23);
 
 	var _marked2 = _interopRequireDefault(_marked);
 
@@ -17577,7 +17594,7 @@
 	exports.default = view;
 
 /***/ },
-/* 22 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -18869,7 +18886,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 23 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -18878,11 +18895,11 @@
 	  value: true
 	});
 
-	var _controller = __webpack_require__(24);
+	var _controller = __webpack_require__(25);
 
 	var _controller2 = _interopRequireDefault(_controller);
 
-	var _view = __webpack_require__(27);
+	var _view = __webpack_require__(28);
 
 	var _view2 = _interopRequireDefault(_view);
 
@@ -18891,7 +18908,7 @@
 	exports.default = { controller: _controller2.default, view: _view2.default };
 
 /***/ },
-/* 24 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -18904,7 +18921,7 @@
 
 	var _mithril2 = _interopRequireDefault(_mithril);
 
-	var _model = __webpack_require__(25);
+	var _model = __webpack_require__(26);
 
 	var _model2 = _interopRequireDefault(_model);
 
@@ -18919,7 +18936,7 @@
 	exports.default = controller;
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -18928,7 +18945,7 @@
 	  value: true
 	});
 
-	var _tagging = __webpack_require__(26);
+	var _tagging = __webpack_require__(27);
 
 	var _tagging2 = _interopRequireDefault(_tagging);
 
@@ -18944,7 +18961,7 @@
 	exports.default = model;
 
 /***/ },
-/* 26 */
+/* 27 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -18974,6 +18991,10 @@
 			{
 				"path": "2016/02/26/expert-python-chapter3",
 				"title": "pythonの__new__とかtypeなど"
+			},
+			{
+				"path": "2016/03/13/pyazo",
+				"title": "Gyazo APIのクライアントを雑に作った"
 			}
 		],
 		"webpack": [
@@ -18985,7 +19006,7 @@
 	};
 
 /***/ },
-/* 27 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
