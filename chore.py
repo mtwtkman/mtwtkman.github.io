@@ -150,14 +150,14 @@ def man():
     print('\n'.join([
         'Commands are:',
         ' --- To create/delete article ---',
-        ' new <slug>:            create new article.',
-        ' del YYYY/MM/DD/<slug>: delete article.',
+        ' new <slug>                 : create new article.',
+        ' del <YYYY>/<MM>/<DD>/<slug>: delete article.',
         '',
         ' --- To build ---',
-        ' idx:   create index list.',
-        ' tag:   create tag list.',
+        ' idx  : create index list.',
+        ' tag  : create tag list.',
         ' build: build all articles.',
-        ' css:   compile stylesheets.',
+        ' css  : compile stylesheets.',
         ' watch: start watch tasks.'
     ]))
 
@@ -181,7 +181,5 @@ if __name__ == '__main__':
         css()
     elif cmd == 'watch':
         watch()
-    elif cmd == 'man':
-        man()
     else:
-        print('invalid command')
+        man()
