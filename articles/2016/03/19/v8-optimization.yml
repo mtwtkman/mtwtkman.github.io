@@ -1,0 +1,239 @@
+title: V8で最適化されないjavascript
+slug: v8-optimization
+utime: 1458391960
+date: 2016/03/19 21:52:40
+tags:
+  - javascript
+publish: true
+body: |-
+  [mithril](https://github.com/lhorie/mithril.js)のコードを読んでいて`for`文で`argumets`の要素をぐるぐる回しながらインデクスアクセスをして配列にデータを詰め込んでる処理が気持ち悪かったので`map`にしてプルリクしたところ、
+  パフォーマンスを理由にリジェクトされました。
+
+  で、そのプルリクでもらった返答にV8の最適化についてのリンクを併記してもらっていたので読むことにしました。
+
+  ちなみに[プルリクで修正した内容](https://github.com/lhorie/mithril.js/pull/993/commits/f384054947681d10696fcfeb2fab71f2a40dde1d)はクソ単純で
+  Arraylikeな`arguments`を`slice`で回すというものです。
+
+  [Optimization killersのリンク](https://github.com/petkaantonov/bluebird/wiki/Optimization-killers)
+
+  # Unsupported syntax
+  2016/3/19現在、V8で最適化できない構文がいくつかある。
+
+  - Generator functions
+  - Functions that contain a for-of statement
+  - Functions that contain a try-catch statement
+  - Functions that contain a try-finally statement
+  - Functions that contain a compound let assignment
+  - Functions that contain a compound const assignment
+  - Functions that contain object literals that contain __proto__, or get or set declarations.
+
+  `try`文ダメってキツそう。あと`for-of`が最適化されないのもつらい。まあ`for-of`が最適化されるならそっち使うよな。
+
+  generatorもダメとは…こう見ると単純にES2015以降に対応しきれていないだけという感じか。
+
+  あとは↓の場合もダメっぽい
+
+  - Functions that contain a debugger statement
+  - Functions that call literally eval()
+  - Functions that contain a with statement
+
+  VBAみたいで悔しい思いをしそうな`with`を使うことはない気がするけど、`eval`や`with`を最適化ができない理由はスコープの判定ができないからとのことらしい。(曖昧)
+
+  で、プロダクトコードで例外処理を避けるわけにもいかんということでワークアラウンドなコード例が書いてあったのでそのまま引用。
+
+  ```javascript
+  var errorObject = {value: null};
+  function tryCatch(fn, ctx, args) {
+      try {
+          return fn.apply(ctx, args);
+      }
+      catch(e) {
+          errorObject.value = e;
+          return errorObject;
+      }
+  }
+
+  var result = tryCatch(mightThrow, void 0, [1,2,3]);
+  //Unambiguously tells whether the call threw
+  if(result === errorObject) {
+      var error = errorObject.value;
+  }
+  else {
+      //result is the returned value
+  }
+  ```
+
+  エラーハンドリングは独立した最小限の関数に切り出すのが良いらしい。
+  そうすれば最適化されない範囲が最小限になるということだ。
+
+
+  # Managing `arguments`
+  `arguments`は最適化を阻害する多数の原因になりうるやつだそうだ。
+
+  ## 1. sloppyモード(=strictモードじゃないやつ)で`arguments`を評価しながら定義済みの引数に再代入する場合
+  何言ってんだ？？？？例を見てみよう
+
+  ```javascript
+  function defaultArgsReassign(a, b) {
+    if (arguments.length < 2) b = 5;
+  }
+  ```
+
+  とにかくこれがダメということらしい。じゃあどうしたらいいのかというと引数の値を新しい変数に保存しましょうとのこと
+
+  ```javascript
+  function reAssignParam(a, b_) {
+    var b = b_;
+    //unlike b_, b can safely be reassigned
+    if (arguments.length < 2) b = 5;
+  }
+  ```
+
+  ただし、今回の場合だとただ引数が与えられているのかをチェックしているだけなので下記のように書くのがいいっぽい。
+
+  ```javascript
+  function reAssignParam(a, b) {
+    if (b === void 0) b = 5;
+  }
+  ```
+
+  まあでもおとなしく端からstrictモードにしておけば考える必要のない問題ですね。
+
+  ## 2. `arguments`漏れ
+  ```javascript
+  function leaksArguments1() {
+    return arguments;
+  }
+
+  function leaksArguments2() {
+    var args = [].slice.call(arguments);
+  }
+
+  function leaksArguments3() {
+    var a = arguments;
+    return function() {
+        return a;
+    };
+  }
+  ```
+
+  今回のプルリクで指摘されたのが`leaksArguments2`と同じケースだった。`arguments`はどこにも漏らしたり渡したりしてはいけないらしい。
+
+  つまり`slice.call`や`map`の引数に渡すのはご法度いうわけだ。対処法は以下(mithrilの`m()`でまさに下の実装になっていた)
+
+  ```javascript
+  function doesntLeakArguments() {
+                    //.length is just an integer, this doesn't leak
+                    //the arguments object itself
+    var args = new Array(arguments.length);
+    for(var i = 0; i < args.length; ++i) {
+                //i is always valid index in the arguments object
+        args[i] = arguments[i];
+    }
+    return args;
+  }
+  ```
+
+  ## 3. `arguments`への代入
+  こんなことする必要性がないと思うけど、これも例によってsloppyモードの時だけ。
+
+  ```javascript
+  function assignToArguments() {
+    arguments = 3;
+    return arguments;
+  }
+  ```
+
+  ## 結局のところ`arguments`はどうやったら安全に扱えるのか
+  以下を厳守すればok
+
+  - `arguments.length`使おう。
+  - 適切なインデクスアクセスで`arguments`の要素を取得する。で、そいつは外に出さない。
+  - `argumets`を**絶対に**直接扱わない。`.length`やインデクスアクセスは`arguments`そのものじゃないからおk。
+  - **厳密に言えば**`fn.apply(y, arguments)`はおk。他はいかなる場合もダメ。例えば`.slice`とか。 `Function#apply`だけが特別。
+  - `Function#apply`を使って関数のプロパティを追加するときと`Function#bind`で隠れクラスができてしまうような場合に気をつける。
+
+
+  # Switch-case
+  `switch`文は`case`の節が128を超えると最適化がされなくなる。なので`if-else`使おう。
+
+  # For-in
+  幾つかの場合で最適化を妨げることになる。
+
+  ## 1. キーがローカル変数でない場合
+  ```javascript
+  function nonLocalKey1() {
+    var obj = {}
+    for(var key in obj);
+    return function() {
+        return key;
+    };
+  }
+
+  var key;
+  function nonLocalKey2() {
+    var obj = {}
+    for(key in obj);
+  }
+  ```
+
+  そもそもオブジェクトのキーは上のスコープから参照できない。純粋にローカルスコープの変数でないとダメ。
+
+  ## 2. イテレートできるようなオブジェクトは'simple enumerable'ではない
+  ### `hash table mode`(あるいは`normalized objects`, `dictionary mode`)のオブジェクトは'simple enumerable'ではない。
+
+  ```javascript
+  function hashTableIteration() {
+    var hashTable = {"-": 3};
+    for(var key in hashTable);
+  }
+  ```
+
+  これわかりづらいのだけど、コンストラクタ外で動的に`hash table mode`のオブジェクトを作るのがよくないらしい。
+
+  オブジェクトが`hash table mode`になっているかはコード内に`console.log(%HasFastProperties(obj))`を仕込んでnodeのオプションに`--allow-natives-syntax`を指定してやればいいらしい。
+
+
+  ### プロトタイプチェインで定義されたオブジェクトがenumerableなプロパティを持っている
+
+  ```javascript
+  Object.prototype.fn = function() {};
+  ```
+
+  プロトタイプチェインで追加した値は`for-in`文を含んでしまうらしい。
+
+  `Object.defineProperty`を使えばそれは避けられるらしい。慣れていないと難しい話だ。
+
+  ### 配列のインデクスを持っている
+  これは結構やりがちかもしれない
+
+  ```javascript
+  function iteratesOverArray() {
+    var arr = [1, 2, 3];
+    for (var index in arr) {
+
+    }
+  }
+  ```
+
+  そもそも`for-in`は`for`より遅いらしい。なおかつ`for-in`を含む関数は含んでいるというそれだけで関数全体の最適化がなされない。
+
+  これらの問題に対する処置としてキー名のリストを作ってしまえということだ。
+
+  ```javascript
+  function inheritedKeys(obj) {
+    var ret = [];
+    for(var key in obj) {
+        ret.push(key);
+    }
+    return ret;
+  }
+  ```
+
+  まじかよ
+
+
+  # 無限ループと曖昧な脱出の条件
+  必ず一回はループを通るなら`do-while`使おう。あとはまあロジックを踏まえて適切にexit仕掛けようね。ということらしい。
+
+  現場からは以上です。

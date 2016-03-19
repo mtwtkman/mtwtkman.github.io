@@ -58,11 +58,11 @@
 
 	var _component4 = _interopRequireDefault(_component3);
 
-	var _component5 = __webpack_require__(19);
+	var _component5 = __webpack_require__(20);
 
 	var _component6 = _interopRequireDefault(_component5);
 
-	var _component7 = __webpack_require__(24);
+	var _component7 = __webpack_require__(25);
 
 	var _component8 = _interopRequireDefault(_component7);
 
@@ -2313,7 +2313,7 @@
 
 	var _controller2 = _interopRequireDefault(_controller);
 
-	var _view = __webpack_require__(18);
+	var _view = __webpack_require__(19);
 
 	var _view2 = _interopRequireDefault(_view);
 
@@ -17353,7 +17353,7 @@
 /* 11 */
 /***/ function(module, exports) {
 
-	module.exports = "2016/03/13/pyazo.yml\n2016/02/26/expert-python-chapter3.yml\n2016/02/21/mithrilify.yml\n2016/02/14/moved-to-gh-page.yml"
+	module.exports = "2016/03/19/v8-optimization.yml\n2016/03/13/pyazo.yml\n2016/02/26/expert-python-chapter3.yml\n2016/02/21/mithrilify.yml\n2016/02/14/moved-to-gh-page.yml"
 
 /***/ },
 /* 12 */
@@ -17364,7 +17364,8 @@
 		"./2016/02/21/mithrilify.yml": 14,
 		"./2016/02/26/expert-python-chapter3.yml": 15,
 		"./2016/03/13/pyazo.yml": 16,
-		"./index.txt": 17
+		"./2016/03/19/v8-optimization.yml": 17,
+		"./index.txt": 18
 	};
 	function webpackContext(req) {
 		return __webpack_require__(webpackContextResolve(req));
@@ -17451,10 +17452,26 @@
 /* 17 */
 /***/ function(module, exports) {
 
-	module.exports = "2016/03/13/pyazo.yml 2016/02/26/expert-python-chapter3.yml 2016/02/21/mithrilify.yml 2016/02/14/moved-to-gh-page.yml";
+	module.exports = {
+		"title": "V8で最適化されないjavascript",
+		"slug": "v8-optimization",
+		"utime": 1458391960,
+		"date": "2016/03/19 21:52:40",
+		"tags": [
+			"javascript"
+		],
+		"publish": true,
+		"body": "[mithril](https://github.com/lhorie/mithril.js)のコードを読んでいて`for`文で`argumets`の要素をぐるぐる回しながらインデクスアクセスをして配列にデータを詰め込んでる処理が気持ち悪かったので`map`にしてプルリクしたところ、\nパフォーマンスを理由にリジェクトされました。\n\nで、そのプルリクでもらった返答にV8の最適化についてのリンクを併記してもらっていたので読むことにしました。\n\nちなみに[プルリクで修正した内容](https://github.com/lhorie/mithril.js/pull/993/commits/f384054947681d10696fcfeb2fab71f2a40dde1d)はクソ単純で\nArraylikeな`arguments`を`slice`で回すというものです。\n\n[Optimization killersのリンク](https://github.com/petkaantonov/bluebird/wiki/Optimization-killers)\n\n# Unsupported syntax\n2016/3/19現在、V8で最適化できない構文がいくつかある。\n\n- Generator functions\n- Functions that contain a for-of statement\n- Functions that contain a try-catch statement\n- Functions that contain a try-finally statement\n- Functions that contain a compound let assignment\n- Functions that contain a compound const assignment\n- Functions that contain object literals that contain __proto__, or get or set declarations.\n\n`try`文ダメってキツそう。あと`for-of`が最適化されないのもつらい。まあ`for-of`が最適化されるならそっち使うよな。\n\ngeneratorもダメとは…こう見ると単純にES2015以降に対応しきれていないだけという感じか。\n\nあとは↓の場合もダメっぽい\n\n- Functions that contain a debugger statement\n- Functions that call literally eval()\n- Functions that contain a with statement\n\nVBAみたいで悔しい思いをしそうな`with`を使うことはない気がするけど、`eval`や`with`を最適化ができない理由はスコープの判定ができないからとのことらしい。(曖昧)\n\nで、プロダクトコードで例外処理を避けるわけにもいかんということでワークアラウンドなコード例が書いてあったのでそのまま引用。\n\n```javascript\nvar errorObject = {value: null};\nfunction tryCatch(fn, ctx, args) {\n    try {\n        return fn.apply(ctx, args);\n    }\n    catch(e) {\n        errorObject.value = e;\n        return errorObject;\n    }\n}\n\nvar result = tryCatch(mightThrow, void 0, [1,2,3]);\n//Unambiguously tells whether the call threw\nif(result === errorObject) {\n    var error = errorObject.value;\n}\nelse {\n    //result is the returned value\n}\n```\n\nエラーハンドリングは独立した最小限の関数に切り出すのが良いらしい。\nそうすれば最適化されない範囲が最小限になるということだ。\n\n\n# Managing `arguments`\n`arguments`は最適化を阻害する多数の原因になりうるやつだそうだ。\n\n## 1. sloppyモード(=strictモードじゃないやつ)で`arguments`を評価しながら定義済みの引数に再代入する場合\n何言ってんだ？？？？例を見てみよう\n\n```javascript\nfunction defaultArgsReassign(a, b) {\n  if (arguments.length < 2) b = 5;\n}\n```\n\nとにかくこれがダメということらしい。じゃあどうしたらいいのかというと引数の値を新しい変数に保存しましょうとのこと\n\n```javascript\nfunction reAssignParam(a, b_) {\n  var b = b_;\n  //unlike b_, b can safely be reassigned\n  if (arguments.length < 2) b = 5;\n}\n```\n\nただし、今回の場合だとただ引数が与えられているのかをチェックしているだけなので下記のように書くのがいいっぽい。\n\n```javascript\nfunction reAssignParam(a, b) {\n  if (b === void 0) b = 5;\n}\n```\n\nまあでもおとなしく端からstrictモードにしておけば考える必要のない問題ですね。\n\n## 2. `arguments`漏れ\n```javascript\nfunction leaksArguments1() {\n  return arguments;\n}\n\nfunction leaksArguments2() {\n  var args = [].slice.call(arguments);\n}\n\nfunction leaksArguments3() {\n  var a = arguments;\n  return function() {\n      return a;\n  };\n}\n```\n\n今回のプルリクで指摘されたのが`leaksArguments2`と同じケースだった。`arguments`はどこにも漏らしたり渡したりしてはいけないらしい。\n\nつまり`slice.call`や`map`の引数に渡すのはご法度いうわけだ。対処法は以下(mithrilの`m()`でまさに下の実装になっていた)\n\n```javascript\nfunction doesntLeakArguments() {\n                  //.length is just an integer, this doesn't leak\n                  //the arguments object itself\n  var args = new Array(arguments.length);\n  for(var i = 0; i < args.length; ++i) {\n              //i is always valid index in the arguments object\n      args[i] = arguments[i];\n  }\n  return args;\n}\n```\n\n## 3. `arguments`への代入\nこんなことする必要性がないと思うけど、これも例によってsloppyモードの時だけ。\n\n```javascript\nfunction assignToArguments() {\n  arguments = 3;\n  return arguments;\n}\n```\n\n## 結局のところ`arguments`はどうやったら安全に扱えるのか\n以下を厳守すればok\n\n- `arguments.length`使おう。\n- 適切なインデクスアクセスで`arguments`の要素を取得する。で、そいつは外に出さない。\n- `argumets`を**絶対に**直接扱わない。`.length`やインデクスアクセスは`arguments`そのものじゃないからおk。\n- **厳密に言えば**`fn.apply(y, arguments)`はおk。他はいかなる場合もダメ。例えば`.slice`とか。 `Function#apply`だけが特別。\n- `Function#apply`を使って関数のプロパティを追加するときと`Function#bind`で隠れクラスができてしまうような場合に気をつける。\n\n\n# Switch-case\n`switch`文は`case`の節が128を超えると最適化がされなくなる。なので`if-else`使おう。\n\n# For-in\n幾つかの場合で最適化を妨げることになる。\n\n## 1. キーがローカル変数でない場合\n```javascript\nfunction nonLocalKey1() {\n  var obj = {}\n  for(var key in obj);\n  return function() {\n      return key;\n  };\n}\n\nvar key;\nfunction nonLocalKey2() {\n  var obj = {}\n  for(key in obj);\n}\n```\n\nそもそもオブジェクトのキーは上のスコープから参照できない。純粋にローカルスコープの変数でないとダメ。\n\n## 2. イテレートできるようなオブジェクトは'simple enumerable'ではない\n### `hash table mode`(あるいは`normalized objects`, `dictionary mode`)のオブジェクトは'simple enumerable'ではない。\n\n```javascript\nfunction hashTableIteration() {\n  var hashTable = {\"-\": 3};\n  for(var key in hashTable);\n}\n```\n\nこれわかりづらいのだけど、コンストラクタ外で動的に`hash table mode`のオブジェクトを作るのがよくないらしい。\n\nオブジェクトが`hash table mode`になっているかはコード内に`console.log(%HasFastProperties(obj))`を仕込んでnodeのオプションに`--allow-natives-syntax`を指定してやればいいらしい。\n\n\n### プロトタイプチェインで定義されたオブジェクトがenumerableなプロパティを持っている\n\n```javascript\nObject.prototype.fn = function() {};\n```\n\nプロトタイプチェインで追加した値は`for-in`文を含んでしまうらしい。\n\n`Object.defineProperty`を使えばそれは避けられるらしい。慣れていないと難しい話だ。\n\n### 配列のインデクスを持っている\nこれは結構やりがちかもしれない\n\n```javascript\nfunction iteratesOverArray() {\n  var arr = [1, 2, 3];\n  for (var index in arr) {\n\n  }\n}\n```\n\nそもそも`for-in`は`for`より遅いらしい。なおかつ`for-in`を含む関数は含んでいるというそれだけで関数全体の最適化がなされない。\n\nこれらの問題に対する処置としてキー名のリストを作ってしまえということだ。\n\n```javascript\nfunction inheritedKeys(obj) {\n  var ret = [];\n  for(var key in obj) {\n      ret.push(key);\n  }\n  return ret;\n}\n```\n\nまじかよ\n\n\n# 無限ループと曖昧な脱出の条件\n必ず一回はループを通るなら`do-while`使おう。あとはまあロジックを踏まえて適切にexit仕掛けようね。ということらしい。\n\n現場からは以上です。"
+	};
 
 /***/ },
 /* 18 */
+/***/ function(module, exports) {
+
+	module.exports = "2016/03/19/v8-optimization.yml 2016/03/13/pyazo.yml 2016/02/26/expert-python-chapter3.yml 2016/02/21/mithrilify.yml 2016/02/14/moved-to-gh-page.yml";
+
+/***/ },
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -17479,7 +17496,7 @@
 	exports.default = view;
 
 /***/ },
-/* 19 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -17488,11 +17505,11 @@
 	  value: true
 	});
 
-	var _controller = __webpack_require__(20);
+	var _controller = __webpack_require__(21);
 
 	var _controller2 = _interopRequireDefault(_controller);
 
-	var _view = __webpack_require__(22);
+	var _view = __webpack_require__(23);
 
 	var _view2 = _interopRequireDefault(_view);
 
@@ -17501,7 +17518,7 @@
 	exports.default = { controller: _controller2.default, view: _view2.default };
 
 /***/ },
-/* 20 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -17514,7 +17531,7 @@
 
 	var _mithril2 = _interopRequireDefault(_mithril);
 
-	var _model = __webpack_require__(21);
+	var _model = __webpack_require__(22);
 
 	var _model2 = _interopRequireDefault(_model);
 
@@ -17529,7 +17546,7 @@
 	exports.default = controller;
 
 /***/ },
-/* 21 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -17561,7 +17578,7 @@
 	exports.default = model;
 
 /***/ },
-/* 22 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -17574,7 +17591,7 @@
 
 	var _mithril2 = _interopRequireDefault(_mithril);
 
-	var _marked = __webpack_require__(23);
+	var _marked = __webpack_require__(24);
 
 	var _marked2 = _interopRequireDefault(_marked);
 
@@ -17594,7 +17611,7 @@
 	exports.default = view;
 
 /***/ },
-/* 23 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -18886,7 +18903,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 24 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -18895,11 +18912,11 @@
 	  value: true
 	});
 
-	var _controller = __webpack_require__(25);
+	var _controller = __webpack_require__(26);
 
 	var _controller2 = _interopRequireDefault(_controller);
 
-	var _view = __webpack_require__(28);
+	var _view = __webpack_require__(29);
 
 	var _view2 = _interopRequireDefault(_view);
 
@@ -18908,7 +18925,7 @@
 	exports.default = { controller: _controller2.default, view: _view2.default };
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -18921,7 +18938,7 @@
 
 	var _mithril2 = _interopRequireDefault(_mithril);
 
-	var _model = __webpack_require__(26);
+	var _model = __webpack_require__(27);
 
 	var _model2 = _interopRequireDefault(_model);
 
@@ -18936,7 +18953,7 @@
 	exports.default = controller;
 
 /***/ },
-/* 26 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -18945,7 +18962,7 @@
 	  value: true
 	});
 
-	var _tagging = __webpack_require__(27);
+	var _tagging = __webpack_require__(28);
 
 	var _tagging2 = _interopRequireDefault(_tagging);
 
@@ -18961,7 +18978,7 @@
 	exports.default = model;
 
 /***/ },
-/* 27 */
+/* 28 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -18969,6 +18986,10 @@
 			{
 				"path": "2016/02/21/mithrilify",
 				"title": "github pagesの構成を変えた"
+			},
+			{
+				"path": "2016/03/19/v8-optimization",
+				"title": "V8で最適化されないjavascript"
 			}
 		],
 		"misc": [
@@ -19006,7 +19027,7 @@
 	};
 
 /***/ },
-/* 28 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
