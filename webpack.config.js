@@ -24,5 +24,12 @@ module.exports = {
   node: {
     fs: 'empty',
     path: 'empty'
-  }
+  },
+  plugins: [
+    new webpack.optimize.UglifyJsPlugin({
+      compress: {
+          warnings: false
+      }
+    })
+  ]
 }
