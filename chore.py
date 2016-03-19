@@ -93,7 +93,7 @@ def tagging():
                 continue
             for tag in data['tags']:
                 t = result.setdefault(tag, [])
-                t.append({
+                t.insert(0, {
                     'path': os.path.join(root.replace('./articles/', ''),
                                          _file.replace('.yml', '')),
                     'title': data['title']
