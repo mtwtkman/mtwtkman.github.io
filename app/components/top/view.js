@@ -12,6 +12,7 @@ function view(ctrl) {
     m('div#social-links', [
       m('a[href="https://github.com/mtwtkman"]', m('i.fa.fa-github-alt.my-i-size')),
       m('a[href="https://twitter.com/mtwtkman"]', m('i.fa.fa-twitter.my-i-size')),
+      m('a[href="rss.xml"]', m('i.fa.fa-rss.my-i-size'))
     ])
   ]);
 }
