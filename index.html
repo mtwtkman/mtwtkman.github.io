@@ -10,6 +10,12 @@
     <script src="./assets/vendor/highlight-9.1.0/highlight.pack.js"></script>
     <link rel="stylesheet" href="./bundle.css">
     <link rel="icon" href="./assets/img/favicon.ico">
+    <script>
+      var observer = new MutationObserver(function() {
+        hljs.initHighlighting.called = false;
+        hljs.initHighlighting();
+      });
+    </script>
   </head>
   <body>
     <div id="main" class="container"></div>
@@ -17,6 +23,7 @@
     <script src="./bundle.js" charset="utf-8"></script>
     <script>
       hljs.initHighlightingOnLoad();
+      observer.observe(document.getElementById('main'), {childList: true});
     </script>
   </body>
 </html>
