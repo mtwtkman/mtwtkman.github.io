@@ -5,8 +5,10 @@ import time
 import shutil
 import itertools
 import subprocess
+from datetime import datetime
 
 import yaml
+import PyRSS2Gen
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
@@ -32,6 +34,7 @@ NODE_BIN = 'node_modules/.bin'
 def build():
     reindex()
     tagging()
+    rss()
 
 
 def new(slug):
@@ -146,6 +149,39 @@ def watch():
     observer.join()
 
 
+def rss():
+    feed = PyRSS2Gen.RSS2(
+        title='mtwtkman.github.io',
+        link='http://mtwtkman.github.io',
+        description='mtwtkman\'s site.',
+        lastBuildDate=datetime.utcnow()
+    )
+    with open('articles/index.txt') as f:
+        articles = f.read().splitlines()
+
+    for x in articles:
+        with open('articles/' + x) as f:
+            y = yaml.safe_load(f.read())
+        pubdate = time.localtime(y['utime'])
+        feed.items.append(PyRSS2Gen.RSSItem(
+            title=y['title'],
+            link='http://mtwtkman.github.io/#/blog/article/{}/{}'.format(
+                y['date'].split(' ')[0],
+                y['slug']
+            ),
+            author='mtwtkman',
+            pubDate=datetime(pubdate.tm_year,
+                             pubdate.tm_mon,
+                             pubdate.tm_mday,
+                             pubdate.tm_hour,
+                             pubdate.tm_min,
+                             pubdate.tm_sec)
+        ))
+
+    with open('rss.xml', 'w') as f:
+        f.write(feed.to_xml('utf-8'))
+
+
 def man():
     print('\n'.join([
         'Commands are:',
@@ -158,7 +194,8 @@ def man():
         ' tag  : create tag list.',
         ' build: build all articles.',
         ' css  : compile stylesheets.',
-        ' watch: start watch tasks.'
+        ' watch: start watch tasks.',
+        ' rss  : generate rss feed.'
     ]))
 
 
@@ -181,5 +218,7 @@ if __name__ == '__main__':
         css()
     elif cmd == 'watch':
         watch()
+    elif cmd == 'rss':
+        rss()
     else:
         man()
