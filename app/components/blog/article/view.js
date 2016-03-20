@@ -21,8 +21,7 @@ function view(ctrl) {
           m('span.glyphicon.glyphicon-tag[aria-hidden="true"]'),
           tag
         ]));
-      })),
-      m('div#border')
+      }))
     ]),
     m('article', [
       m(`div#utime='${data.utime}'`, m.trust(marked(data.body)))
