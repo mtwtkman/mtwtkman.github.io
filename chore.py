@@ -175,7 +175,8 @@ def rss():
                              pubdate.tm_mday,
                              pubdate.tm_hour,
                              pubdate.tm_min,
-                             pubdate.tm_sec)
+                             pubdate.tm_sec),
+            description=y['body']
         ))
 
     with open('rss.xml', 'w') as f:
