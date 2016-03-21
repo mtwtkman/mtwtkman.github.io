@@ -1,0 +1,44 @@
+title: shellのパイプをpythonで実装
+slug: pipe
+utime: 1458563690
+date: 2016/03/21 21:34:50
+tags:
+  - python
+publish: true
+body: |-
+  なんかふとできるかなと思って試してみたところ以下のような感じになりました。
+
+  ```python
+  class Pipable:
+      def __init__(self, cmd):
+          if callable(cmd):
+              self.cmd = cmd
+          else:
+              raise ValueError
+
+      def __ror__(self, other):
+          return self.cmd(other)
+
+      def __call__(self, *args):
+          return self.cmd(*args)
+
+
+  def cat(f):
+      with open(f) as fp:
+          data = fp.read()
+      return data
+
+
+  p1 = Pipable(cat)
+  p2 = Pipable(lambda x: x.upper())
+  p3 = Pipable(lambda x: '-'.join(x))
+
+
+  raise p1('hoge.txt') == 'neko\n'
+  raise p1('hoge.txt') | p2 == 'NEKO\n'
+  raise p1('hoge.txt') | p2 | p3 == 'N-E-K-O-\n'
+  ```
+
+  要は`p3(p2(p1('hoge.txt')))`という状態にしてやればいいので(関数合成というやつ？)`__ror__`で左側の処理の結果を受け取るようにしました。
+
+  実用性皆無マンです。
