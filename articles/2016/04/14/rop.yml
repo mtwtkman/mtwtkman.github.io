@@ -1,0 +1,92 @@
+title: 鉄道指向プログラミングをpythonで
+slug: rop
+utime: 1460642362
+date: 2016/04/14 22:59:22
+tags:
+  - python
+publish: true
+body: |-
+  [Railway oriented programming](http://fsharpforfunandprofit.com/posts/recipe-part2/)を参考にpythonでも鉄道指向プログラミングを実装してみます。
+
+  F#全くわらかないけど、どうやら[判別共用体](https://msdn.microsoft.com/ja-jp/library/dd233226.aspx)というやつで処理結果の型を持ち回るということらしいので、そんな風に書いてみます。
+
+  ```python
+  from functools import partial
+
+
+  class TSuccess:
+      def __init__(self, result):
+          self.result = result
+
+      def __call__(self):
+          return self.result
+
+
+  class TFailure:
+      def __init__(self, msg):
+          self.msg = msg
+
+      def __call__(self):
+          return lambda : self.msg
+
+
+  def bind(switch_func, two_track_input):
+      if isinstance(two_track_input, TSuccess):
+          return switch_func(two_track_input())
+      elif isinstance(two_track_input, TFailure):
+          return two_track_input
+
+
+  def validate1(inp):
+      if inp.name == '':
+          return TFailure('input name.')
+      else:
+          return TSuccess(inp)
+
+
+  def validate2(inp):
+      if len(inp.name) > 50:
+          return TFailure('name length must be less than 50.')
+      else:
+          return TSuccess(inp)
+
+
+  def validate3(inp):
+      if inp.email == '':
+          return TFailure('input email.')
+      else:
+          return TSuccess(inp)
+
+
+  class Input:
+      def __init__(self, name, email):
+          self._name = name
+          self._email = email
+
+      @property
+      def name(self):
+          return self._name
+
+      @property
+      def email(self):
+          return self._email
+
+      def __call__(self):
+          return 'Success name={}, email={}'.format(self._name, self._email)
+
+
+  def combined_validation(inp):
+      result1 = validate1(inp)
+      result2 = bind(validate2, result1)
+      result3 = bind(validate3, result2)
+      return result3()()
+
+
+  assert combined_validation(Input(name='', email='')) == 'input name.'
+  assert combined_validation(Input(name='neko', email='')) == 'input email.'
+  assert combined_validation(Input(name='neko', email='meow')) == 'Success name=neko, email=meow'
+  ```
+
+  F#では`Result`という判別共用体に`Success`と`Failure`を持っていて、型によってディスパッチするみたいですが、pythonでこれを実現する方法がわからなかった。
+
+  というか、これっていわゆるパターンマッチだと思うのでまあそれができればいいかということで`bind`で全てを丸く収めた感があります。

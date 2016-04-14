@@ -1,5 +1,3 @@
-var webpack = require('webpack');
-
 module.exports = {
   context: __dirname + '/app',
   entry: './entry',
@@ -16,20 +14,22 @@ module.exports = {
         exclude: /node_modules/,
         loader: 'babel',
         query: {
-          presets: ['es2015']
+          presets: ['es2015'],
+          compact: false
         }
+      },
+      {
+        test: /\.vue$/,
+        exclude: /node_modules/,
+        loader: 'vue'
+      },
+      {
+        test: /\.md$/,
+        loader: 'html!markdown-highlight'
       }
     ]
   },
   node: {
-    fs: 'empty',
-    path: 'empty'
-  },
-  plugins: [
-    new webpack.optimize.UglifyJsPlugin({
-      compress: {
-          warnings: false
-      }
-    })
-  ]
+    fs: 'empty'
+  }
 }
