@@ -34,7 +34,9 @@ NODE_BIN = 'node_modules/.bin'
 def build():
     reindex()
     tagging()
+    css()
     rss()
+    webpack()
 
 
 def new(slug):
@@ -125,6 +127,10 @@ def css():
     ])
     subprocess.call([cmd], shell=True)
     shutil.rmtree('./tmp')
+
+
+def webpack():
+    subprocess.call([os.path.join(NODE_BIN, 'webpack')])
 
 
 class StylEventHandler(FileSystemEventHandler):

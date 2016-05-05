@@ -1,0 +1,81 @@
+title: モジュールグローバルよりクラス変数の方がパフォーマンス的に有利
+slug: module-global-vs-class-variable
+utime: 1462419084
+date: 2016/05/05 12:31:24
+tags:
+  - python
+publish: true
+body: |-
+  [falcon](http://falconframework.org/)のソース読んでたら[こんなの](https://github.com/falconry/falcon/blob/50fec0fd6dc6e0019099f11a001097e1baccc9ee/falcon/api.py#L128-L135)があった。
+
+  ```python
+  ...
+  # PERF(kgriffs): Reference via self since that is faster than
+  # module global...
+  _BODILESS_STATUS_CODES = set([
+      status.HTTP_100,
+      status.HTTP_101,
+      status.HTTP_204,
+      status.HTTP_304
+  ])
+  ...
+  ```
+
+  モジュールグローバルのインポートよりもクラス変数のアクセスの方が速いということらしい。
+
+  パス探索やらのプロセスがなくなるんだから当たり前だと思うけどどの程度差があるのか気になったのでプロファイルとってみた。
+
+
+  `module.py`
+
+  ```python
+  var = 'I am module global.'
+  ```
+
+  `test.py`
+
+  ```python
+  import cProfile
+
+
+  TRIAL = 100000
+
+
+  class A:
+      var = 'I am class variable'
+
+
+  def test_module_global():
+      for x in range(TRIAL):
+          from mod import var
+
+
+  def test_class_variable():
+      for x in range(TRIAL):
+          a = A()
+          a.var
+
+
+  if __name__ == '__main__':
+      cProfile.run('test_module_global()')
+      cProfile.run('test_class_variable()')
+
+  ```
+
+  10万回参照するということがあり得るのかわからないけど、試行回数は10万回とする。
+
+  結果から言うと
+
+  モジュールグローバルのインポートは
+  > 200161 function calls (200160 primitive calls) in 0.185 seconds
+
+  クラス変数のアクセスはインスタンスを作るのを含めても
+  > 4 function calls in 0.016 seconds
+
+  だった。
+
+  まあ圧倒的にクラス変数の方が速い。
+
+  けどもこれ別モジュールからこのクラスをインポートして使うとかだと大してコスト変わらん気がする。
+
+  `falcon.API` は基本的にアプリケーションを実行するためのインスタンスを作るのが目的のオブジェクトなんだろうけどどうせインポートするしなぁ。謎
