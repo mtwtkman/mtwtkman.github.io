@@ -1,3 +1,4 @@
+2016/07/29/js-test-with-karma-webpack-es6.yml
 2016/05/05/module-global-vs-class-variable.yml
 2016/04/14/rop.yml
 2016/03/21/pipe.yml

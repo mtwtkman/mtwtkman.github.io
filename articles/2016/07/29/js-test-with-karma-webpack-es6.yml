@@ -1,0 +1,45 @@
+title: ES6で書いたコードをkarma+webpackでテスト
+slug: js-test-with-karma-webpack-es6
+utime: 1469803820
+date: 2016/07/29 23:50:20
+tags:
+  - javascript
+publish: true
+body: |-
+  `webpack.config.js`がそのまま使えるのでES6向けの設定が非常に楽でした。その割には`karma webpack es6`とかでググっても情報が全然なくて悲しい。
+
+  前準備として`npm i -D karam-webpack`をしておきます。
+
+  ```
+  // karama.conf.js
+  var webpackConfig = require('./webpack.config.js');
+
+  module.exports = function(config) {
+    config.set({
+      basePath: '',
+      frameworks: ['jasmine'],
+      files: [
+        'src/tests/**/*Spec.js'
+      ],
+      exclude: [],
+      preprocessors: {
+        'src/**/*.js': ['webpack'],
+        'src/tests/**/*Spec.js': ['webpack']
+      },
+      webpack: webpackConfig,
+      reporters: ['progress'],
+      port: 9876,
+      colors: true,
+      logLevel: config.LOG_INFO,
+      autoWatch: true,
+      browsers: ['PhantomJS'],
+      singleRun: false,
+      concurrency: Infinity
+    })
+  }
+  ```
+
+  こんな設定ファイルを用意して`karma test`を実行するだけでES6で書いたコードのテストが実行できます。
+  `webpack.config.js`のエントリポイントをそのまま使っているのでインポートのパス探索を考える必要がないのが良いと思います。
+
+  `browserify`の方が楽かと思ったけどこれはこれで問題ないかと。
