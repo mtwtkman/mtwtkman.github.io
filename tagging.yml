@@ -1,3 +1,11 @@
+mithril:
+- {path: 2016/02/21/mithrilify, title: "github pages\u306E\u69CB\u6210\u3092\u5909\
+    \u3048\u305F"}
+misc:
+- {path: 2016/02/14/moved-to-gh-page, title: "github pages\u306B\u5F15\u8D8A\u3057"}
+webpack:
+- {path: 2016/02/21/mithrilify, title: "github pages\u306E\u69CB\u6210\u3092\u5909\
+    \u3048\u305F"}
 javascript:
 - {path: 2016/07/29/js-test-with-karma-webpack-es6, title: "ES6\u3067\u66F8\u3044\u305F\
     \u30B3\u30FC\u30C9\u3092karma+webpack\u3067\u30C6\u30B9\u30C8"}
@@ -5,11 +13,9 @@ javascript:
     \u306A\u3044javascript"}
 - {path: 2016/02/21/mithrilify, title: "github pages\u306E\u69CB\u6210\u3092\u5909\
     \u3048\u305F"}
-misc:
-- {path: 2016/02/14/moved-to-gh-page, title: "github pages\u306B\u5F15\u8D8A\u3057"}
-mithril:
-- {path: 2016/02/21/mithrilify, title: "github pages\u306E\u69CB\u6210\u3092\u5909\
-    \u3048\u305F"}
+null:
+- {path: 2016/08/22/reading-mithriljs, title: "mithriljs\u306E\u30B3\u30FC\u30C9\u3092\
+    \u8AAD\u3080"}
 python:
 - {path: 2016/05/05/module-global-vs-class-variable, title: "\u30E2\u30B8\u30E5\u30FC\
     \u30EB\u30B0\u30ED\u30FC\u30D0\u30EB\u3088\u308A\u30AF\u30E9\u30B9\u5909\u6570\
@@ -23,8 +29,5 @@ python:
     \u3092\u96D1\u306B\u4F5C\u3063\u305F"}
 - {path: 2016/02/26/expert-python-chapter3, title: "python\u306E__new__\u3068\u304B\
     type\u306A\u3069"}
-- {path: 2016/02/21/mithrilify, title: "github pages\u306E\u69CB\u6210\u3092\u5909\
-    \u3048\u305F"}
-webpack:
 - {path: 2016/02/21/mithrilify, title: "github pages\u306E\u69CB\u6210\u3092\u5909\
     \u3048\u305F"}

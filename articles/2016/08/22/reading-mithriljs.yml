@@ -1,0 +1,106 @@
+title: mithriljsのコードを読む
+slug: reading-mithriljs
+utime: 1471866841
+date: 2016/08/22 20:54:01
+tags:
+  -
+publish: true
+body: |-
+  [mithriljs](https://github.com/lhorie/mithril.js/tree/0159cd667ad85cd82d92fcb31a33f75be6539f6d)のコード読む。
+
+  現時点で`v0.2.5`だけど、コアな部分はそう変わらんだろう。コアなというのは、つまり`m.mount`とか。
+
+  というわけで`mithril`がレンダリングする`m.mount`から読むことにしよう。(2000行程度なら単体のファイルは読むのが比較的楽ということが知られています)
+
+  [ここ](https://github.com/lhorie/mithril.js/blob/0159cd667ad85cd82d92fcb31a33f75be6539f6d/mithril.js#L1475)
+  ```js
+  m.mount = m.module = function (root, component) {
+    if (!root) {
+      throw new Error("Please ensure the DOM element exists before " +
+        "rendering a template into it.")
+    }
+    var index = roots.indexOf(root)
+    if (index < 0) index = roots.length
+    var isPrevented = false
+    var event = {
+      preventDefault: function () {
+        isPrevented = true
+        computePreRedrawHook = computePostRedrawHook = null
+      }
+    }
+    forEach(unloaders, function (unloader) {
+      unloader.handler.call(unloader.controller, event)
+      unloader.controller.onunload = null
+    })
+    if (isPrevented) {
+      forEach(unloaders, function (unloader) {
+        unloader.controller.onunload = unloader.handler
+      })
+    } else {
+      unloaders = []
+    }
+    if (controllers[index] && isFunction(controllers[index].onunload)) {
+      controllers[index].onunload(event)
+    }
+    return checkPrevented(component, root, index, isPrevented)
+  }
+  ```
+  `m.mount`がやってることはUnloadableControllerな場合に`unloader`のイベントハンドラを登録しているというだけ。
+  注意を払わないといけないのは`event`内で定義されている`preventDefault`関数の中で`isPrevented`を巻き上げてる点だろうか。
+
+  まあ、大したことはやっていないので`checkPrevented`を見てみる。
+
+  [ここやで](https://github.com/lhorie/mithril.js/blob/0159cd667ad85cd82d92fcb31a33f75be6539f6d/mithril.js#L1437)
+
+  ```js
+  function checkPrevented(component, root, index, isPrevented) {
+    if (!isPrevented) {
+      m.redraw.strategy("all")
+      m.startComputation()
+      roots[index] = root
+      var currentComponent
+      if (component) {
+        currentComponent = topComponent = component
+      } else {
+        currentComponent = topComponent = component = {controller: noop}
+      }
+      var controller = new (component.controller || noop)()
+      // controllers may call m.mount recursively (via m.route redirects,
+      // for example)
+      // 訳: controllersはm.mountを再帰的に呼び出し得る。(例えば、m.routeのリダイレクトを通じてとか)
+      // this conditional ensures only the last recursive m.mount call is
+      // applied
+      // 訳: この条件式はm.mountが呼び出す最後の再帰が適用されてるかを確かめてるだけ。
+      if (currentComponent === topComponent) {
+        controllers[index] = controller
+        components[index] = component
+      }
+      endFirstComputation()
+      if (component === null) {
+        removeRootElement(root, index)
+      }
+      return controllers[index]
+    } else {
+      if (component == null) {
+        removeRootElement(root, index)
+      }
+      if (previousRoute) {
+        currentRoute = previousRoute
+      }
+    }
+  }
+  ```
+  `isPrevented`でない場合、`m.redraw.strategy`は[`m.prop`](https://github.com/lhorie/mithril.js/blob/0159cd667ad85cd82d92fcb31a33f75be6539f6d/mithril.js#L1553)だから、`all`を初期値としてセット。
+  `startComputation`を呼び出しているのでここでredrawのカウンタが始まる。
+
+  Componentを作ってからControllerをインスタンス化してる。`currentComponent === topComponent`はよくわからん。`currentComponent = topComponent = ほにゃらら`って必ずどちらも通る分岐に書いてあるし、常にtrueになるんでは？
+
+  で、[`endFirstComputation`](https://github.com/lhorie/mithril.js/blob/0159cd667ad85cd82d92fcb31a33f75be6539f6d/mithril.js#L1578)は`endComputation`に読み替えていい。
+
+  ここでこのDOMの描画のカウンタが終了した。初回の描画はとにかくComponentをインスタンス化するだけのようだ。詳しい描画処理については別の部分を見ないとダメみたいだ。
+
+  あと、どうやら`m.mount(document.body)`が合法という事らしい。
+
+  [`removeRootElement`](https://github.com/lhorie/mithril.js/blob/0159cd667ad85cd82d92fcb31a33f75be6539f6d/mithril.js#L1512)はメソッド名通り、DOM要素からControllerやComponent、仮想DOMのCacheなどを削除している。
+
+  ところで、描画の処理が全然わからないので続く
