@@ -97,10 +97,10 @@ body: |-
 
   で、[`endFirstComputation`](https://github.com/lhorie/mithril.js/blob/0159cd667ad85cd82d92fcb31a33f75be6539f6d/mithril.js#L1578)は`endComputation`に読み替えていい。
 
-  ここでこのDOMの描画のカウンタが終了した。初回の描画はとにかくComponentをインスタンス化するだけのようだ。詳しい描画処理については別の部分を見ないとダメみたいだ。
+  ここでこのDOMの描画のカウンタが終了した。初回の描画はとにかくComponentをインスタンス化するだけのようだ。詳しい描画処理については別の部分を見ないとダメみたいだ。(`endComputation`の`m.redraw`呼び出しなんだけど)
 
   あと、どうやら`m.mount(document.body)`が合法という事らしい。
 
   [`removeRootElement`](https://github.com/lhorie/mithril.js/blob/0159cd667ad85cd82d92fcb31a33f75be6539f6d/mithril.js#L1512)はメソッド名通り、DOM要素からControllerやComponent、仮想DOMのCacheなどを削除している。
 
-  ところで、描画の処理が全然わからないので続く
+  ところで、描画の処理が全然わからないので続く。
