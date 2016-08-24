@@ -1,3 +1,4 @@
+2016/08/24/reading-mithriljs-2.yml
 2016/08/22/reading-mithriljs.yml
 2016/07/29/js-test-with-karma-webpack-es6.yml
 2016/05/05/module-global-vs-class-variable.yml

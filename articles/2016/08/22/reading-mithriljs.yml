@@ -3,7 +3,8 @@ slug: reading-mithriljs
 utime: 1471866841
 date: 2016/08/22 20:54:01
 tags:
-  -
+  - javascript
+  - mithril
 publish: true
 body: |-
   [mithriljs](https://github.com/lhorie/mithril.js/tree/0159cd667ad85cd82d92fcb31a33f75be6539f6d)のコード読む。
