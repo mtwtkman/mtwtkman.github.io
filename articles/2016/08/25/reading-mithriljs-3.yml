@@ -1,0 +1,380 @@
+title: mithriljsのコードを読む(3)
+slug: reading-mithriljs-3
+utime: 1472123644
+date: 2016/08/25 20:14:04
+tags:
+  - javascript
+  - mithril
+publish: true
+body: |-
+  `build`の中身読むぞ〜〜〜〜
+
+  [ここ](https://github.com/lhorie/mithril.js/blob/0159cd667ad85cd82d92fcb31a33f75be6539f6d/mithril.js#L916)
+
+  まず長いコメントが目を引くのでそれを片付ける。
+  ```javascript
+  function build(
+    parentElement,
+    parentTag,
+    parentCache,
+    parentIndex,
+    data,
+    cached,
+    shouldReattach,
+    index,
+    editable,
+    namespace,
+    configs
+  ) {
+    /*
+     * `build` is a recursive function that manages creation/diffing/removal
+     * of DOM elements based on comparison between `data` and `cached` the
+     * diff algorithm can be summarized as this:
+     *
+     * 1 - compare `data` and `cached`
+     * 2 - if they are different, copy `data` to `cached` and update the DOM
+     *     based on what the difference is
+     * 3 - recursively apply this algorithm for every array and for the
+     *     children of every virtual element
+  ```
+
+  アルゴリズムは以下の通り。
+
+  1. `data`と`cached`を比較する
+  2. 差分があれば`cached`に`data`をコピーして差分に基づいた更新をDOMに対して行う
+  3. 全ての`data`の配列と仮想要素の子に対して上記工程を全て再帰的に適用する
+
+  なかなかシンプルだ。そして、差分産出の要となる`data`と`cached`についての説明が続く。
+  ```javascript
+     * The `cached` data structure is essentially the same as the previous
+     * redraw's `data` data structure, with a few additions:
+     * - `cached` always has a property called `nodes`, which is a list of
+     *    DOM elements that correspond to the data represented by the
+     *    respective virtual element
+     * - in order to support attaching `nodes` as a property of `cached`,
+     *    `cached` is *always* a non-primitive object, i.e. if the data was
+     *    a string, then cached is a String instance. If data was `null` or
+     *    `undefined`, cached is `new String("")`
+     * - `cached also has a `configContext` property, which is the state
+     *    storage object exposed by config(element, isInitialized, context)
+     * - when `cached` is an Object, it represents a virtual element; when
+     *    it's an Array, it represents a list of elements; when it's a
+     *    String, Number or Boolean, it represents a text node
+  ```
+
+  `cached`は前回再描画した`data`のデータ構造と本質的には同じデータ構造である。以下補足。
+  - `cached`は常に`nodes`と呼ばれるプロパティを持つ。`nodes`はそれぞれの仮想要素に対応するDOM要素のリストである。
+  - `cached`のプロパティとして`nodes`をくっつけられるように`cached`は*常に*プリミティブでないオブジェクトである。(例えば文字列データはcachedにおいてはString型となる。`null`や`undefined`であればcachedは`new String('')`とする)
+  - `cached`は`configContext`プロパティも持っている。これは`config`によって作成された状態を保持するためのものである。
+  - `cached`がObject型である場合、仮想要素を表している。Array型だった場合は要素のリストであり、String, Number, Boolean型の場合はテキストノードとなる。
+
+  つまり、`cached`は純粋なjavascriptの型ではなくDOMオブジェクトとして子ノードを持ちうる状態であることらしい。
+
+  以降は残りの引数についてのコメント。
+  ```javascript
+     * `parentElement` is a DOM element used for W3C DOM API calls
+     * `parentTag` is only used for handling a corner case for textarea
+     * values
+     * `parentCache` is used to remove nodes in some multi-node cases
+     * `parentIndex` and `index` are used to figure out the offset of nodes.
+     * They're artifacts from before arrays started being flattened and are
+     * likely refactorable
+     * `data` and `cached` are, respectively, the new and old nodes being
+     * diffed
+     * `shouldReattach` is a flag indicating whether a parent node was
+     * recreated (if so, and if this node is reused, then this node must
+     * reattach itself to the new parent)
+     * `editable` is a flag that indicates whether an ancestor is
+     * contenteditable
+     * `namespace` indicates the closest HTML namespace as it cascades down
+     * from an ancestor
+     * `configs` is a list of config functions to run after the topmost
+     * `build` call finishes running
+     *
+     * there's logic that relies on the assumption that null and undefined
+     * data are equivalent to empty strings
+     * - this prevents lifecycle surprises from procedural helpers that mix
+     *   implicit and explicit return statements (e.g.
+     *   function foo() {if (cond) return m("div")}
+     * - it simplifies diffing code
+     */
+  ```
+  | 引数 | 説明 |
+  |------|------|
+  |parentElement|W3C DOM APIが呼んでいるDOM要素|
+  |parentTag|textareaの値の処理の場合にのみ使われる|
+  |parentCache|複数のノードが存在する場合にノードを削除するために使われる|
+  |parentIndex, index|ノードのオフセットを算出するために使用される|
+  |data|差分算出の新しい方|
+  |cached|差分算出の古い方|
+  |shouldReattach|親ノードを再作成するかしないかを判定するフラグ|
+  |editable|祖先の要素がcontenteditableかどうかを判定するフラグ|
+  |namespace|直近のHTML名前空間(祖先からカスケードダウンしてくる)|
+  |configs|buildの実行が終わった後に動くconfig関数のリスト|
+
+  で、この処理でやってることを上から見ていくと`data`がtoStringできるかどうかを判定し、cacheを作り、`data`のデータ型によって処理を分けている。
+
+  ```javascript
+    data = dataToString(data)
+    if (data.subtree === "retain") return cached
+    cached = makeCache(data, cached, index, parentIndex, parentCache)
+
+    if (isArray(data)) {
+      return buildArray(
+        data,
+        cached,
+        parentElement,
+        index,
+        parentTag,
+        shouldReattach,
+        editable,
+        namespace,
+        configs)
+    } else if (data != null && isObject(data)) {
+      return buildObject(
+        data,
+        cached,
+        editable,
+        parentElement,
+        index,
+        shouldReattach,
+        namespace,
+        configs)
+    } else if (!isFunction(data)) {
+      return handleTextNode(
+        cached,
+        data,
+        index,
+        parentElement,
+        shouldReattach,
+        editable,
+        parentTag)
+    } else {
+      return cached
+    }
+  }
+  ```
+
+  - Arrayだったら`buildArray`
+  - Objectだったら`buildObject`
+  - 上のデータ型でもFunctionでもなかったら`handleTextNode`
+  - それでも条件が異なればcachedを返却
+
+  とそれぞれ分岐している。
+
+  `buildArray`は何をしているんだろう。[ここ](https://github.com/lhorie/mithril.js/blob/0159cd667ad85cd82d92fcb31a33f75be6539f6d/mithril.js#L584)
+
+  ```javascript
+  function buildArray(
+    data,
+    cached,
+    parentElement,
+    index,
+    parentTag,
+    shouldReattach,
+    editable,
+    namespace,
+    configs
+  ) {
+    data = flatten(data)
+    var nodes = []
+    var intact = cached.length === data.length
+    var subArrayCount = 0
+  ```
+
+  `key`を使うことで余計な要素の再作成を避けている。アルゴリズムはこうだ。
+
+  ```javascript
+    // keys algorithm: sort elements without recreating them if keys are
+    // present
+    //
+    // 1) create a map of all existing keys, and mark all for deletion
+    // 2) add new keys to map and mark them for addition
+    // 3) if key exists in new list, change action from deletion to a move
+    // 4) for each key, handle its corresponding action as marked in
+    //    previous steps
+  ```
+
+  1. 存在している全てのkeysのマップを作成し、削除処理のためにマークする。
+  2. マップに新しいkeysを追加し、それらを追加処理のためにマークする。
+  3. keyが新しいリストに存在しているなら、削除処理から移動へとアクションを変更する。
+  4. それぞれのkeyについて、ステップ3で決められたマークに対応するアクションを処理する。
+
+  わかるようでイマイチわからないので大人しくコードを読み進める。
+
+  ```javascript
+    var existing = {}
+    var shouldMaintainIdentities = false
+
+    forKeys(cached, function (attrs, i) {
+      shouldMaintainIdentities = true
+      existing[cached[i].attrs.key] = {action: DELETION, index: i}
+    })
+  ```
+
+  なるほど、`cached`をループして、アクションを`DELTION`に設定している。ステップ1だ。
+
+  ```javascript
+    buildArrayKeys(data)
+  ```
+
+  今度は`buildArrayKeys`ですか(;´Д`)
+  ```javascript
+  function buildArrayKeys(data) {
+    var guid = 0
+    forKeys(data, function () {
+      forEach(data, function (attrs) {
+        if ((attrs = attrs && attrs.attrs) && attrs.key == null) {
+          attrs.key = "__mithril__" + guid++
+        }
+      })
+      return 1
+    })
+  }
+  ```
+
+  `data`の属性をループして`key`が設定されていなければ識別子として設定している。ステップ2だ。
+
+  で、`cached`が存在してさえいれば`diffKeys`を呼んで終わり。
+
+  ```javascript
+    if (shouldMaintainIdentities) {
+      cached = diffKeys(data, cached, existing, parentElement)
+    }
+    // end key algorithm
+  ```
+
+  だるい
+
+  ```javascript
+  function diffKeys(data, cached, existing, parentElement) {
+    var keysDiffer = data.length !== cached.length
+
+    if (!keysDiffer) {
+      forKeys(data, function (attrs, i) {
+        var cachedCell = cached[i]
+        return keysDiffer = cachedCell &&
+          cachedCell.attrs &&
+          cachedCell.attrs.key !== attrs.key
+      })
+    }
+
+    if (keysDiffer) {
+      return handleKeysDiffer(data, existing, cached, parentElement)
+    } else {
+      return cached
+    }
+  }
+  ```
+
+  `data`と`cached`の要素数が同じであれば`cached`と`data`の`key`が違うかどうかを判定しcachedをそのまま返却。
+
+  そうでなければ`handleKeysDiffer`を呼び出して返却値をそのまま返却。しんどい
+
+  ```javascript
+  function handleKeysDiffer(data, existing, cached, parentElement) {
+    forKeys(data, function (key, i) {
+      existing[key = key.key] = existing[key] ? {
+        action: MOVE,
+        index: i,
+        from: existing[key].index,
+        element: cached.nodes[existing[key].index] ||
+          $document.createElement("div")
+      } : {action: INSERTION, index: i}
+    })
+  ```
+
+  `data`の`key`がすでに存在している場合は`MOVE`のアクションが与えられている。`element`が`cached`の`nodes`が持つ要素か、新規作成のdiv要素になっている。
+
+  `data`の`key`がまだ存在していなければ`INSERTION`のアクションが与えられている。
+
+  で、actionsにexistingのプロパティの値を溜め込んで
+
+  ```javascript
+    var actions = []
+    for (var prop in existing) {
+      if (hasOwn.call(existing, prop)) {
+        actions.push(existing[prop])
+      }
+    }
+  ```
+
+  アクションごとに処理してる。
+
+  ```javascript
+    var changes = actions.sort(sortChanges)
+    var newCached = new Array(cached.length)
+
+    newCached.nodes = cached.nodes.slice()
+
+    forEach(changes, function (change) {
+      var index = change.index
+      if (change.action === DELETION) {
+        clear(cached[index].nodes, cached[index])
+        newCached.splice(index, 1)
+      }
+      if (change.action === INSERTION) {
+        var dummy = $document.createElement("div")
+        dummy.key = data[index].attrs.key
+        insertNode(parentElement, dummy, index)
+        newCached.splice(index, 0, {
+          attrs: {key: data[index].attrs.key},
+          nodes: [dummy]
+        })
+        newCached.nodes[index] = dummy
+      }
+
+      if (change.action === MOVE) {
+        var changeElement = change.element
+        var maybeChanged = parentElement.childNodes[index]
+        if (maybeChanged !== changeElement && changeElement !== null) {
+          parentElement.insertBefore(changeElement,
+            maybeChanged || null)
+        }
+        newCached[index] = cached[change.from]
+        newCached.nodes[index] = changeElement
+      }
+    })
+  ```
+
+  大して難しいことしてない。`newCached`で`cache`を更新し、アクションごとに削除、追加、移動をしている。
+
+  で、戻ってくる。
+
+  ```javascript
+    var cacheCount = 0
+    // faster explicitly written
+    for (var i = 0, len = data.length; i < len; i++) {
+      // diff each item in the array
+      var item = build(
+        parentElement,
+        parentTag,
+        cached,
+        index,
+        data[i],
+        cached[cacheCount],
+        shouldReattach,
+        index + subArrayCount || subArrayCount,
+        editable,
+        namespace,
+        configs)
+
+      if (item !== undefined) {
+        intact = intact && item.nodes.intact
+        subArrayCount += getSubArrayCount(item)
+        cached[cacheCount++] = item
+      }
+    }
+
+    if (!intact) diffArray(data, cached, nodes)
+    return cached
+  }
+  ```
+
+  `data`の要素に対して`build`を呼び出し再帰処理している。　
+
+  最後の`diffArray`は`data`と`cached`の長さが異なる場合に呼ばれ、内容としては`nodes`から`cached`の要素を削除して`data`の長さに合わせている。
+
+  `cached`に残っている不要な要素を削除する目的のようだ。
+
+  まだ全然終わらんが、疲れたので続く

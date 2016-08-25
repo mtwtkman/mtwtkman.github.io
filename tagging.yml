@@ -1,4 +1,6 @@
 javascript:
+- {path: 2016/08/25/reading-mithriljs-3, title: "mithriljs\u306E\u30B3\u30FC\u30C9\
+    \u3092\u8AAD\u3080(3)"}
 - {path: 2016/08/24/reading-mithriljs-2, title: "mithriljs\u306E\u30B3\u30FC\u30C9\
     \u3092\u8AAD\u3080(2)"}
 - {path: 2016/08/22/reading-mithriljs, title: "mithriljs\u306E\u30B3\u30FC\u30C9\u3092\
@@ -12,6 +14,8 @@ javascript:
 misc:
 - {path: 2016/02/14/moved-to-gh-page, title: "github pages\u306B\u5F15\u8D8A\u3057"}
 mithril:
+- {path: 2016/08/25/reading-mithriljs-3, title: "mithriljs\u306E\u30B3\u30FC\u30C9\
+    \u3092\u8AAD\u3080(3)"}
 - {path: 2016/08/24/reading-mithriljs-2, title: "mithriljs\u306E\u30B3\u30FC\u30C9\
     \u3092\u8AAD\u3080(2)"}
 - {path: 2016/08/22/reading-mithriljs, title: "mithriljs\u306E\u30B3\u30FC\u30C9\u3092\
