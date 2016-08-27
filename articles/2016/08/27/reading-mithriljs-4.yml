@@ -1,0 +1,311 @@
+title: mithriljsのコードを読む(4)
+slug: reading-mithriljs-4
+utime: 1472296703
+date: 2016/08/27 20:18:23
+tags:
+  - javascript
+  - mithril
+publish: true
+body: |-
+  前回は`buildArray`まで読んだ。`buildObject`から読もうではないか。
+
+  [ここ](https://github.com/lhorie/mithril.js/blob/0159cd667ad85cd82d92fcb31a33f75be6539f6d/mithril.js#L831)
+
+  ```javascript
+  function buildObject( // eslint-disable-line max-statements
+    data,
+    cached,
+    editable,
+    parentElement,
+    index,
+    shouldReattach,
+    namespace,
+    configs
+  ) {
+    var views = []
+    var controllers = []
+
+    data = markViews(data, cached, views, controllers)
+  ```
+
+  `data`がオブジェクトの場合、つまりコンポーネントの場合は`markViews`で何かをしている。見てみる。
+
+  ```javascript
+  function markViews(data, cached, views, controllers) {
+    var cachedControllers = cached && cached.controllers
+
+    while (data.view != null) {
+      data = checkView(
+        data,
+        data.view.$original || data.view,
+        cached,
+        cachedControllers,
+        controllers,
+        views)
+    }
+
+    return data
+  ```
+
+  キャッシュされているControllerがないかを判定して`checkView`から`data`を作っている。見てみる。
+
+  ```javascript
+  function checkView(
+    data,
+    view,
+    cached,
+    cachedControllers,
+    controllers,
+    views
+  ) {
+    var controller = getController(
+      cached.views,
+      view,
+      cachedControllers,
+      data.controller)
+
+    var key = data && data.attrs && data.attrs.key
+  ```
+  バケツリレーで頭がフットーしそうだが、`getController`でControllerを取得しているのは明白だ。さらに、`data`の`key`を取得している。
+
+  この辺はキャッシュされている仮想DOMをアレコレするためだろう。`getController`を見てみる。
+
+  ```javascript
+  function getController(views, view, cachedControllers, controller) {
+    var controllerIndex
+
+    if (m.redraw.strategy() === "diff" && views) {
+      controllerIndex = views.indexOf(view)
+    } else {
+      controllerIndex = -1
+    }
+
+    if (controllerIndex > -1) {
+      return cachedControllers[controllerIndex]
+    } else if (isFunction(controller)) {
+      return new controller()
+    } else {
+      return {}
+    }
+  }
+  ```
+
+  差分描画のフラグで且つコンポーネントが作成されていればキャッシュされているControllerを返し、そうでなければ引数の`controller`をインスタンス化するか空のオブジェクトを返す。
+
+  まあその名の通りControllerを返しているだけだ。
+
+  `checkView`に戻ると
+
+  ```javascript
+    if (pendingRequests === 0 ||
+        forcing ||
+        cachedControllers &&
+          cachedControllers.indexOf(controller) > -1) {
+      data = data.view(controller)
+    } else {
+      data = {tag: "placeholder"}
+    }
+  ```
+
+  このif文は再描画を行える状態かキャッシュされているControllerが存在している場合に仮想DOM(`data.view`のreturn)を`data`に再代入している。
+
+  ```javascript
+
+    if (data.subtree === "retain") return data
+    data.attrs = data.attrs || {}
+    data.attrs.key = key
+    updateLists(views, controllers, view, controller)
+    return data
+  }
+  ```
+
+  `data.subtree === "retain"`であれば`data`の更新は行わない。ここは[ドキュメントにひっそりと書いてある。](http://mithril.js.org/mithril.html#persisting-dom-elements-across-route-changes)
+
+  概要を書くと、retainが設定されていると`router`による画面再描画時にそのDOMは再構築されずにそのまま引き継がれるというもの。
+  コンポーネントを使い回す時などに設定することになる。(この文脈でコンポーネントは`data`のこと)
+
+  で、コンポーネントをキャッシュしている`views`と`controllers`に作成した`view`と`controller`突っ込んでいる。
+
+  `buildObject`に戻ります。
+
+  ```javascript
+    if (data.subtree === "retain") return cached
+  ```
+
+  上述した通り、retainの時はコンポーネントを使い回す。
+
+  ```javascript
+
+    if (!data.tag && controllers.length) {
+      throw new Error("Component template must return a virtual " +
+        "element, not an array, string, etc.")
+    }
+
+    data.attrs = data.attrs || {}
+    cached.attrs = cached.attrs || {}
+
+    var dataAttrKeys = Object.keys(data.attrs)
+    var hasKeys = dataAttrKeys.length > ("key" in data.attrs ? 1 : 0)
+
+    maybeRecreateObject(data, cached, dataAttrKeys)
+  ```
+
+  ここからはconfigの設定かな。`maybeRecreateObject`を見てみる。
+
+  ```javascript
+  function maybeRecreateObject(data, cached, dataAttrKeys) {
+    // if an element is different enough from the one in cache, recreate it
+    if (isDifferentEnough(data, cached, dataAttrKeys)) {
+      if (cached.nodes.length) clear(cached.nodes)
+
+      if (cached.configContext &&
+          isFunction(cached.configContext.onunload)) {
+        cached.configContext.onunload()
+      }
+
+      if (cached.controllers) {
+        forEach(cached.controllers, function (controller) {
+          if (controller.onunload) {
+            controller.onunload({preventDefault: noop})
+          }
+        })
+      }
+    }
+  }
+  ```
+
+  差分があった時に再作成するような要素だった場合に再作成している。で、`diffrent enough`であることを`isDifferentEnough`で見ている。
+
+  ```javascript
+  function isDifferentEnough(data, cached, dataAttrKeys) {
+    if (data.tag !== cached.tag) return true
+
+    if (dataAttrKeys.sort().join() !==
+        Object.keys(cached.attrs).sort().join()) {
+      return true
+    }
+
+    if (data.attrs.id !== cached.attrs.id) {
+      return true
+    }
+
+    if (data.attrs.key !== cached.attrs.key) {
+      return true
+    }
+
+    if (m.redraw.strategy() === "all") {
+      return !cached.configContext || cached.configContext.retain !== true
+    }
+
+    if (m.redraw.strategy() === "diff") {
+      return cached.configContext && cached.configContext.retain === false
+    }
+
+    return false
+  }
+  ```
+
+  trueになるのは
+  - attributesのキーがキャッシュされているのと異なる時
+  - attrsのidがキャッシュされているのと異なる時
+  - `key`がキャッシュされているのと異なる時
+  - strategyが`all`でかつ、`config`がないまたはretainが設定されていない時
+  - strategyが`diff`でかつ、`config`があってretainが設定されていない時
+
+  ちなみに、strategyは↓の通り
+  | all | デフォルトの値。redrawのタイミングで現在のDOMを捨てて全部作り直す|
+  | diff | 差分があったときだけその差分更新を行う |
+  | none | redrawをすっ飛ばす。何も更新はしない |
+
+  `all`でかつ`config`がない時というのがピンとこないが、おそらく`config`は`redraw`のタイミングで常に呼ばれるからキャッシュ前提のためだろう。
+
+  ```javascript
+
+    if (!isString(data.tag)) return
+  ```
+
+  ここはどういうことだかよくわからない。`tag`が文字型でなければエラーではなく無を返す…どういうことだ…
+
+  [m()ではエラーにしてるぞ?](https://github.com/lhorie/mithril.js/blob/0159cd667ad85cd82d92fcb31a33f75be6539f6d/mithril.js#L168-L171)
+
+  よくわからないのでgitterで聞いてる中。
+
+  ```javascript
+    var isNew = cached.nodes.length === 0
+
+    namespace = getObjectNamespace(data, namespace)
+    var node
+    if (isNew) {
+      node = constructNode(data, namespace)
+  ```
+  ここでDOM作ってる。
+
+  ```javascript
+      // set attributes first, then create children
+      var attrs = constructAttrs(data, node, namespace, hasKeys)
+  ```
+
+  DOMにアトリビュートをセット
+
+  ```javascript
+      // add the node to its parent before attaching children to it
+      insertNode(parentElement, node, index)
+  ```
+
+  子ノードとして親要素に追加
+
+  ```javascript
+      var children = constructChildren(data, node, cached, editable,
+        namespace, configs)
+  ```
+
+  子ノードを作成。この中でさらに`build`を呼んで子ノードのDOMを作成している。
+
+  ```javascript
+      cached = reconstructCached(
+        data,
+        attrs,
+        children,
+        node,
+        namespace,
+        views,
+        controllers)
+    } else {
+      node = buildUpdatedNode(
+        cached,
+        data,
+        editable,
+        hasKeys,
+        namespace,
+        views,
+        configs,
+        controllers)
+    }
+
+  ```
+
+  初回の`build`であればキャッシュを作り、そうでなければ`data`の情報で`cached`を更新する。
+
+  ```javascript
+    // edge case: setting value on <select> doesn't work before children
+    // exist, so set it again after children have been created/updated
+    if (data.tag === "select" && "value" in data.attrs) {
+      setAttributes(node, data.tag, {value: data.attrs.value}, {},
+        namespace)
+    }
+    if (!isNew && shouldReattach === true && node != null) {
+      insertNode(parentElement, node, index)
+    }
+
+    // The configs are called after `build` finishes running
+    scheduleConfigsToBeCalled(configs, data, node, isNew, cached)
+
+    return cached
+  }
+  ```
+  どうやらselectタグが指定されていた場合は子要素がないとうまく動かないとのことでもう一度属性の設定をしている。
+
+  で、必要に応じて`node`を`index`の位置に追加して最後に`data`の`config`を`configs`に突っ込んで終了。
+
+
+  とりあえずこれでおしまいなんだが、まだあるんや…
