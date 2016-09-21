@@ -1,0 +1,65 @@
+title: pythonでカリー化
+slug: pycurry
+utime: 1474465827
+date: 2016/09/21 22:50:27
+tags:
+  - python
+publish: true
+body: |-
+  やり尽くされてるだろうけどpythonでカリー化を実装してみました
+
+  ```
+  import functools
+
+
+  class ArgumentCountError(Exception):
+      pass
+
+
+  def curry(function):
+      name = function.__name__
+      argcount = function.__code__.co_argcount
+      varnames = function.__code__.co_varnames
+      class Factory:
+          def __init__(self, function, params=None):
+              self.function = function
+              self._params = params if params else tuple()
+
+          @property
+          def name(self):
+              return name
+
+          @property
+          def argcount(self):
+              return argcount
+
+          @property
+          def varnames(self):
+              return varnames
+
+          def __call__(self, *args):
+              params = self._params + args
+              if self.argcount < len(params):
+                  raise ArgumentCountError
+              elif self.argcount == len(params):
+                  return self.function(*args)
+              else:
+                  return self.__class__(functools.partial(self.function, *args), params)
+
+          def __str__(self):
+              params = ', '.join(
+                  '{}={}'.format(*x) for x in zip(self.varnames, self._params)
+              ) if self._params else 'NO PARAM SUPPLIED'
+              return '<{}: {}>'.format(self.name, params)
+      return Factory(function)
+
+
+  if __name__ == '__main__':
+      @curry
+      def add(x, y, z):
+          return x + y + z
+
+      assert add(1, 2, 3) == add(1, 2)(3) == add(1)(2)(3) == 6
+  ```
+
+  特に工夫はしてないです

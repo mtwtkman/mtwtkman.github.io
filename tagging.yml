@@ -27,6 +27,7 @@ mithril:
 - {path: 2016/02/21/mithrilify, title: "github pages\u306E\u69CB\u6210\u3092\u5909\
     \u3048\u305F"}
 python:
+- {path: 2016/09/21/pycurry, title: "python\u3067\u30AB\u30EA\u30FC\u5316"}
 - {path: 2016/05/05/module-global-vs-class-variable, title: "\u30E2\u30B8\u30E5\u30FC\
     \u30EB\u30B0\u30ED\u30FC\u30D0\u30EB\u3088\u308A\u30AF\u30E9\u30B9\u5909\u6570\
     \u306E\u65B9\u304C\u30D1\u30D5\u30A9\u30FC\u30DE\u30F3\u30B9\u7684\u306B\u6709\
