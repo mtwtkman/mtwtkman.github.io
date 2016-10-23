@@ -1,0 +1,274 @@
+title: mithirl.jsのospec使ってみる
+slug: mithril-ospec
+utime: 1477227895
+date: 2016/10/23 22:04:55
+tags:
+  - mithril
+publish: true
+body: |-
+  rewriteいいですね。mithrilのコードリーディングは完全に挫折したけどもうrewriteブランチを追うことにするのでいいやという感じ。
+
+  rewriteブランチには[ospec](https://www.npmjs.com/package/ospec)というフルスクラッチのテストフレームワークがあってやばくなっているので見てみます。
+
+  機能としては
+  - テストのグループ化
+  - アサーション
+  - スパイ
+  - `equals`, `notEquals`, `deepEquals`, `notDeepEquals`のアサーションタイプ
+  - `before`/`after`/`beforeEach`/`afterEach`の各フック
+  - 排他テスト(`.only`とか)
+  - 非同期なテストとフック
+  ということで一通り必要なものは揃っている印象です。
+
+  [APIも小柄です。](https://github.com/lhorie/mithril.js/tree/rewrite/ospec#api)
+
+  # インストール
+  `npm i ospec`
+
+  # 使い方
+  詳しくは[ドキュメント](https://github.com/lhorie/mithril.js/blob/rewrite/ospec/README.md)を見てください。
+
+  ## 基本的な使い方
+  基本的な使い方は`o.spec`でテストのグループ化をして`o`でテストを作成。`o.run`でテストを実行という流れです。
+  ```javascript
+  function kebabify(v) {
+    if (typeof v !== 'string') return null;
+    return v.split('').join('-');
+  }
+
+  var o = require('ospec');
+
+  o.spec('kebabify', function() {
+    o('return kebabed string if passed string', function() {
+      o(kebabify('hoge')).equals('h-o-g-e');
+    })
+    o('return null if passed not string', function() {
+      o(kebabify(123)).equals(null);
+    })
+  });
+
+  o.run();
+  ```
+
+  テストが通るとアサーションの数だけが表示されます。
+  > 2 assertions completed in 23ms
+
+  テストが失敗するとどこで失敗したかが最低限表示されます。
+  >kebabify > shoud return null if passed not string: null should equal "1-2-3"
+  >
+  > at /Users/boku/work/jswork/hoge/tests/one.js:13:22
+  >
+  >
+  > 2 assertions completed in 23ms
+
+  素っ気ないですね。
+
+  `o.spec`はネストできます。
+
+  ```javascript
+  function _anyfy(v, sign) {
+    if (typeof v !== 'string') return null;
+    return v.split('').join(sign);
+  }
+
+  function kebabify(v) { return _anyfy(v, '-') }
+  function snakify(v) { return _anyfy(v, '_') }
+
+  var o = require('ospec');
+
+  o.spec('string case', function() {
+    o.spec('kebabify', function() {
+      o('shoud return kebabed string if passed string', function() {
+        o(kebabify('hoge')).equals('h-o-g-e');
+      })
+      o('shoud return null if passed not string', function() {
+        o(kebabify(123)).equals(null);
+      })
+    });
+    o.spec('snakify', function() {
+      o('shoud return snaked string if passed string', function() {
+        o(snakify('hoge')).equals('h_o_g_e');
+      })
+      o('shoud return null if passed not string', function() {
+        o(snakify(123)).equals(null);
+      })
+    });
+  });
+
+  o.run();
+  ```
+
+  また、`bin`に`ospec`があるのでコマンドで呼び出すこともできます。コマンドで呼び出す場合は`tests/*.js`がテスト定義ファイルとみなされます。
+
+  ## スタブ
+  `o.spy`はスタブとして利用できます。例えばコールバック関数を引数に取る関数をテストする時に利用できるわけです。
+
+  ```javascript
+  function one(cb, x, y) {
+    console.log('yeah, wow, wow, yeah');
+    cb(x, y);
+    console.log('oh...');
+    cb(x, y);
+    console.log('hey...');
+  }
+
+  var o = require('ospec');
+
+  o.spec('one()', function() {
+    o('shoud work for me.', function() {
+      var spy = o.spy();
+      one(spy, 10, 100);
+      o(spy.callCount).equals(2);
+      o(spy.args).deepEquals([10, 100]);
+    });
+  });
+
+  o.run();
+  ```
+
+  `o.spy`が返却するオブジェクトは`callCount`と`args`という属性を持っています。それぞれ呼ばれた回数とスタブ関数に**最後に渡された**引数の配列です。
+
+  ## 非同期テスト
+  テストのスコープを作っている関数に引数を渡すとそれは非同期なものとみなされます。その引数はテスト完了時に必ず一度呼び出される関数です。
+
+  慣例的には`done`とかつけるみたいです。
+
+  ```javascript
+  function asyncFunc(cb, wait) {
+    wait = wait || 20;
+    setTimeout(cb(), wait);
+  }
+
+  var o = require('ospec');
+
+  o('setTimeout calls callback', function(done, timeout) {
+    timeout(50);
+    asyncFunc(done, 10);
+  });
+
+  o.run();
+  ```
+
+  あまりいい例じゃないけど(;´Д`)
+
+  ちなみにデフォルトで非同期テストのタイムアウトは`20ms`とのことでこれはテストのスコープを作ってる関数の第二引数に渡す関数によって設定を変えられる。
+
+  この引数は慣例的に`timeout`と名付けるのがいいようだ。
+
+  `done`が実行されれば成功してタイムアウトすると失敗とのことだけど、何度やっても成功してしまう。謎い。
+
+  ## フック
+  テストの実行タイミングのフックがあります。
+  `before`と`after`はテストグループの実行前後に一度だけ実行されるフックです。
+  ```javascript
+  function id(x) { return x; }
+
+  var o = require('ospec');
+
+  o.spec('double', function() {
+    var acc;
+    o.before(function() {
+      acc = 0;
+    });
+    o('should return himself.', function() {
+      acc++;
+      o(id(acc)).equals(1);
+    });
+    o('should return himself again.', function() {
+      acc++
+      o(id(acc)).equals(2);
+    });
+  });
+
+  o.run();
+  ```
+
+  ちなみにテストの実行される順番は定義順ぽいですね。
+
+  `beforeEach`と`afterEach`はテストごとの実行前後のフックです。
+  ```javascript
+  function id(x) { return x; }
+
+  var o = require('ospec');
+
+  o.spec('double', function() {
+    var acc;
+    o.beforeEach(function() {
+      acc = 0;
+    });
+    o('should return himself.', function() {
+      acc++;
+      o(id(acc)).equals(1);
+    });
+    o('should return himself again.', function() {
+      acc--;
+      o(id(acc)).equals(-1);
+    });
+  });
+
+  o.run();
+  ```
+
+  フックの関数に`done`を渡すと非同期なフックとなります。`done`が実行された前後にテストがはしります。
+  ```javascript
+  function id(x) { return x; }
+
+  var o = require('ospec');
+
+  o.spec('double', function() {
+    var acc;
+    o.beforeEach(function(done) {
+      acc = 0;
+      done();
+    });
+
+    // 非同期フックが完了したらテストが実行される。
+    o('should return himself.', function() {
+      acc++;
+      o(id(acc)).equals(1);
+    });
+    o('should return himself again.', function() {
+      acc--;
+      o(id(acc)).equals(-1);
+    });
+  });
+
+  o.run();
+  ```
+
+  でもこれテストの結果に`beforeEach`内の非同期処理のアサーションも計上されているので微妙です。
+
+  ## 排他的テスト
+  `o.only`によってそのテストだけを実行できます。
+  ```javascript
+  var o = require('ospec');
+
+  o.spec('test', function() {
+    o('does not run.', function() {
+      o(1 + 1).equals(2);
+    });
+
+    o.only('runs', function() {
+      o(1 * 10).equals(10);
+    });
+  });
+
+  o.run();
+  ```
+
+  > 1 ssertions completed in 22ms
+
+  ## テストの並列実行
+  `o.new`することで新たな`o`のオブジェクトが生成できるので
+  ```javascript
+  var o = require('o');
+  var _o = o.new();
+  ...
+  o.run();
+  _o.runt();
+  ```
+
+  として並列にテストが実行できます。
+
+
+  まだまだ荒削りな部分がありますが、多機能になりすぎて肥大化するよりかはマシだと感じます。js界隈のテストフレームワークは覚えるのと環境を整えるが億劫というのがあるのでこのくらいシンプルでいいのではという気づきがありますね。

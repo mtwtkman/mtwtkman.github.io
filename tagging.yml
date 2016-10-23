@@ -16,6 +16,8 @@ javascript:
 misc:
 - {path: 2016/02/14/moved-to-gh-page, title: "github pages\u306B\u5F15\u8D8A\u3057"}
 mithril:
+- {path: 2016/10/23/mithril-ospec, title: "mithirl.js\u306Eospec\u4F7F\u3063\u3066\
+    \u307F\u308B"}
 - {path: 2016/08/27/reading-mithriljs-4, title: "mithriljs\u306E\u30B3\u30FC\u30C9\
     \u3092\u8AAD\u3080(4)"}
 - {path: 2016/08/25/reading-mithriljs-3, title: "mithriljs\u306E\u30B3\u30FC\u30C9\
