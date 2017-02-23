@@ -44,6 +44,9 @@ python:
     type\u306A\u3069"}
 - {path: 2016/02/21/mithrilify, title: "github pages\u306E\u69CB\u6210\u3092\u5909\
     \u3048\u305F"}
+rust:
+- {path: 2017/02/23/try-to-understand-ownership, title: "Rust \u306E\u6240\u6709\u6A29\
+    \u3092\u7406\u89E3\u3059\u308B"}
 webpack:
 - {path: 2016/02/21/mithrilify, title: "github pages\u306E\u69CB\u6210\u3092\u5909\
     \u3048\u305F"}

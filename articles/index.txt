@@ -1,3 +1,4 @@
+2017/02/23/try-to-understand-ownership.yml
 2016/10/23/mithril-ospec.yml
 2016/09/21/pycurry.yml
 2016/08/27/reading-mithriljs-4.yml
