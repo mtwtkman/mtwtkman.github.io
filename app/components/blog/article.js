@@ -23,6 +23,7 @@ const Article = {
       Article.data.tags = response.tags;
       Article.data.date = response.date;
       Article.data.body = response.body;
+      utils.setTitle(response.title);
     });
   }
 };
@@ -35,7 +36,6 @@ export default {
       smartLists: true
     });
     let attrs = vnode.attrs;
-    utils.setTitle(attrs.title);
     Article.fetch(attrs);
   },
   view: function(vnode) {
@@ -50,8 +50,11 @@ export default {
         m('div#tags', data.tags.map(tag => {
           return m(
             'span.tag',
-            m(`a[href='/blog/tag/${tag}`,
-              {oncrate: m.route.link},
+            m('a',
+              {
+                href: `/blog/tag/${tag}`,
+                oncreate: m.route.link
+              },
               [m('span.glyphicon.glyphicon-tag[aria-hidden="true"]'), tag]
             )
           );

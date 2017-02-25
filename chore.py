@@ -27,9 +27,9 @@ publish: false
 body: |-
 '''
 
-REQUIRED = ['title', 'slug', 'utime', 'date', 'publish', 'body']
+REQUIRED = ('title', 'slug', 'utime', 'date', 'publish', 'body')
 NODE_BIN = 'node_modules/.bin'
-
+IGNORE_YAML = ('index.yml', 'tags.yml')
 
 def build():
     index()
@@ -73,7 +73,7 @@ def index():
     result = []
     for root, dirs, files in os.walk('./articles'):
         for _file in files:
-            if _file == 'index.yml':
+            if _file in IGNORE_YAML:
                 continue
             if not _file.endswith('.yml'):
                 continue
@@ -99,6 +99,8 @@ def tagging():
     result = {}
     for root, dirs, files in os.walk('./articles'):
         for _file in files:
+            if _file in IGNORE_YAML:
+                continue
             if not _file.endswith('.yml'):
                 continue
             with open(os.path.join(root, _file)) as f:
@@ -113,7 +115,7 @@ def tagging():
                     'title': data['title']
                 })
 
-    with open('./articles/tags.yml', 'w') as f:
+    with open('./articles/tagging.yml', 'w') as f:
         f.write(yaml.dump(result))
 
 
