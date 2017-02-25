@@ -28,9 +28,11 @@ export default {
       m('div#article-list', Index.data.map(article => {
         const date = `${article.year}/${article.month}/${article.day}`;
         return m('div.title', [
-          m(
-            `a[href=/blog/${date}/${article.slug}.yml`,
-            { oncreate: m.route.link },
+          m('a',
+            {
+              href: `/blog/article/${date}/${article.slug}`,
+              oncreate: m.route.link,
+            },
             article.title
           ),
           m('span.post-date', `(${date})`)
