@@ -32,7 +32,7 @@ NODE_BIN = 'node_modules/.bin'
 
 
 def build():
-    reindex()
+    index()
     tagging()
     css()
     rss()
@@ -53,7 +53,7 @@ def new(slug):
         date = time.strftime('%Y/%m/%d %H:%M:%S', time.localtime(utime))
         f.write(ARTICLE_TEMPLATE.format(slug=slug, utime=utime, date=date))
 
-    reindex()
+    index()
 
 
 def delete(path):
@@ -66,24 +66,30 @@ def delete(path):
         os.removedirs('/'.join(path.split('/')[:-1]))
     except OSError:
         pass
-    reindex()
+    index()
 
 
-def reindex():
-    paths = []
+def index():
+    result = []
     for root, dirs, files in os.walk('./articles'):
         for _file in files:
+            if _file == 'index.yml':
+                continue
             if not _file.endswith('.yml'):
                 continue
             with open(os.path.join(root, _file)) as f:
                 data = yaml.safe_load(f.read())
             if not data['publish']:
                 continue
-            paths.append(os.path.join(root.replace('./articles/', ''), _file))
-    paths.sort(reverse=True)
-
-    with open('./articles/index.txt', 'w') as f:
-        f.write('\n'.join(paths))
+            result.append({
+                'title': data['title'],
+                'slug': data['slug'],
+                'date': root.replace('./articles/', ''),
+                'path': f'{root}/{_file}'[1:]
+            })
+    result.sort(key=lambda x: x['date'], reverse=True)
+    with open('./articles/index.yml', 'w') as f:
+        f.write(yaml.dump(result))
 
 
 def tagging():
@@ -104,7 +110,7 @@ def tagging():
                     'title': data['title']
                 })
 
-    with open('tagging.yml', 'w') as f:
+    with open('./articles/tags.yml', 'w') as f:
         f.write(yaml.dump(result))
 
 
@@ -215,7 +221,7 @@ if __name__ == '__main__':
             'del': delete
         }[cmd](sys.argv[2])
     elif cmd == 'idx':
-        reindex()
+        index()
     elif cmd == 'tag':
         tagging()
     elif cmd == 'build':

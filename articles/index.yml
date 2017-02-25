@@ -1,0 +1,35 @@
+- {date: 2017/02/23, path: /articles/2017/02/23/try-to-understand-ownership.yml, slug: try-to-understand-ownership,
+  title: "Rust \u306E\u6240\u6709\u6A29\u3092\u7406\u89E3\u3059\u308B"}
+- {date: 2016/10/23, path: /articles/2016/10/23/mithril-ospec.yml, slug: mithril-ospec,
+  title: "mithirl.js\u306Eospec\u4F7F\u3063\u3066\u307F\u308B"}
+- {date: 2016/09/21, path: /articles/2016/09/21/pycurry.yml, slug: pycurry, title: "python\u3067\
+    \u30AB\u30EA\u30FC\u5316"}
+- {date: 2016/08/27, path: /articles/2016/08/27/reading-mithriljs-4.yml, slug: reading-mithriljs-4,
+  title: "mithriljs\u306E\u30B3\u30FC\u30C9\u3092\u8AAD\u3080(4)"}
+- {date: 2016/08/25, path: /articles/2016/08/25/reading-mithriljs-3.yml, slug: reading-mithriljs-3,
+  title: "mithriljs\u306E\u30B3\u30FC\u30C9\u3092\u8AAD\u3080(3)"}
+- {date: 2016/08/24, path: /articles/2016/08/24/reading-mithriljs-2.yml, slug: reading-mithriljs-2,
+  title: "mithriljs\u306E\u30B3\u30FC\u30C9\u3092\u8AAD\u3080(2)"}
+- {date: 2016/08/22, path: /articles/2016/08/22/reading-mithriljs.yml, slug: reading-mithriljs,
+  title: "mithriljs\u306E\u30B3\u30FC\u30C9\u3092\u8AAD\u3080"}
+- {date: 2016/07/29, path: /articles/2016/07/29/js-test-with-karma-webpack-es6.yml,
+  slug: js-test-with-karma-webpack-es6, title: "ES6\u3067\u66F8\u3044\u305F\u30B3\u30FC\
+    \u30C9\u3092karma+webpack\u3067\u30C6\u30B9\u30C8"}
+- {date: 2016/05/05, path: /articles/2016/05/05/module-global-vs-class-variable.yml,
+  slug: module-global-vs-class-variable, title: "\u30E2\u30B8\u30E5\u30FC\u30EB\u30B0\
+    \u30ED\u30FC\u30D0\u30EB\u3088\u308A\u30AF\u30E9\u30B9\u5909\u6570\u306E\u65B9\
+    \u304C\u30D1\u30D5\u30A9\u30FC\u30DE\u30F3\u30B9\u7684\u306B\u6709\u5229"}
+- {date: 2016/04/14, path: /articles/2016/04/14/rop.yml, slug: rop, title: "\u9244\u9053\
+    \u6307\u5411\u30D7\u30ED\u30B0\u30E9\u30DF\u30F3\u30B0\u3092python\u3067"}
+- {date: 2016/03/21, path: /articles/2016/03/21/pipe.yml, slug: pipe, title: "shell\u306E\
+    \u30D1\u30A4\u30D7\u3092python\u3067\u5B9F\u88C5"}
+- {date: 2016/03/19, path: /articles/2016/03/19/v8-optimization.yml, slug: v8-optimization,
+  title: "V8\u3067\u6700\u9069\u5316\u3055\u308C\u306A\u3044javascript"}
+- {date: 2016/03/13, path: /articles/2016/03/13/pyazo.yml, slug: pyazo, title: "Gyazo\
+    \ API\u306E\u30AF\u30E9\u30A4\u30A2\u30F3\u30C8\u3092\u96D1\u306B\u4F5C\u3063\u305F"}
+- {date: 2016/02/26, path: /articles/2016/02/26/expert-python-chapter3.yml, slug: expert-python-chapter3,
+  title: "python\u306E__new__\u3068\u304Btype\u306A\u3069"}
+- {date: 2016/02/21, path: /articles/2016/02/21/mithrilify.yml, slug: mithrilify,
+  title: "github pages\u306E\u69CB\u6210\u3092\u5909\u3048\u305F"}
+- {date: 2016/02/14, path: /articles/2016/02/14/moved-to-gh-page.yml, slug: moved-to-gh-page,
+  title: "github pages\u306B\u5F15\u8D8A\u3057"}
