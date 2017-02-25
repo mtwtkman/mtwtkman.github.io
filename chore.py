@@ -81,13 +81,16 @@ def index():
                 data = yaml.safe_load(f.read())
             if not data['publish']:
                 continue
+
+            year, month, day = root.replace('./articles/', '').split('/')
             result.append({
                 'title': data['title'],
                 'slug': data['slug'],
-                'date': root.replace('./articles/', ''),
-                'path': f'{root}/{_file}'[1:]
+                'year': year,
+                'month': month,
+                'day': day,
             })
-    result.sort(key=lambda x: x['date'], reverse=True)
+    result.sort(key=lambda x: (x['year'], x['month'], x['day']), reverse=True)
     with open('./articles/index.yml', 'w') as f:
         f.write(yaml.dump(result))
 
