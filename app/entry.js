@@ -1,14 +1,10 @@
-import m from 'mithril';
-import Top from './components/top/component';
-import Blog from './components/blog/index/component';
-import Article from './components/blog/article/component';
-import Tag from './components/blog/tag/component';
+import m from 'mithril'
+import Top from './components/top.js'
+import BlogIndex from './components/blog/index.js'
+import Article from './components/blog/article.js'
 
-
-m.route.mode = 'hash';
 m.route(document.getElementById('main'), '/', {
   '/': Top,
-  '/blog': Blog,
-  '/blog/article/:date.../:slug': Article,
-  '/blog/tag/:name': Tag
+  '/blog': BlogIndex,
+  '/blog/article/:year/:month/:day/:title': Article
 });
