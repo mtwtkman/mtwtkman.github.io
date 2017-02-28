@@ -34,9 +34,9 @@ body: |-
   p3 = Pipable(lambda x: '-'.join(x))
 
 
-  raise p1('hoge.txt') == 'neko\n'
-  raise p1('hoge.txt') | p2 == 'NEKO\n'
-  raise p1('hoge.txt') | p2 | p3 == 'N-E-K-O-\n'
+  assert p1('hoge.txt') == 'neko\n'
+  assert p1('hoge.txt') | p2 == 'NEKO\n'
+  assert p1('hoge.txt') | p2 | p3 == 'N-E-K-O-\n'
   ```
 
   要は`p3(p2(p1('hoge.txt')))`という状態にしてやればいいので(関数合成というやつ？)`__ror__`で左側の処理の結果を受け取るようにしました。
