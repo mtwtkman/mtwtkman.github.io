@@ -4,10 +4,7 @@ version = "0.1.0"
 authors = ["root"]
 
 [dependencies]
-iron = "*"
-tera = "*"
-router = "*"
-iron-tera = { path = "iron-tera" }
-handlebars-iron = "*"
-handlebars = "*"
-serde_json = "*"
+iron = "^0.5"
+router = "^0.5"
+tera = "^0.7"
+iron-tera = { path: "./iron-tera" }
