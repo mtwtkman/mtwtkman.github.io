@@ -6,5 +6,6 @@ authors = ["root"]
 [dependencies]
 iron = "^0.5"
 router = "^0.5"
-tera = "^0.7"
-iron-tera = { path: "./iron-tera" }
+tera = "^0.8"
+iron-tera = { git = "https://github.com/mtwtkman/iron-tera" }
+iron-test = "^0.5"
