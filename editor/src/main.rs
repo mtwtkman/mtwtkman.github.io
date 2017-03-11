@@ -1,44 +1,47 @@
 extern crate iron;
-#[macro_use]
 extern crate router;
-extern crate tera;
-extern crate iron_tera;
 #[cfg(test)]
 extern crate iron_test;
+extern crate serde;
+#[macro_use]
+extern crate serde_derive;
+extern crate serde_yaml;
+
+use std::io::prelude::*;
+use std::fs::File;
 
 use iron::prelude::*;
 use iron::status;
-use tera::Context;
-use iron_tera::{TeraEngine, Template, TemplateMode};
+use router::Router;
+
+mod datastore;
+
 
 fn index(_: &mut Request) -> IronResult<Response> {
-    let mut response = Response::new();
-    let mut context = Context::new();
-    context.add("data", &"This is data");
-    response.set_mut(Template::new("index.html", TemplateMode::from_context(context)))
-            .set_mut(status::Ok);
-    Ok(response)
+    let mut f = File::open("./src/index.html").unwrap();
+    let mut s = String::new();
+    let _ = f.read_to_string(&mut s);
+    Ok(Response::with((status::Ok, s)))
 }
 
 fn main() {
-    let router = router!(index: get "/" => index);
-    let mut chain = Chain::new(router);
-    let teng = TeraEngine::new("/source/src/templates/**/*");
-    chain.link_after(teng);
-    Iron::new(chain).http("0.0.0.0:3000").unwrap();
+    let mut router = Router::new();
+    router.get("/", index, "index");
+    Iron::new(router).http("0.0.0.0:3000").unwrap();
 }
 
 #[cfg(test)]
 mod tests {
     use iron::status;
     use iron::headers::Headers;
-    use iron_test::request;
+    use iron_test::{request, response};
 
     use super::index;
 
     #[test]
     fn test_index() {
         let response = request::get("http://localhost:3000", Headers::new(), &index).unwrap();
-        assert_eq!(response.status.unwrap(), status::Status::Ok);
+        assert_eq!(response.status.unwrap(), status::Ok);
+        assert!(response::extract_body_to_string(response).contains("<!doctype html>"));
     }
 }
