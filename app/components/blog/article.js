@@ -38,6 +38,9 @@ export default {
     let attrs = vnode.attrs;
     Article.fetch(attrs);
   },
+  onupdate: function(vnode) {
+    hljs.initHighlightingOnLoad();
+  },
   view: function(vnode) {
     const data = Article.data;
     return m('section', [

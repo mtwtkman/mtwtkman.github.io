@@ -46,10 +46,11 @@ pub fn articles() -> serde_yaml::Result<Articles> {
 
 #[cfg(test)]
 mod tests {
-    use super::articles;
+    use super::{read_file, articles};
 
     #[test]
-    fn test_articles() {
-        assert_eq!(1, 1);
+    fn test_read_file() {
+        let d = read_file(&"index.yml");
+        assert!(d.contains("day"));
     }
 }
