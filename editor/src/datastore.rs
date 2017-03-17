@@ -2,8 +2,6 @@ use std::path::PathBuf;
 use std::io::prelude::*;
 use std::fs::File;
 
-use serde_yaml;
-
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct Article {
@@ -14,7 +12,7 @@ pub struct Article {
     pub day: i32,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct Tag {
     pub path: String,
     pub title: String,
@@ -31,10 +29,11 @@ fn read_file(path_string: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use serde::Deserialize;
-    use serde_yaml::{from_str, to_vec};
+    use std::collections::HashMap;
 
-    use super::{read_file, Article};
+    use serde_yaml::from_str;
+
+    use super::{read_file, Article, Tag};
 
     #[test]
     fn test_read_file() {
@@ -45,7 +44,7 @@ mod tests {
     #[test]
     fn test_article() {
         let data = read_file(&"test/articles.yml");
-        let response: Vec<Article> = from_str(&data).unwrap();
+        let result: Vec<Article> = from_str(&data).unwrap();
         let expected = vec![
             Article {
                 slug: "hoge-slug".to_string(),
@@ -62,6 +61,34 @@ mod tests {
                 day: 31,
             },
         ];
-        assert_eq!(response, expected);
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_tag() {
+        let data = read_file(&"test/tags.yml");
+        let result: HashMap<String, Vec<Tag>> = from_str(&data).unwrap();
+        let mut expected = HashMap::new();
+        expected.insert("animal".to_string(), vec![
+            Tag {
+                path: "path/to/dog".to_string(),
+                title: "dog".to_string(),
+            },
+            Tag {
+                path: "path/to/cat".to_string(),
+                title: "cat".to_string(),
+            },
+        ]);
+        expected.insert("vegetable".to_string(), vec![
+            Tag {
+                path: "path/to/tomato".to_string(),
+                title: "tomato".to_string(),
+            },
+            Tag {
+                path: "path/to/potato".to_string(),
+                title: "potato".to_string(),
+            },
+        ]);
+        assert_eq!(result, expected);
     }
 }

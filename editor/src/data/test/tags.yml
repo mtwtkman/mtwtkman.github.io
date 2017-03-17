@@ -1,0 +1,6 @@
+animal:
+  - {path: "path/to/dog", title: "dog"}
+  - {path: "path/to/cat", title: "cat"}
+vegetable:
+  - {path: "path/to/tomato", title: "tomato"}
+  - {path: "path/to/potato", title: "potato"}
