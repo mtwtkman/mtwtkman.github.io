@@ -1,6 +1,9 @@
+use std::collections::HashMap;
 use std::path::PathBuf;
 use std::io::prelude::*;
 use std::fs::File;
+
+use serde_yaml::from_str;
 
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
@@ -18,6 +21,16 @@ pub struct Tag {
     pub title: String,
 }
 
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
+pub struct Content {
+    pub title: String,
+    pub slug: String,
+    pub date: String,
+    pub tags: Vec<String>,
+    pub publish: bool,
+    pub body: String,
+}
+
 fn read_file(path_string: &str) -> String {
     let mut p = PathBuf::from("./src/data");
     p.push(path_string.to_string());
@@ -27,13 +40,21 @@ fn read_file(path_string: &str) -> String {
     data
 }
 
+pub fn articles() -> Vec<Article> {
+    from_str(&read_file(&"index.yml")).unwrap()
+}
+
+pub fn tags() -> HashMap<String, Vec<Tag>> {
+    from_str(&read_file(&"tagging.yml")).unwrap()
+}
+
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;
 
     use serde_yaml::from_str;
 
-    use super::{read_file, Article, Tag};
+    use super::{read_file, Article, Tag, Content};
 
     #[test]
     fn test_read_file() {
@@ -89,6 +110,21 @@ mod tests {
                 title: "potato".to_string(),
             },
         ]);
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_content() {
+        let data = read_file(&"test/content.yml");
+        let result: Content = from_str(&data).unwrap();
+        let expected = Content {
+            title: "hoge".to_string(),
+            slug: "h-o-g-e".to_string(),
+            date: "2017/01/01 12:00:00".to_string(),
+            tags: vec!["a".to_string(), "b".to_string()],
+            publish: true,
+            body: "this\nis\nbody".to_string(),
+        };
         assert_eq!(result, expected);
     }
 }
