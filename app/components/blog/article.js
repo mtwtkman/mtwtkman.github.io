@@ -38,7 +38,9 @@ export default {
     Article.fetch(attrs);
   },
   onupdate: function(vnode) {
-    hljs.initHighlightingOnLoad();
+    Array.from(document.getElementsByTagName('pre')).forEach(x => {
+      hljs.highlightBlock(x);
+    });
   },
   view: function(vnode) {
     const data = Article.data;

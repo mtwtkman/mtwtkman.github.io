@@ -2,7 +2,7 @@ var path = require('path');
 var webpack = require('webpack');
 
 module.exports = {
-  context: path.resolve(__dirname, 'app'),
+  context: path.resolve(__dirname, '../app'),
   entry: './entry',
   output: {
     filename: 'bundle.js'
@@ -18,12 +18,5 @@ module.exports = {
         loader: 'babel-loader'
       }
     ]
-  },
-  plugins: [
-    new webpack.optimize.UglifyJsPlugin({
-      compress: {
-          warnings: false
-      }
-    })
-  ]
+  }
 }

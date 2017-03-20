@@ -6,8 +6,9 @@
   "author": "mtwtkman <punipuniomochi@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "webpack",
-    "watch": "webpack --watch"
+    "dev": "webpack --config=webpack/dev.js",
+    "watch": "webpack --watch --config=webpack/dev.js",
+    "build": "webpack --config=webpack/prod.js"
   },
   "devDependencies": {
     "babel-core": "^6.23.1",
