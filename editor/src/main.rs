@@ -16,13 +16,9 @@ use iron::mime::Mime;
 use iron::status;
 use router::Router;
 
-mod datastore;
+mod model;
+mod api;
 
-
-fn json_response(body: String) -> IronResult<Response> {
-    let content_type = "application/json".parse::<Mime>().unwrap();
-    Ok(Response::with((content_type, status::Ok, body)))
-}
 
 fn index(_: &mut Request) -> IronResult<Response> {
     let mut f = File::open("./src/index.html").unwrap();
@@ -30,12 +26,12 @@ fn index(_: &mut Request) -> IronResult<Response> {
     let _ = f.read_to_string(&mut s);
     let content_type = "text/html".parse::<Mime>().unwrap();
     Ok(Response::with((content_type, status::Ok, s)))
-
 }
 
 fn main() {
     let mut router = Router::new();
     router.get("/", index, "index");
+    router.get("/api/articles", api::articles_list, "articles_list");
     Iron::new(router).http("0.0.0.0:3000").unwrap();
 }
 
@@ -45,7 +41,7 @@ mod tests {
     use iron::headers::{Headers};
     use iron_test::{request, response};
 
-    use super::index;
+    use super::{index, read_file};
 
     #[test]
     fn test_index() {
