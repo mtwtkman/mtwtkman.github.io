@@ -1,4 +1,4 @@
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize)]
 pub struct Article {
     pub slug: String,
     pub title: String,
@@ -7,13 +7,13 @@ pub struct Article {
     pub day: i32,
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize)]
 pub struct Tag {
     pub path: String,
     pub title: String,
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize)]
 pub struct Content {
     pub title: String,
     pub slug: String,

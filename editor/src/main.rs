@@ -16,8 +16,8 @@ use iron::mime::Mime;
 use iron::status;
 use router::Router;
 
-mod model;
 mod api;
+mod model;
 
 
 fn index(_: &mut Request) -> IronResult<Response> {
@@ -31,7 +31,9 @@ fn index(_: &mut Request) -> IronResult<Response> {
 fn main() {
     let mut router = Router::new();
     router.get("/", index, "index");
-    router.get("/api/articles", api::articles_list, "articles_list");
+    router.get("/api/articles", api::articles, "articles");
+    router.get("/api/articles/:year-:month-:day-:slug", api::article, "article");
+    router.get("/api/tags", api::tags, "tags");
     Iron::new(router).http("0.0.0.0:3000").unwrap();
 }
 
