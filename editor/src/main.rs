@@ -5,10 +5,8 @@ extern crate iron_test;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
-extern crate serde_yaml;
 #[macro_use]
 extern crate serde_json;
-extern crate iron_json_response;
 
 use std::io::prelude::*;
 use std::fs::File;
@@ -17,13 +15,13 @@ use iron::prelude::*;
 use iron::mime::Mime;
 use iron::status;
 use router::Router;
-use iron_json_response::{JsonResponseMiddleware, JsonResponse};
 
 mod datastore;
 
+
 fn json_response(body: String) -> IronResult<Response> {
     let content_type = "application/json".parse::<Mime>().unwrap();
-    Ok(Response::with((content_type, status::Ok, body)));
+    Ok(Response::with((content_type, status::Ok, body)))
 }
 
 fn index(_: &mut Request) -> IronResult<Response> {
@@ -33,11 +31,6 @@ fn index(_: &mut Request) -> IronResult<Response> {
     let content_type = "text/html".parse::<Mime>().unwrap();
     Ok(Response::with((content_type, status::Ok, s)))
 
-}
-
-fn articles(_: &mut Request) -> IronResult<Response> {
-    let data: Vec<datastore::Article> = datastore::articles();
-    json_response(body)
 }
 
 fn main() {

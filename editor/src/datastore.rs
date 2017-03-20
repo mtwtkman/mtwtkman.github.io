@@ -3,8 +3,7 @@ use std::path::PathBuf;
 use std::io::prelude::*;
 use std::fs::File;
 
-use serde_yaml::from_str;
-use serde_json::value::{Value, ToJson};
+use serde_json::from_str;
 
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
@@ -14,12 +13,6 @@ pub struct Article {
     pub year: i32,
     pub month: i32,
     pub day: i32,
-}
-
-impl ToJson for Article {
-    pub fn to_json(&self) -> Result<Value, Error> {
-        Ok();
-    }
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
@@ -48,18 +41,18 @@ fn read_file(path_string: &str) -> String {
 }
 
 pub fn articles() -> Vec<Article> {
-    from_str(&read_file(&"index.yml")).unwrap()
+    from_str(&read_file(&"index.json")).unwrap()
 }
 
 pub fn tags() -> HashMap<String, Vec<Tag>> {
-    from_str(&read_file(&"tagging.yml")).unwrap()
+    from_str(&read_file(&"tagging.json")).unwrap()
 }
 
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;
 
-    use serde_yaml::from_str;
+    use serde_json::from_str;
 
     use super::{read_file, Article, Tag, Content};
 
@@ -71,7 +64,7 @@ mod tests {
 
     #[test]
     fn test_article() {
-        let data = read_file(&"test/articles.yml");
+        let data = read_file(&"test/articles.json");
         let result: Vec<Article> = from_str(&data).unwrap();
         let expected = vec![
             Article {
@@ -94,7 +87,7 @@ mod tests {
 
     #[test]
     fn test_tag() {
-        let data = read_file(&"test/tags.yml");
+        let data = read_file(&"test/tags.json");
         let result: HashMap<String, Vec<Tag>> = from_str(&data).unwrap();
         let mut expected = HashMap::new();
         expected.insert("animal".to_string(), vec![
@@ -122,7 +115,7 @@ mod tests {
 
     #[test]
     fn test_content() {
-        let data = read_file(&"test/content.yml");
+        let data = read_file(&"test/content.json");
         let result: Content = from_str(&data).unwrap();
         let expected = Content {
             title: "hoge".to_string(),
