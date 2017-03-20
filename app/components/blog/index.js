@@ -1,5 +1,4 @@
 import m from 'mithril'
-import yaml from 'js-yaml'
 
 import utils from '../../utils.js';
 
@@ -9,8 +8,8 @@ const Index = {
   fetch: function() {
     m.request({
       method: 'GET',
-      url: '/articles/index.yml',
-      deserialize: yaml.safeLoad
+      url: '/articles/index.json',
+      deserialize: JSON.parse
     })
     .then(function(response) {
       Index.data = response;

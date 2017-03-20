@@ -1,5 +1,4 @@
 import m from 'mithril'
-import yaml from 'js-yaml'
 import marked from 'marked'
 
 import utils from '../../utils.js';
@@ -15,8 +14,8 @@ const Article = {
   fetch: function(args) {
     m.request({
       method: 'GET',
-      url: `/articles/${args.year}/${args.month}/${args.day}/${args.title}.yml`,
-      deserialize: yaml.safeLoad
+      url: `/articles/${args.year}/${args.month}/${args.day}/${args.title}.json`,
+      deserialize: JSON.parse
     })
     .then(function(response) {
       Article.data.title = response.title;

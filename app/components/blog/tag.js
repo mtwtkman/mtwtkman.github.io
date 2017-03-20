@@ -1,5 +1,4 @@
 import m from 'mithril'
-import yaml from 'js-yaml'
 
 import utils from '../../utils.js'
 
@@ -8,8 +7,8 @@ const Tag = {
   fetch: function(tag) {
     m.request({
       method: 'GET',
-      url: '/articles/tagging.yml',
-      deserialize: yaml.safeLoad
+      url: '/articles/tagging.json',
+      deserialize: JSON.parse
     })
     .then(function(response) {
       Tag.data = response[tag];
