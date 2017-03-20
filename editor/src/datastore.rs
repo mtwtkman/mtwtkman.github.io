@@ -4,6 +4,7 @@ use std::io::prelude::*;
 use std::fs::File;
 
 use serde_yaml::from_str;
+use serde_json::value::{Value, ToJson};
 
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
@@ -13,6 +14,12 @@ pub struct Article {
     pub year: i32,
     pub month: i32,
     pub day: i32,
+}
+
+impl ToJson for Article {
+    pub fn to_json(&self) -> Result<Value, Error> {
+        Ok();
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
