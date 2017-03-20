@@ -32,7 +32,7 @@ fn main() {
     let mut router = Router::new();
     router.get("/", index, "index");
     router.get("/api/articles", api::articles, "articles");
-    router.get("/api/articles/:year-:month-:day-:slug", api::article, "article");
+    router.get("/api/articles/:year/:month/:day/:slug", api::article, "article");
     router.get("/api/tags", api::tags, "tags");
     Iron::new(router).http("0.0.0.0:3000").unwrap();
 }
