@@ -6,6 +6,7 @@ use iron::prelude::*;
 use iron::mime::Mime;
 use iron::status;
 use router::Router;
+use serde_json::{Value, from_str};
 
 
 fn read_file<'a>(path_string: &'a str) -> String {
@@ -43,4 +44,11 @@ pub fn article(request: &mut Request) -> IronResult<Response> {
 
 pub fn tags(_: &mut Request) -> IronResult<Response> {
     json_response(read_file("tagging.json"))
+}
+
+pub fn tag(request: &mut Request) -> IronResult<Response> {
+    let tag_name = request.extensions.get::<Router>().unwrap().find("name").unwrap_or("").to_string();
+    let s: Value = from_str(&read_file("tagging.json")).unwrap();
+    let tagged: &Value = s.get(tag_name).unwrap();
+    json_response(tagged.to_string())
 }

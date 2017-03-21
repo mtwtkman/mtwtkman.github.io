@@ -17,7 +17,6 @@ use iron::status;
 use router::Router;
 
 mod api;
-mod model;
 
 
 fn index(_: &mut Request) -> IronResult<Response> {
@@ -34,6 +33,7 @@ fn main() {
     router.get("/api/articles", api::articles, "articles");
     router.get("/api/articles/:year/:month/:day/:slug", api::article, "article");
     router.get("/api/tags", api::tags, "tags");
+    router.get("/api/tags/:name", api::tag, "tag");
     Iron::new(router).http("0.0.0.0:3000").unwrap();
 }
 
