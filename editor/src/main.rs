@@ -8,6 +8,7 @@ extern crate serde_derive;
 #[macro_use]
 extern crate serde_json;
 
+use std::io;
 use std::io::prelude::*;
 use std::fs::File;
 
@@ -19,18 +20,34 @@ use router::Router;
 mod api;
 
 
+fn read(file_path: &str) -> Result<String, io::Error> {
+    File::open(file_path)
+         .and_then(|mut file| {
+            let mut contents = String::new();
+            file.read_to_string(&mut contents)
+                .map(|_| contents)
+         })
+         .map(|contents| contents)
+}
+
 fn index(_: &mut Request) -> IronResult<Response> {
-    let mut f = File::open("./src/index.html").unwrap();
-    let mut s = String::new();
-    let _ = f.read_to_string(&mut s);
     let content_type = "text/html".parse::<Mime>().unwrap();
-    Ok(Response::with((content_type, status::Ok, s)))
+    match read("./src/index.html") {
+        Ok(contents) => Ok(Response::with((content_type, status::Ok, contents))),
+        Err(err) => {
+            Err(IronError::new(
+                Box::new(err),
+                (status::InternalServerError),
+            ))
+        }
+    }
 }
 
 fn main() {
     let mut router = Router::new();
     router.get("/", index, "index");
     router.get("/api/articles", api::articles, "articles");
+    // router.post("/api/articles", api::create_article, "create_article");
     router.get("/api/articles/:year/:month/:day/:slug", api::article, "article");
     router.get("/api/tags", api::tags, "tags");
     router.get("/api/tags/:name", api::tag, "tag");
@@ -43,7 +60,7 @@ mod tests {
     use iron::headers::{Headers};
     use iron_test::{request, response};
 
-    use super::{index, read_file};
+    use super::index;
 
     #[test]
     fn test_index() {

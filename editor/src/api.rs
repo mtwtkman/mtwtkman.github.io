@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 use std::io::prelude::*;
-use std::fs::File;
+use std::fs::{create_dir_all, File};
 
 use iron::prelude::*;
 use iron::mime::Mime;
@@ -26,6 +26,33 @@ fn json_response(body: String) -> IronResult<Response> {
 pub fn articles(_: &mut Request) -> IronResult<Response> {
     json_response(read_file("index.json"))
 }
+
+#[derive(Serialize, Deserialize)]
+struct Article {
+    title: String,
+    body: String,
+    slug: String,
+    publish: bool,
+    tags: Vec<String>,
+    date: String,
+}
+
+// fn write_article(data: Article) {
+//     let iter_path = data.date.split_whitespace().next().unwrap();
+//     let mut p = PathBuf::from("./src/data");
+//     p.push(path.to_string());
+//     create_dir_all(p)?;
+//     let mut data = String::new();
+//     f.read_to_string(&mut data);
+//
+// }
+//
+// pub fn create_article(request: &mut Request) -> IronResult<Response> {
+//     let body: String;
+//     request.body.read_to_string(body);
+//     write_article(from_str(&body).unwrap());
+//     json_response("{\"status\":\"ok\"}".to_string())
+// }
 
 pub fn article(request: &mut Request) -> IronResult<Response> {
     fn _param<'a>(x: &'a str, r: &'a Request) -> &'a str {
