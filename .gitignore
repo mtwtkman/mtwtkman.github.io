@@ -4,3 +4,6 @@ node_modules
 venv
 editor/target
 node_modules
+__pycache__
+*.pyc
+*.sqlite3
