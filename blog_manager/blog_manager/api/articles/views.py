@@ -24,7 +24,6 @@ def index_data():
 @require_http_methods(['GET'])
 def articles(request):
     if request.method == 'GET':
-
         return utils.TrustedJsonResponse(index_data())
 
 

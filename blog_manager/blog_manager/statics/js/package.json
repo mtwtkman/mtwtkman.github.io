@@ -4,7 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "watch:index": "webpack --watch --config=apps/index/webpack.config.js"
+    "watch:index": "webpack --watch --config=apps/index/webpack.config.js",
+    "watch:article": "webpack --watch --config=apps/article/webpack.config.js"
   },
   "devDependencies": {
     "babel": "^6.23.0",
@@ -16,5 +17,8 @@
     "mithril": "^1.1.0",
     "style-loader": "^0.16.1",
     "webpack": "^2.3.2"
+  },
+  "dependencies": {
+    "markdown-it": "^8.3.1"
   }
 }

@@ -1,0 +1,24 @@
+.editor {
+  background: #FCFCFC;
+  padding: 10px;
+  overflow: auto;
+  max-height: 600px;
+}
+
+.preview {
+  padding: 10px;
+  overflow: auto;
+  max-height: 600px;
+}
+
+.title {
+  width: 100%;
+  font-size: 24pt;
+  padding-left: 10px;
+}
+
+.tags {
+  width: 100%;
+  font-size: 18pt;
+  padding-left: 10px;
+}
