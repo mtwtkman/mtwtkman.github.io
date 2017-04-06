@@ -9,11 +9,10 @@ const Cell = {
   oninit: vnode => {
     vnode.state.span = vnode.attrs.span;
     vnode.state.cls = vnode.attrs.cls || '';
-    vnode.state.inner = vnode.attrs.inner;
   },
   view: vnode => {
     return <div className={`mdl-cell mdl-cell--${vnode.state.span}-col ${vnode.state.cls}`}>
-      {vnode.state.inner}
+      {vnode.attrs.inner}
     </div>
   }
 };
@@ -54,22 +53,16 @@ const Editor = {
     const model = vnode.state.model;
     const inner = <textarea
       className={styles.textarea}
-      onchange={m.withAttr('value', v => model.data.body = v)}>
-        {m.trust(vnode.attrs.model.data.body)}
+      oninput={m.withAttr('value', v => {model.data.body = v})}>
+        {m.trust(model.data.body)}
     </textarea>
     return <Cell span={6} cls={`${styles.editor} ${styles.editorLeftSide}`} inner={inner} />
   }
 };
 
 const Preview = {
-  oninit: vnode => {
-    vnode.state.body = vnode.attrs.model.mdBody();
-  },
-  onupdate: vnode => {
-    vnode.state.body = vnode.attrs.model.mdBody();
-  },
   view: vnode => {
-    return <Cell span={6} cls={`${styles.editor} ${styles.editorRightSide}`} inner={m.trust(vnode.state.body)} />
+    return <Cell span={6} cls={`${styles.editor} ${styles.editorRightSide}`} inner={m.trust(vnode.attrs.body)} />
   }
 };
 
@@ -98,8 +91,8 @@ export default {
         <Title model={model} />
         <Tags model={model} />
         <div className={styles.editorWrap}>
-          <Editor model={model} />
-          <Preview model={model} />
+          <Editor key='editor' model={model} />
+          <Preview key='preview' body={model.mdBody()} />
         </div>
         <Save model={model} />
       </div>
