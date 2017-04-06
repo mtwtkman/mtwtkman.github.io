@@ -1,5 +1,7 @@
 import m from 'mithril'
+import MarkdownIt from 'markdown-it'
 
+const md = new MarkdownIt();
 const url =  `/api/articles/${location.href.split('/').slice(4).join('/')}`;
 
 const Model = {
@@ -22,6 +24,9 @@ const Model = {
     }).then(response => {
       Model.data = response;
     });
+  },
+  mdBody: () => {
+    return md.render(Model.data.body);
   }
 };
 

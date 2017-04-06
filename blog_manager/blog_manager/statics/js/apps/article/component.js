@@ -52,21 +52,24 @@ const Editor = {
   },
   view: vnode => {
     const model = vnode.state.model;
-    const inner = <div contentEditable={true} oninput={ev => {
-      model.data.body = ev.target.textContent.replace('<br>', '↵');
-    }}>
-      {m.trust(vnode.attrs.model.data.body.replace(/(↵|\r\n|\n|\r)/gm, '<br>'))}
-    </div>
+    const inner = <textarea
+      className={styles.textarea}
+      onchange={m.withAttr('value', v => model.data.body = v)}>
+        {m.trust(vnode.attrs.model.data.body)}
+    </textarea>
     return <Cell span={6} cls={`${styles.editor} ${styles.editorLeftSide}`} inner={inner} />
   }
 };
 
 const Preview = {
   oninit: vnode => {
-    vnode.state.model = vnode.attrs.model;
+    vnode.state.body = vnode.attrs.model.mdBody();
+  },
+  onupdate: vnode => {
+    vnode.state.body = vnode.attrs.model.mdBody();
   },
   view: vnode => {
-    return <Cell span={6} cls={`${styles.editor} ${styles.editorRightSide}`} inner={m.trust(md.render(vnode.state.model.data.body))} />
+    return <Cell span={6} cls={`${styles.editor} ${styles.editorRightSide}`} inner={m.trust(vnode.state.body)} />
   }
 };
 
