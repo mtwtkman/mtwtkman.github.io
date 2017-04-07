@@ -54,7 +54,7 @@ const Editor = {
     const inner = <textarea
       className={styles.textarea}
       oninput={m.withAttr('value', v => {model.data.body = v})}>
-        {m.trust(model.data.body)}
+        {model.data.body}
     </textarea>
     return <Cell span={6} cls={`${styles.editor} ${styles.editorLeftSide}`} inner={inner} />
   }
