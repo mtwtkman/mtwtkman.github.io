@@ -4,27 +4,8 @@ import styles from './styles.css';
 import Cell from 'components/cell';
 import Title from 'components/title';
 import Tags from 'components/tags';
-
-export const Editor = {
-  oninit: vnode => {
-    vnode.state.model = vnode.attrs.model;
-  },
-  view: vnode => {
-    const model = vnode.state.model;
-    const inner = <textarea
-      className={styles.textarea}
-      oninput={m.withAttr('value', v => {model.data.body = v})}>
-        {model.data.body}
-    </textarea>
-    return <Cell span={6} cls={`${styles.editor} ${styles.editorLeftSide}`} inner={inner} />
-  }
-};
-
-export const Preview = {
-  view: vnode => {
-    return <Cell span={6} cls={`${styles.editor} ${styles.editorRightSide}`} inner={m.trust(vnode.attrs.body)} />
-  }
-};
+import Editor from 'components/editor';
+import Preview from 'components/preview';
 
 export const Save = {
   oninit: vnode => {
