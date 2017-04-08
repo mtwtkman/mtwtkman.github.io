@@ -11,7 +11,11 @@ module.exports = function(dir, name) {
     resolve: {
       modules: [
         path.resolve(dir, '../../node_modules'),
-      ]
+        path.resolve(__dirname, 'components'),
+      ],
+      alias: {
+        components: path.resolve(__dirname, 'components'),
+      },
     },
     module: {
       rules: [
