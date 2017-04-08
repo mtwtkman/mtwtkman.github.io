@@ -3,20 +3,7 @@ import model from './model.js';
 import styles from './styles.css';
 import Cell from 'components/cell';
 import Title from 'components/title';
-
-export const Tags = {
-  oninit: vnode => {
-    vnode.state.model = vnode.attrs.model;
-  },
-  view: vnode => {
-    const model = vnode.state.model;
-    const inner = <input type='text' className={styles.tags}
-      onchange={m.withAttr('value', v => model.data.tags = v.split(','))}
-      value={model.data.tags.join(',')}
-    />
-    return <Cell span={12} inner={inner} />
-  }
-};
+import Tags from 'components/tags';
 
 export const Editor = {
   oninit: vnode => {
