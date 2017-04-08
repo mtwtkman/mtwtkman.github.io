@@ -32,6 +32,8 @@
     ],
     "moduleNameMapper": {
       "libs/components/(.+)": "<rootDir>/apps/libs/components/$1.js",
+      "libs/models/(.+)": "<rootDir>/apps/libs/models/$1.js",
+      "libs/request": "<rootDir>/apps/libs/request.js",
       "\\.css$": "identity-obj-proxy"
     }
   }

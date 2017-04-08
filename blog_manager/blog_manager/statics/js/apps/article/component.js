@@ -6,21 +6,7 @@ import Title from 'libs/components/title';
 import Tags from 'libs/components/tags';
 import Editor from 'libs/components/editor';
 import Preview from 'libs/components/preview';
-
-export const Save = {
-  oninit: vnode => {
-    vnode.state.model = vnode.attrs.model;
-  },
-  view: vnode => {
-    const model = vnode.state.model;
-    const inner = <button
-      className='mdl-button mdl-js-button mdl-button--raised mdl-button--colored'
-      onclick={model.save}>
-      save
-    </button>
-    return <Cell span={12} cls={styles.saveButton} inner={inner} />
-  }
-};
+import Save from 'libs/components/save';
 
 export default {
   oninit: vnode => {
