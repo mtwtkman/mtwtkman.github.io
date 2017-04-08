@@ -7,7 +7,6 @@ const url =  `/api/articles/${location.href.split('/').slice(4).join('/')}`;
 const Model = {
   data: {},
   fetched: false,
-
   fetch: () => {
     return m.request({
       method: 'GET',

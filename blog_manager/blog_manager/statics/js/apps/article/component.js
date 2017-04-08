@@ -1,11 +1,8 @@
 import m from 'mithril'
-import MarkdownIt from 'markdown-it'
 import model from './model.js';
 import styles from './styles.css';
 
-const md = new MarkdownIt();
-
-const Cell = {
+export const Cell = {
   oninit: vnode => {
     vnode.state.span = vnode.attrs.span;
     vnode.state.cls = vnode.attrs.cls || '';
@@ -17,7 +14,7 @@ const Cell = {
   }
 };
 
-const Title = {
+export const Title = {
   oninit: vnode => {
     vnode.state.model = vnode.attrs.model;
   },
@@ -31,7 +28,7 @@ const Title = {
   }
 };
 
-const Tags = {
+export const Tags = {
   oninit: vnode => {
     vnode.state.model = vnode.attrs.model;
   },
@@ -45,7 +42,7 @@ const Tags = {
   }
 };
 
-const Editor = {
+export const Editor = {
   oninit: vnode => {
     vnode.state.model = vnode.attrs.model;
   },
@@ -60,13 +57,13 @@ const Editor = {
   }
 };
 
-const Preview = {
+export const Preview = {
   view: vnode => {
     return <Cell span={6} cls={`${styles.editor} ${styles.editorRightSide}`} inner={m.trust(vnode.attrs.body)} />
   }
 };
 
-const Save = {
+export const Save = {
   oninit: vnode => {
     vnode.state.model = vnode.attrs.model;
   },
