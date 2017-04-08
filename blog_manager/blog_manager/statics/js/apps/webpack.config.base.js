@@ -11,10 +11,10 @@ module.exports = function(dir, name) {
     resolve: {
       modules: [
         path.resolve(dir, '../../node_modules'),
-        path.resolve(__dirname, 'components'),
+        path.resolve(__dirname, 'libs'),
       ],
       alias: {
-        components: path.resolve(__dirname, 'components'),
+        libs: path.resolve(__dirname, 'libs'),
       },
     },
     module: {

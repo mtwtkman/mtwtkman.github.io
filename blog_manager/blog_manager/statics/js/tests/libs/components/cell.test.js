@@ -1,4 +1,4 @@
-import Cell  from 'components/cell'
+import Cell  from 'libs/components/cell'
 
 function createComponent(state, attrs) {
   return Cell.view({state, attrs});

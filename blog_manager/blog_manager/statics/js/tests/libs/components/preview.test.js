@@ -1,5 +1,5 @@
 import m from 'mithril';
-import Preview from 'components/preview';
+import Preview from 'libs/components/preview';
 
 describe('Preview component', () => {
   describe('returns a component instance', () => {

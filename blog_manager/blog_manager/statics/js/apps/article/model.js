@@ -26,7 +26,7 @@ const Model = {
   },
   mdBody: () => {
     return md.render(Model.data.body);
-  }
+  },
 };
 
 export default Model

@@ -1,6 +1,6 @@
 import m from 'mithril';
 import styles from './styles.css';
-import Cell from 'components/cell';
+import Cell from './cell.js';
 
 export default {
   oninit: vnode => {

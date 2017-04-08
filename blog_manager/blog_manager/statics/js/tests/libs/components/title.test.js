@@ -1,5 +1,4 @@
-import m from 'mithril';
-import Title from 'components/title';
+import Title from 'libs/components/title';
 
 describe('Title component', () => {
   describe('returns a component instance', () => {

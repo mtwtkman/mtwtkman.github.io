@@ -1,4 +1,4 @@
-import Editor from 'components/editor';
+import Editor from 'libs/components/editor';
 
 describe('Editor component', () => {
   describe('returns an instance', () => {

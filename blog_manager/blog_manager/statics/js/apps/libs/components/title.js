@@ -1,5 +1,5 @@
 import m from 'mithril';
-import Cell from 'components/cell';
+import Cell from './cell.js';
 import styles from './styles.css';
 
 export default {

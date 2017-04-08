@@ -1,4 +1,4 @@
-import Tags from 'components/tags';
+import Tags from 'libs/components/tags';
 
 describe('Tags component', () => {
   describe('returns a component instance', () => {

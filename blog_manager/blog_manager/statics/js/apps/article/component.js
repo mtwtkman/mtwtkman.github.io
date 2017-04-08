@@ -1,11 +1,11 @@
 import m from 'mithril';
 import model from './model.js';
 import styles from './styles.css';
-import Cell from 'components/cell';
-import Title from 'components/title';
-import Tags from 'components/tags';
-import Editor from 'components/editor';
-import Preview from 'components/preview';
+import Cell from 'libs/components/cell';
+import Title from 'libs/components/title';
+import Tags from 'libs/components/tags';
+import Editor from 'libs/components/editor';
+import Preview from 'libs/components/preview';
 
 export const Save = {
   oninit: vnode => {
