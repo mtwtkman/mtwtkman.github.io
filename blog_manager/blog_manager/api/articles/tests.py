@@ -2,8 +2,11 @@ import os
 import json
 import tempfile
 from unittest import mock
+from datetime import datetime
 
 from django.test import TestCase, RequestFactory, override_settings
+
+from .forms import DATETIME_FORMAT
 
 
 temp_dir = tempfile.TemporaryDirectory(dir=os.path.dirname(__file__))
@@ -65,7 +68,7 @@ class IndexDataTest(TestCase):
         self.assertEqual(result, expect)
 
 
-class ArticleUpdateFormTest(TestCase):
+class ArticleFormTest(TestCase):
     def setUp(self):
         self.initial_data = {
             'title': 'title',
@@ -78,7 +81,7 @@ class ArticleUpdateFormTest(TestCase):
 
     def _callFUT(self, data):
         from . import forms
-        return forms.ArticleUpdateForm(data)
+        return forms.ArticleForm(data)
 
     def test_ok(self):
         form = self._callFUT(self.initial_data)
@@ -96,21 +99,22 @@ class ArticleUpdateFormTest(TestCase):
         self.assertTrue(form.is_valid())
         self.assertEqual(form.cleaned_data['tags'], ['inu', 'neko'])
 
-    def test_dumped_json(self):
-        form = self._callFUT(self.initial_data)
-        self.assertTrue(form.is_valid())
-        self.initial_data.update({'date': '2017/04/01 12:30:00'})
-        self.assertEqual(form.dumped_json(), json.dumps(self.initial_data))
+
+class TestMixin:
+    def assertFileContent(self, expect, **kwargs):
+        with open (
+            '{d}/{year}/{month}/{day}/{slug}.json'.format(d=temp_dir.name, **kwargs)
+        ) as f:
+            self.assertEqual(f.read(), json.dumps(expect))
 
 
 @override_settings(DATA_DIR=temp_dir.name)
-class ArticlePutTest(TestCase):
+class ArticlePutTest(TestMixin, TestCase):
     def _callFUT(self, data, **kwargs):
         from .views import article
         request = RequestFactory().put('', json.dumps(data))
-        os.makedirs((
-            f'{temp_dir.name}/{kwargs["year"]}/'
-            f'{kwargs["month"]}/{kwargs["day"]}')
+        os.makedirs(
+            '{d}/{year}/{month}/{day}'.format(d=temp_dir.name, **kwargs)
         )
         return article(request, **kwargs)
 
@@ -127,12 +131,41 @@ class ArticlePutTest(TestCase):
             'year': '2017',
             'month': '04',
             'day': '04',
-            'slug': 'hoge-fuga',
+            'slug': 's-l-u-g',
         }
         result = self._callFUT(data, **kwargs)
         self.assertEqual(result, data)
-        with open((
-            f'{temp_dir.name}/{kwargs["year"]}/'
-            f'{kwargs["month"]}/{kwargs["day"]}/{kwargs["slug"]}.json')
-        ) as f:
-            self.assertEqual(f.read(), json.dumps(data))
+        self.assertFileContent(data, **kwargs)
+
+
+@override_settings(DATA_DIR=temp_dir.name)
+class ArticleCreateTest(TestMixin, TestCase):
+    def setUp(self):
+        self.date = datetime(2017, 4, 5, 12, 30, 0)
+    def _callFUT(self, data):
+        request = RequestFactory().post(
+            '', data=json.dumps(data), content_type='application/json'
+        )
+        with mock.patch('api.articles.forms.datetime') as M:
+            M.now.return_value = self.date
+            from .views import articles
+            return articles(request)
+
+    def test_ok(self):
+        data = {
+            'title': 'hoge',
+            'body': 'this is body',
+            'tags': None,
+            'publish': True,
+            'slug': 'h-o-g-e',
+        }
+        kwargs = {
+            'year': '2017',
+            'month': '04',
+            'day': '05',
+            'slug': 'h-o-g-e',
+        }
+        result = self._callFUT(data)
+        self.assertEqual(result['date'], self.date.strftime(DATETIME_FORMAT))
+        data.update({'date': '2017/04/05 12:30:00'})
+        self.assertFileContent(data, **kwargs)

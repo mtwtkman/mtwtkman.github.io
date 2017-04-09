@@ -1,12 +1,14 @@
+# -*- coding: utf-8 -*-
 import os
 import json
+from datetime import datetime
 from itertools import groupby
 
 from django.conf import settings
 from django.views.decorators.http import require_http_methods
 
-from .. import utils
 from . import forms
+from .. import utils
 
 
 def index_data():
@@ -21,23 +23,29 @@ def index_data():
     } for year, _data in groupby(utils.data_from('index.json'), key=y_key)]
 
 
-@require_http_methods(['GET'])
+@require_http_methods(['GET', 'POST'])
 def articles(request):
     if request.method == 'GET':
         return utils.TrustedJsonResponse(index_data())
+    elif request.method == 'POST':
+        form = forms.ArticleForm(json.loads(request.body.decode('utf-8')))
+        if not form.is_valid():
+            return utils.JsonResponseBadRequest({'message': form.errors})
+        form.write()
+        return form.cleaned_data
 
 
-@require_http_methods(['GET', 'PUT'])
+@require_http_methods(['GET', 'PUT', 'DELETE'])
 def article(request, year, month, day, slug):
-    filename = '{}/{}/{}/{}.json'.format(year, month, day, slug)
+    filename = utils.filename(year, month, day, slug)
     if request.method == 'GET':
         data = utils.data_from(filename)
         return utils.TrustedJsonResponse(data)
-
-    if request.method == 'PUT':
-        form = forms.ArticleUpdateForm(json.loads(request.body))
+    elif request.method == 'PUT':
+        form = forms.ArticleForm(json.loads(request.body.decode('utf-8')))
         if not form.is_valid():
             return utils.JsonResponseBadRequest({'message': form.errors})
-        with open(os.path.join(settings.DATA_DIR, filename), 'w') as f:
-            f.write(form.dumped_json())
+        form.write()
         return form.cleaned_data
+    elif request.method == 'DELETE':
+        os.remove(os.path.join(settings.DATA_DIR, filename))

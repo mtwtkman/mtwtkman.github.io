@@ -17,3 +17,16 @@ class JsonResponseBadRequest(JsonResponse):
 class TrustedJsonResponse(JsonResponse):
     def __init__(self, data):
         super().__init__(data, safe=False)
+
+
+def filename(*args):
+    return '{}.json'.format(('/').join(args))
+
+
+def write(filename, data):
+    filepath = os.path.join(settings.DATA_DIR, filename)
+    dirname = os.path.dirname(filepath)
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
+    with open(filepath, 'w') as f:
+        f.write(data)
