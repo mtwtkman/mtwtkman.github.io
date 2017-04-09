@@ -138,7 +138,7 @@ class ArticlePutTest(TestMixin, TestCase):
             'slug': 's-l-u-g',
         }
         result = self._callFUT(data, **kwargs)
-        self.assertEqual(result, data)
+        self.assertEqual(json.loads(result.content), data)
         self.assertFileContent(data, **kwargs)
 
 
@@ -171,7 +171,10 @@ class ArticleCreateTest(TestMixin, TestCase):
             'slug': 'h-o-g-e',
         }
         result = self._callFUT(data)
-        self.assertEqual(result['date'], self.date.strftime(DATETIME_FORMAT))
+        self.assertEqual(
+            json.loads(result.content)['date'],
+            self.date.strftime(DATETIME_FORMAT)
+        )
         data.update({'date': '2017/04/05 12:30:00'})
         self.assertFileContent(data, **kwargs)
 

@@ -32,7 +32,7 @@ def articles(request):
         if not form.is_valid():
             return utils.JsonResponseBadRequest({'message': form.errors})
         form.write()
-        return form.cleaned_data
+        return utils.TrustedJsonResponse(form.cleaned_data)
 
 
 def pardir(base):
@@ -50,7 +50,7 @@ def article(request, year, month, day, slug):
         if not form.is_valid():
             return utils.JsonResponseBadRequest({'message': form.errors})
         form.write()
-        return form.cleaned_data
+        return utils.TrustedJsonResponse(form.cleaned_data)
     elif request.method == 'DELETE':
         filepath = os.path.join(settings.DATA_DIR, filename)
         os.remove(filepath)
@@ -65,4 +65,4 @@ def article(request, year, month, day, slug):
         _, months, _ = next(os.walk(year_dir))
         if not months:
             os.rmdir(year_dir)
-        return {'result': 'ok'}
+        return utils.JsonResponse({'result': 'ok'})
