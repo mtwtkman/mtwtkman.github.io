@@ -10,13 +10,18 @@ describe('Tags component', () => {
     });
     test('which is input tag', () => {
       const component = Tags.view({state});
-      expect(component.attrs.inner.tag).toBe('input');
+      expect(component.attrs.inner.children[1].tag).toBe('input');
     });
     test('whose value is joined by commas', () => {
       const tags = ['hoge', 'fuga'];
       model.data.tags = tags;
       const component = Tags.view({state});
-      expect(component.attrs.inner.attrs.value).toBe(tags.join(','));
+      expect(component.attrs.inner.children[1].attrs.value).toBe(tags.join(','));
+    });
+    test('which includes a label', () => {
+      const component = Tags.view({state});
+      expect(component.attrs.inner.tag).toBe('label');
+      expect(component.attrs.inner.children[0].children).toBe('タグ');
     });
     test('whose an onchange handler works fine', () => {
       const tags = ['pi', 'yo']

@@ -10,10 +10,13 @@ export default {
     };
   },
   view: vnode => {
-    const inner = <input type='text' className={styles.title}
-      onchange={m.withAttr('value', vnode.state.onchange)}
-      value={vnode.state.model.data.title}
-    />
+    const inner = <label>
+      タイトル
+      <input type='text' className={styles.title}
+        onchange={m.withAttr('value', vnode.state.onchange)}
+        value={vnode.state.model.data.title}
+      />
+    </label>
     return <Cell span={12} inner={inner} />
   }
 };

@@ -16,11 +16,16 @@ describe('Title component', () => {
       const title = 'hoge';
       state.model.data.title = title;
       const component = Title.view({state});
-      expect(component.attrs.inner.attrs.value).toBe(title);
+      expect(component.attrs.inner.children[1].attrs.value).toBe(title);
+    });
+    test('which includes a label', () => {
+      const component = Title.view({state});
+      expect(component.attrs.inner.tag).toBe('label');
+      expect(component.attrs.inner.children[0].children).toBe('タイトル');
     });
     test('which is input tag', () => {
       const component = Title.view({state});
-      expect(component.attrs.inner.tag).toBe('input');
+      expect(component.attrs.inner.children[1].tag).toBe('input');
     });
     test('work fine an onchange handler', () => {
       const title = 'title';
