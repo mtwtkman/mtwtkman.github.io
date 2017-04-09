@@ -10,7 +10,7 @@ export default class Model {
       body: '',
       slug: '',
       publish: false,
-      tags: [],
+      tags: '',
       date: null,
     };
     this.fetched = false;
