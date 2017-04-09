@@ -21,7 +21,7 @@ export default {
         <Editor key='editor' model={model} />
         <Preview key='preview' body={model.mdBody()} />
       </div>
-      <Save model={model} onclick={model.create} />
+      <Save model={model} onclick={model.create.bind(model)} />
     </div>
   }
 }

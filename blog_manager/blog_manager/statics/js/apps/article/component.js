@@ -25,7 +25,7 @@ export default {
           <Editor key='editor' model={model} />
           <Preview key='preview' body={model.mdBody()} />
         </div>
-        <Save model={model} onclick={model.update} />
+        <Save model={model} onclick={model.update.bind(model)} />
       </div>
     }
     return <div>データ取得中...</div>
