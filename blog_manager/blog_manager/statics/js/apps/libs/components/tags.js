@@ -13,7 +13,7 @@ export default {
     const inner = <label>
       タグ
       <input type='text' className={styles.tags}
-        onchange={m.withAttr('value', vnode.state.onchanage)}
+        onchange={m.withAttr('value', vnode.state.onchange)}
         value={vnode.state.model.data.tags.join(',')}
       />
     </label>
