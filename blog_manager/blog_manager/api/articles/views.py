@@ -35,6 +35,10 @@ def articles(request):
         return form.cleaned_data
 
 
+def pardir(base):
+    return os.path.abspath(os.path.join(base, os.pardir))
+
+
 @require_http_methods(['GET', 'PUT', 'DELETE'])
 def article(request, year, month, day, slug):
     filename = utils.filename(year, month, day, slug)
@@ -48,4 +52,17 @@ def article(request, year, month, day, slug):
         form.write()
         return form.cleaned_data
     elif request.method == 'DELETE':
-        os.remove(os.path.join(settings.DATA_DIR, filename))
+        filepath = os.path.join(settings.DATA_DIR, filename)
+        os.remove(filepath)
+        day_dir = os.path.dirname(filepath)
+        if not os.listdir(day_dir):
+            os.rmdir(day_dir)
+        month_dir = pardir(day_dir)
+        _, days, _ = next(os.walk(month_dir))
+        if not days:
+            os.rmdir(month_dir)
+        year_dir = pardir(month_dir)
+        _, months, _ = next(os.walk(year_dir))
+        if not months:
+            os.rmdir(year_dir)
+        return {'result': 'ok'}
