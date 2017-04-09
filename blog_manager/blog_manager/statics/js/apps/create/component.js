@@ -11,21 +11,15 @@ import Model from 'libs/models/article';
 const model = new Model();
 
 export default {
-  oninit: vnode => {
-    model.fetch();
-  },
   view: vnode => {
-    if (model.fetched) {
-      return <div className='mdl-grid'>
-        <Title model={model} />
-        <Tags model={model} />
-        <div className={styles.editorWrap}>
-          <Editor key='editor' model={model} />
-          <Preview key='preview' body={model.mdBody()} />
-        </div>
-        <Save model={model} />
+    return <div className='mdl-grid'>
+      <Title model={model} />
+      <Tags model={model} />
+      <div className={styles.editorWrap}>
+        <Editor key='editor' model={model} />
+        <Preview key='preview' body={model.mdBody()} />
       </div>
-    }
-    return <div>データ取得中...</div>
+      <Save model={model} />
+    </div>
   }
 }

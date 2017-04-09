@@ -6,6 +6,7 @@
   "scripts": {
     "watch:index": "webpack --watch --config=apps/index/webpack.config.js",
     "watch:article": "webpack --watch --config=apps/article/webpack.config.js",
+    "watch:create": "webpack --watch --config=apps/create/webpack.config.js",
     "test": "jest --watch"
   },
   "devDependencies": {

@@ -5,10 +5,17 @@ const md = new MarkdownIt();
 
 export default class Model {
   constructor(data) {
-    this.data = data;
+    this.data = data || {
+      title: '',
+      body: '',
+      slug: '',
+      publish: false,
+      tags: [],
+      date: null,
+    };
     this.fetched = false;
     this.resourcesUrl = '/api/articles';
-    this.resourceUrl = `${this.entrypoint}/${location.href.split('/').slice(4).join('/')}`;
+    this.resourceUrl = `${this.resourcesUrl}/${location.href.split('/').slice(4).join('/')}`;
   }
   fetch() {
     return request('GET', this.resourceUrl)

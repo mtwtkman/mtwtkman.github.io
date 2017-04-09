@@ -1,0 +1,9 @@
+.editorWrap {
+  position: relative;
+  width: 100%;
+  height: calc(100% - 230px);
+}
+.saveButton {
+  text-align: right;
+  margin-top: 15px;
+}
