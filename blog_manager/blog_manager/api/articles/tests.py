@@ -17,58 +17,6 @@ def table_format(*L):
     return [dict(zip(L[0], x)) for x in L[1:]]
 
 
-class IndexDataTest(TestCase):
-    maxDiff = None
-
-    def setUp(self):
-        self.mock_data = table_format(
-            ('year', 'month', 'day', 'slug', 'title'),
-            (2017, 3, 31, 'a-b-c', 'ABC'),
-            (2017, 3, 1,  'd-e-f', 'DEF'),
-            (2017, 2, 28, 'g-h-i', 'GHI'),
-            (2016, 1, 31, 'j-k-l', 'JKL'),
-        )
-
-    def _callFUT(self):
-        with mock.patch('api.utils.data_from') as M:
-            from .views import index_data
-            M.return_value = self.mock_data
-            return index_data()
-
-    def test_ok(self):
-        result = self._callFUT()
-        expect = [
-            {
-                'year': 2017,
-                'months': [
-                    {
-                        'month': 3,
-                        'days': [
-                            {'year': 2017, 'month': 3, 'day': 31,
-                             'slug': 'a-b-c', 'title': 'ABC'},
-                            {'year': 2017, 'month': 3, 'day':  1,
-                             'slug': 'd-e-f', 'title': 'DEF'},
-                        ],
-                    },
-                    {
-                        'month': 2,
-                        'days': [{'year': 2017, 'month': 2, 'day': 28,
-                                  'slug': 'g-h-i', 'title': 'GHI'}],
-                    },
-                ],
-            },
-            {
-                'year': 2016,
-                'months': [{
-                    'month': 1,
-                    'days': [{'year': 2016, 'month': 1, 'day': 31,
-                              'slug': 'j-k-l', 'title': 'JKL'}],
-                }],
-            },
-        ]
-        self.assertEqual(result, expect)
-
-
 class ArticleFormTest(TestCase):
     def setUp(self):
         self.initial_data = {

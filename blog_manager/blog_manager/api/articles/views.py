@@ -11,22 +11,10 @@ from . import forms
 from .. import utils
 
 
-def index_data():
-    y_key = lambda x: x['year']
-    m_key = lambda x: x['month']
-    return [{
-        'year': year,
-        'months': [
-            {'month': month, 'days': [x for x in __data]}
-            for month, __data in groupby(_data, key=m_key)
-        ]
-    } for year, _data in groupby(utils.data_from('index.json'), key=y_key)]
-
-
 @require_http_methods(['GET', 'POST'])
 def articles(request):
     if request.method == 'GET':
-        return utils.TrustedJsonResponse(index_data())
+        return utils.TrustedJsonResponse()
     elif request.method == 'POST':
         form = forms.ArticleForm(json.loads(request.body.decode('utf-8')))
         if not form.is_valid():

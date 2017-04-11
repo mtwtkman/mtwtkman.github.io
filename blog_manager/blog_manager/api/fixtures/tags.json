@@ -1,1 +1,0 @@
-[{"model": "api.tag", "pk": 1, "fields": {"name": "python"}}, {"model": "api.tag", "pk": 2, "fields": {"name": "ruby"}}, {"model": "api.tag", "pk": 3, "fields": {"name": "rust"}}, {"model": "api.tag", "pk": 4, "fields": {"name": "javascript"}}]
