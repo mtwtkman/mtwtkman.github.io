@@ -7,8 +7,10 @@ from . import models
 
 class ArticleManagerTest(TestCase):
     def setUp(self):
-        for i in range(3):
-            factories.TagFactory()
+        for i in range(2):
+            factories.ArticleFactory()
+            factories.ArticleFactory(publish=True)
 
     def test_ok_published(self):
-        results = models.Articles.objects.published()
+        results = models.Article.objects.published()
+        self.assertEqual(len(results), 2)
