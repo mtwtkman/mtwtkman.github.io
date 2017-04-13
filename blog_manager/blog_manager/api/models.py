@@ -1,5 +1,8 @@
 from itertools import groupby
+from datetime import datetime
+
 from django.db import models, connection
+from django.core.validators import MinLengthValidator
 
 
 class TagManager(models.Manager):
@@ -26,7 +29,9 @@ class TagManager(models.Manager):
             ''')
             fields = [x[0] for x in cursor.description]
             rows = [dict(zip(fields, r)) for r in cursor.fetchall()]
-            for tag, articles in groupby(rows, lambda x: (x['tag_id'], x['name'])):
+            for tag, articles in groupby(
+                rows, lambda x: (x['tag_id'], x['name'])
+            ):
                 tag_obj = self.model(pk=tag[0], name=tag[1])
                 article_objs = []
                 for article in articles:
@@ -40,7 +45,7 @@ class TagManager(models.Manager):
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=15)
+    name = models.CharField(max_length=15, validators=[MinLengthValidator(1)])
 
     objects = TagManager()
 
@@ -52,44 +57,19 @@ class Tag(models.Model):
 
 
 class ArticleManager(models.Manager):
-    sql = '''
-        select
-          title,
-          slug,
-          strftime('%%Y', created_at) as year,
-          strftime('%%m', created_at) as month,
-          strftime('%%d', created_at) as day
-        from articles
-        where published = %s
-        order by created_at desc
-    '''
-
-    def _select(self, published):
-        resultset = []
-        with connection.cursor() as cursor:
-            cursor.execute(self.sql, [published])
-            fields = [x[0] for x in cursor.description]
-            for row in [dict(zip(fields, r)) for r in cursor.fetchall()]:
-                obj = self.model(title=row['title'], slug=row['slug'])
-                obj.year = row['year']
-                obj.month = row['month']
-                obj.day = row['day']
-                resultset.append(obj)
-        return resultset
-
     def published(self):
-        return self._select(1)
+        return self.filter(published=True).order_by('-created_at')
 
     def drafts(self):
-        return self._select(0)
+        return self.filter(published=False).order_by('-created_at')
 
 
 class Article(models.Model):
-    title = models.CharField(max_length=50)
-    body = models.TextField()
-    slug = models.CharField(max_length=80)
+    title = models.CharField(max_length=50, validators=[MinLengthValidator(1)])
+    body = models.TextField(validators=[MinLengthValidator(1)])
+    slug = models.CharField(max_length=80, validators=[MinLengthValidator(1)])
     published = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=datetime.now)
     updated_at = models.DateTimeField(auto_now=True)
     tags = models.ManyToManyField(Tag)
 

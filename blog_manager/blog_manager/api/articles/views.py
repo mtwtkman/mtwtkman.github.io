@@ -1,20 +1,26 @@
 # -*- coding: utf-8 -*-
 import os
 import json
-from datetime import datetime
-from itertools import groupby
 
 from django.conf import settings
 from django.views.decorators.http import require_http_methods
 
 from . import forms
 from .. import utils
+from .. import models
 
 
 @require_http_methods(['GET', 'POST'])
 def articles(request):
     if request.method == 'GET':
-        return utils.TrustedJsonResponse()
+        if request.GET.get('draft'):
+            objs = models.Article.objects.drafts()
+        else:
+            objs = models.Article.objects.published()
+        return utils.TrustedJsonResponse([{
+            'id': o.pk, 'title': o.title,
+            'path': '{}/{}'.format(o.created_at.strftime('%Y/%m/%d'), o.slug),
+        } for o in objs])
     elif request.method == 'POST':
         form = forms.ArticleForm(json.loads(request.body.decode('utf-8')))
         if not form.is_valid():
