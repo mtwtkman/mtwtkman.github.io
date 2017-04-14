@@ -44,11 +44,12 @@ def articles(request):
             objs = models.Article.objects.published()
         return utils.TrustedJsonResponse(article_list(objs))
     elif request.method == 'POST':
-        form = forms.ArticleForm(json.loads(request.body.decode('utf-8')))
+        form = forms.ArticleCreateForm(json.loads(request.body.decode('utf-8')))
         if not form.is_valid():
             return utils.JsonResponseBadRequest({'message': form.errors})
-        form.write()
-        return utils.TrustedJsonResponse(form.cleaned_data)
+        with transaction.commit_on_success():
+            form.save()
+            return utils.TrustedJsonResponse(form.created)
 
 
 def pardir(base):
@@ -62,7 +63,7 @@ def article(request, year, month, day, slug):
         data = utils.data_from(filename)
         return utils.TrustedJsonResponse(data)
     elif request.method == 'PUT':
-        form = forms.ArticleForm(json.loads(request.body.decode('utf-8')))
+        form = forms.ArticleCreateForm(json.loads(request.body.decode('utf-8')))
         if not form.is_valid():
             return utils.JsonResponseBadRequest({'message': form.errors})
         form.write()

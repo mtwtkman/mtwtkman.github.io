@@ -4,8 +4,7 @@ from . import models
 
 
 class TagFactory(factory.django.DjangoModelFactory):
-    pk = factory.Sequence(lambda n: n)
-    name = factory.LazyAttribute(lambda o: 'tag_{}'.format(o.pk))
+    name = factory.Sequence(lambda n: 'tag_{}'.format(n))
 
     class Meta:
         model = models.Tag

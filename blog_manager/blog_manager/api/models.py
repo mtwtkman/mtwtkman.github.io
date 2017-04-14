@@ -45,12 +45,16 @@ class TagManager(models.Manager):
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=15, validators=[MinLengthValidator(1)])
+    name = models.CharField(
+        primary_key=True,
+        max_length=15,
+        validators=[MinLengthValidator(1)]
+    )
 
     objects = TagManager()
 
     class Meta:
-        db_table = 'tags'
+        db_table='tags'
 
     def __str__(self):
         return '{}: {}'.format(self.pk, self.name)

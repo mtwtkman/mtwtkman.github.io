@@ -1,43 +1,48 @@
-import os
-import json
 from datetime import datetime
 
 from django import forms
-from django.conf import settings
+from django.forms import model_to_dict
 
-from .. import utils
+from .. import models
 
 
 DATETIME_FORMAT = '%Y/%m/%d %H:%M:%S'
+
 
 class CommaSeparatedField(forms.CharField):
     blank = True
     required = False
 
     def clean(self, value):
-        return [x.strip() for x in value.split(',')] if value else None
+        if not value:
+            return None
+        result = []
+        for o in [x.strip() for x in value.split(',')]:
+            try:
+                target = models.Tag.objects.get(pk=o)
+            except models.Tag.DoesNotExist:
+                target = models.Tag.objects.create(name=o)
+            result.append(target)
+        return result
 
 
-class ArticleForm(forms.Form):
+class ArticleCreateForm(forms.Form):
     title = forms.CharField()
     body = forms.CharField()
     tags = CommaSeparatedField()
-    publish = forms.BooleanField(required=False)
+    published = forms.BooleanField(required=False)
     slug = forms.CharField()
-    date = forms.DateTimeField(
-        input_formats=[DATETIME_FORMAT], required=False
-    )
+
+    model = models.Article
 
     def clean_date(self):
         data = self.cleaned_data['date'] or datetime.now()
         return data.strftime(DATETIME_FORMAT)
 
-    @property
-    def filename(self):
-        date = self.cleaned_data['date'].split(' ')[0].split('/')
-        return utils.filename(*date, self.cleaned_data['slug'])
-
-    def write(self):
-        utils.write(
-            os.path.join(settings.DATA_DIR, self.filename), json.dumps(self.cleaned_data)
-        )
+    def save(self):
+        tags = self.cleaned_data.pop('tags')
+        created = self.model.objects.create(**self.cleaned_data)
+        if tags:
+            for t in tags:
+                created.tags.add(t)
+        self.created = model_to_dict(created)

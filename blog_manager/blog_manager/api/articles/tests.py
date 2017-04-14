@@ -3,6 +3,7 @@ from datetime import datetime
 
 from django.test import TestCase, RequestFactory
 
+from .. import models
 from .. import factories
 
 
@@ -115,3 +116,44 @@ class ArticlesGetTest(TestCase):
         )
         self.assertEqual(len(data), 1)
         self.assertEqual(data, expect)
+
+
+
+class ArticleCreateFormTest(TestCase):
+    def lazy_count(self):
+        return models.Article.objects.all().count()
+
+    def setUp(self):
+        factories.TagFactory()
+
+    def _makeOne(self, data):
+        from . import forms
+        return forms.ArticleCreateForm(data)
+
+    def test_ok_without_tag(self):
+        data = {
+            'title': 'title',
+            'body': 'body',
+            'tags': None,
+            'published': True,
+            'slug': 's-l-u-g',
+        }
+        form = self._makeOne(data)
+        self.assertTrue(form.is_valid())
+        count = self.lazy_count()
+        form.save()
+        self.assertEqual(self.lazy_count(), count + 1)
+
+    def test_ok_with_tag_which_already_exists(self):
+        data = {
+            'title': 'title',
+            'body': 'body',
+            'tags': 'tag_1',
+            'published': True,
+            'slug': 's-l-u-g',
+        }
+        form = self._makeOne(data)
+        self.assertTrue(form.is_valid())
+        count = self.lazy_count()
+        form.save()
+        self.assertEqual(self.lazy_count(), count + 1)
