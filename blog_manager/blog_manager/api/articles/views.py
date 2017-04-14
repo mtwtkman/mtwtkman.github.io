@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import json
+from itertools import groupby
 
 from django.conf import settings
 from django.views.decorators.http import require_http_methods
@@ -10,6 +11,30 @@ from .. import utils
 from .. import models
 
 
+def article_list(objs):
+    return [{
+        'id': o.pk, 'title': o.title, 'slug': o.slug,
+        **dict(zip(
+            ['year', 'month', 'day'],
+            o.created_at.strftime('%Y/%m/%d').split('/')
+        ))
+    } for o in objs]
+
+
+@require_http_methods(['GET'])
+def index(request):
+    return utils.TrustedJsonResponse([{
+        'year': year,
+        'months': [{
+            'month': month,
+            'days': [d for d in _data]
+        } for month, _data in groupby(data, key=lambda x: x['month'])]
+    } for year, data in groupby(
+        article_list(models.Article.objects.published()),
+        key=lambda x: x['year']
+    )])
+
+
 @require_http_methods(['GET', 'POST'])
 def articles(request):
     if request.method == 'GET':
@@ -17,10 +42,7 @@ def articles(request):
             objs = models.Article.objects.drafts()
         else:
             objs = models.Article.objects.published()
-        return utils.TrustedJsonResponse([{
-            'id': o.pk, 'title': o.title,
-            'path': '{}/{}'.format(o.created_at.strftime('%Y/%m/%d'), o.slug),
-        } for o in objs])
+        return utils.TrustedJsonResponse(article_list(objs))
     elif request.method == 'POST':
         form = forms.ArticleForm(json.loads(request.body.decode('utf-8')))
         if not form.is_valid():
