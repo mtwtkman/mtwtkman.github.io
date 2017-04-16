@@ -122,3 +122,19 @@ class ArticlesPostTest(TestCase):
         }
         resp = self._callFUT(data)
         self.assertEqual(resp.status_code, 200)
+
+
+class ArticleGetTest(TestCase):
+    def setUp(self):
+        factories.ArticleFactory(pk=1)
+
+    def _callFUT(self, pk):
+        request = RequestFactory().get('')
+        from . import views
+        return views.article(request, pk)
+
+    def test_ok(self):
+        pk = 1
+        response = self._callFUT(pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json.loads(response.content)['id'], pk)

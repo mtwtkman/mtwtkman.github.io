@@ -5,6 +5,8 @@ from itertools import groupby
 
 from django.conf import settings
 from django.db import transaction
+from django.forms import model_to_dict
+from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_http_methods
 
 from . import forms
@@ -43,13 +45,14 @@ def articles(request):
             return utils.JsonResponseBadRequest({'message': form.errors})
         with transaction.atomic():
             form.save()
-            return utils.TrustedJsonResponse(form.created)
+            return utils.TrustedJsonResponse(form.obj)
 
 
 @require_http_methods(['GET', 'PUT', 'DELETE'])
-def article(request, year, month, day, slug):
+def article(request, pk):
     if request.method == 'GET':
-        return utils.TrustedJsonResponse(model_to_dict())
+        target = get_object_or_404(models.Article)
+        return utils.TrustedJsonResponse(model_to_dict(target))
     elif request.method == 'PUT':
         form = forms.ArticleCreateForm(
             json.loads(request.body.decode('utf-8'))

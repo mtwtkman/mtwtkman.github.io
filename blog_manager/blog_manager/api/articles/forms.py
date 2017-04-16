@@ -1,4 +1,5 @@
 from datetime import datetime
+from contextlib import contextmanager
 
 from django import forms
 from django.forms import model_to_dict
@@ -26,23 +27,40 @@ class CommaSeparatedField(forms.CharField):
         return result
 
 
-class ArticleCreateForm(forms.Form):
+class ArticleBaseForm(forms.Form):
     title = forms.CharField()
     body = forms.CharField()
     tags = CommaSeparatedField()
     published = forms.BooleanField(required=False)
     slug = forms.CharField()
 
-    model = models.Article
-
     def clean_date(self):
         data = self.cleaned_data['date'] or datetime.now()
         return data.strftime(DATETIME_FORMAT)
 
+    @staticmethod
+    def _save(method):
+        def _inner(self, *args, **kwargs):
+            tags = self.cleaned_data.pop('tags')
+            obj = method(self, *args, **kwargs)
+            if tags:
+                for t in tags:
+                    obj.tags.add(t)
+            self.obj = model_to_dict(obj)
+        return _inner
+
+
+class ArticleCreateForm(ArticleBaseForm):
+    @ArticleBaseForm._save
     def save(self):
-        tags = self.cleaned_data.pop('tags')
-        created = self.model.objects.create(**self.cleaned_data)
-        if tags:
-            for t in tags:
-                created.tags.add(t)
-        self.created = model_to_dict(created)
+        return models.Article.objects.create(**self.cleaned_data)
+
+
+class ArticleUpdateForm(ArticleBaseForm):
+    @ArticleBaseForm._save
+    def save(self, obj):
+        for k, v in self.cleaned_data:
+            setattr(obj, k, v)
+        obj.tags.clear()
+        obj.save()
+        return obj
