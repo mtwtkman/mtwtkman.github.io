@@ -6,7 +6,7 @@ const Model = {
   fetch: () => {
     return m.request({
       method: 'GET',
-      url: '/api/articles/index',
+      url: '/api/articles',
     }).then(response => {
       Model.fetched = true;
       Model.data = response;
