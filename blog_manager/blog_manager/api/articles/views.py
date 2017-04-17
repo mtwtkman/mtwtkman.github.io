@@ -31,7 +31,9 @@ def articles(request):
             'year': year,
             'months': [{
                 'month': month,
-                'days': [{'id': d['id'], 'title': d['title']} for d in _data]
+                'days': [{
+                    'id': d['id'], 'title': d['title'], 'day': d['day']
+                } for d in _data]
             } for month, _data in groupby(data, key=lambda x: x['month'])]
         } for year, data in groupby(
             article_list(models.Article.objects.published()),

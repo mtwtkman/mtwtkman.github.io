@@ -38,6 +38,7 @@ class ArticlesGetTest(TestCase):
                 'days': [{
                     'id': 4,
                     'title': 'title_4',
+                    'day': '03',
                 }]
             },
             {
@@ -45,10 +46,12 @@ class ArticlesGetTest(TestCase):
                 'days': [{
                     'id': 3,
                     'title': 'title_3',
+                    'day': '02',
                 },
                 {
                     'id': 2,
                     'title': 'title_2',
+                    'day': '01',
                 }]
             }]
         },
@@ -59,6 +62,7 @@ class ArticlesGetTest(TestCase):
                 'days': [{
                     'id': 1,
                     'title': 'title_1',
+                    'day': '01',
                 }]
             }]
         }]
