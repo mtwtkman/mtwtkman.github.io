@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
 
+from django.http.response import Http404
 from django.test import TestCase, RequestFactory
 
 from .. import models
@@ -138,3 +139,83 @@ class ArticleGetTest(TestCase):
         response = self._callFUT(pk)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(json.loads(response.content)['id'], pk)
+
+    def test_404(self):
+        with self.assertRaises(Http404):
+            self._callFUT(2)
+
+
+class ArticlePutTest(TestCase):
+    def setUp(self):
+        t1 = factories.TagFactory(name='t1')
+        factories.ArticleFactory(pk=1, tags=(t1,))
+        factories.TagFactory(name='t2')
+
+    def _callFUT(self, pk, data):
+        request = RequestFactory().put('', json.dumps(data))
+        from . import views
+        return views.article(request, pk)
+
+    def assert200(self, resp):
+        self.assertEqual(resp.status_code, 200)
+
+    def assertObj(self, pk, expect, tags):
+        obj = models.Article.objects.get(pk=pk)
+        for k, v in expect.items():
+            if k == 'tags':
+                self.assertEqual(obj.tags.all().count(), len(tags))
+                self.assertEqual(
+                    [x for x in obj.tags.all().values_list('pk', flat=True)],
+                    tags
+                )
+                continue
+            self.assertEqual(getattr(obj, k), v)
+
+    def test_ok_remove_tag(self):
+        pk = 1
+        data = {
+            'id': pk,
+            'title': 'updated title',
+            'body': 'this is updated body',
+            'slug': 'update-slug',
+            'published': True,
+            'tags': None,
+        }
+        resp = self._callFUT(pk, data)
+        self.assert200(resp)
+        self.assertObj(pk, data, [])
+
+    def test_ok_add_tag(self):
+        pk = 1
+        data = {
+            'id': pk,
+            'title': 'updated title',
+            'body': 'this is updated body',
+            'slug': 'update-slug',
+            'published': True,
+            'tags': 't1,t2',
+        }
+        resp = self._callFUT(pk, data)
+        self.assert200(resp)
+        self.assertObj(pk, data, ['t1', 't2'])
+
+
+class ArticleDeleteTest(TestCase):
+    def setUp(self):
+        t1 = factories.TagFactory(pk='t1')
+        factories.TagFactory(pk='t2')
+        factories.ArticleFactory(pk=1, tags=(t1,))
+
+    def lazy_count(self):
+        return models.Article.objects.all().count()
+
+    def _callFUT(self, pk):
+        request = RequestFactory().delete('')
+        from . import views
+        return views.article(request, pk)
+
+    def test_ok(self):
+        article_total = self.lazy_count()
+        resp = self._callFUT(1)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(self.lazy_count(), article_total - 1)

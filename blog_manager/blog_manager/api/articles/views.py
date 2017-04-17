@@ -51,28 +51,20 @@ def articles(request):
 @require_http_methods(['GET', 'PUT', 'DELETE'])
 def article(request, pk):
     if request.method == 'GET':
-        target = get_object_or_404(models.Article)
+        target = get_object_or_404(models.Article, pk=pk)
         return utils.TrustedJsonResponse(model_to_dict(target))
     elif request.method == 'PUT':
-        form = forms.ArticleCreateForm(
+        form = forms.ArticleUpdateForm(
             json.loads(request.body.decode('utf-8'))
         )
         if not form.is_valid():
             return utils.JsonResponseBadRequest({'message': form.errors})
-        form.write()
-        return utils.TrustedJsonResponse(form.cleaned_data)
+        form.save()
+        return utils.TrustedJsonResponse(form.obj)
     elif request.method == 'DELETE':
-        filepath = os.path.join(settings.DATA_DIR, filename)
-        os.remove(filepath)
-        day_dir = os.path.dirname(filepath)
-        if not os.listdir(day_dir):
-            os.rmdir(day_dir)
-        month_dir = pardir(day_dir)
-        _, days, _ = next(os.walk(month_dir))
-        if not days:
-            os.rmdir(month_dir)
-        year_dir = pardir(month_dir)
-        _, months, _ = next(os.walk(year_dir))
-        if not months:
-            os.rmdir(year_dir)
-        return utils.JsonResponse({'result': 'ok'})
+        try:
+            models.Article.objects.get(pk=pk).delete()
+        except models.Article.DoesNotExist:
+            return utills.JsonResponseBadRequest({'message': 'Not found'})
+        else:
+            return utils.TrustedJsonResponse({'status': 'ok'})

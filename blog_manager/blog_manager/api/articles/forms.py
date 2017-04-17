@@ -3,6 +3,7 @@ from contextlib import contextmanager
 
 from django import forms
 from django.forms import model_to_dict
+from django.core.exceptions import ValidationError
 
 from .. import models
 
@@ -25,6 +26,14 @@ class CommaSeparatedField(forms.CharField):
                 target = models.Tag.objects.create(name=o)
             result.append(target)
         return result
+
+
+class ArticleField(forms.IntegerField):
+    def clean(self, value):
+        try:
+            return models.Article.objects.get(pk=value)
+        except models.Article.DoesNotExist:
+            raise ValidationError('Not found')
 
 
 class ArticleBaseForm(forms.Form):
@@ -57,9 +66,12 @@ class ArticleCreateForm(ArticleBaseForm):
 
 
 class ArticleUpdateForm(ArticleBaseForm):
+    id = ArticleField()
+
     @ArticleBaseForm._save
-    def save(self, obj):
-        for k, v in self.cleaned_data:
+    def save(self):
+        obj = self.cleaned_data.pop('id')
+        for k, v in self.cleaned_data.items():
             setattr(obj, k, v)
         obj.tags.clear()
         obj.save()
