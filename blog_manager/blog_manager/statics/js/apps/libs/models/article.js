@@ -9,13 +9,13 @@ export default class Model {
       title: '',
       body: '',
       slug: '',
-      publish: false,
+      published: false,
       tags: '',
       date: null,
     };
     this.fetched = false;
     this.resourcesUrl = '/api/articles';
-    this.resourceUrl = `${this.resourcesUrl}/${location.href.split('/').slice(4).join('/')}`;
+    this.resourceUrl = `${this.resourcesUrl}/${location.pathname.split('/')[2]}`;
   }
   fetch() {
     return request('GET', this.resourceUrl)
@@ -44,5 +44,8 @@ export default class Model {
   }
   mdBody() {
     return md.render(this.data.body);
+  }
+  setTag() {
+    return v => this.data.tag = v;
   }
 }

@@ -7,6 +7,7 @@ export default {
     vnode.state.model = vnode.attrs.model;
     vnode.state.onchange = v => {
       vnode.state.model.data.tags = v;
+      console.log(vnode.state.model.data.tags);
     };
   },
   view: vnode => {

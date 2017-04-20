@@ -67,6 +67,35 @@ class ArticleManager(models.Manager):
     def drafts(self):
         return self.filter(published=False).order_by('-created_at')
 
+    def published_index(self):
+        return self._group(self.published())
+
+    def drafts_index(self):
+        return self._group(self.drafts())
+
+    def _destructure(self, objs):
+        return [{
+            'id': o.pk, 'title': o.title, 'slug': o.slug,
+            **dict(zip(
+                ['year', 'month', 'day'],
+                o.created_at.strftime('%Y/%m/%d').split('/')
+            ))
+        } for o in objs]
+
+    def _group(self, rows):
+        return [{
+            'year': year,
+            'months': [{
+                'month': month,
+                'days': [{
+                    'id': d['id'], 'title': d['title'], 'day': d['day']
+                } for d in _data]
+            } for month, _data in groupby(data, key=lambda x: x['month'])]
+        } for year, data in groupby(
+            self._destructure(rows),
+            key=lambda x: x['year']
+        )]
+
 
 class Article(models.Model):
     title = models.CharField(max_length=50, validators=[MinLengthValidator(1)])

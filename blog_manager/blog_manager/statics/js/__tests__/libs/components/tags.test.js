@@ -2,7 +2,7 @@ import Tags from 'libs/components/tags';
 
 describe('Tags component', () => {
   describe('returns a component instance', () => {
-    let model = {data: {tags: []}};
+    let model = {data: {tags: ''}};
     let state = {};
     beforeEach(() => {
       state.model = model;

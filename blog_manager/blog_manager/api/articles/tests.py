@@ -108,6 +108,21 @@ class ArticleCreateFormTest(TestCase):
         form.save()
         self.assertEqual(self.lazy_count(), count + 1)
 
+    def test_ok_with_tag_which_does_not_exist(self):
+        data = {
+            'title': 'title',
+            'body': 'this is body',
+            'tags': 'new',
+            'published': True,
+            'slug': 's-l'
+        }
+        form = self._makeOne(data)
+        self.assertTrue(form.is_valid())
+        count = self.lazy_count()
+        form.save()
+        self.assertEqual(self.lazy_count(), count + 1)
+        self.assertTrue(models.Tag.objects.get(pk='new'))
+
 
 class ArticlesPostTest(TestCase):
     def _callFUT(self, data):
@@ -131,22 +146,32 @@ class ArticlesPostTest(TestCase):
 
 class ArticleGetTest(TestCase):
     def setUp(self):
+        t1 = factories.TagFactory(name='t1')
+        t2 = factories.TagFactory(name='t2')
         factories.ArticleFactory(pk=1)
+        factories.ArticleFactory(pk=2, tags=(t1, t2))
 
     def _callFUT(self, pk):
         request = RequestFactory().get('')
         from . import views
         return views.article(request, pk)
 
-    def test_ok(self):
+    def test_ok_without_tag(self):
         pk = 1
         response = self._callFUT(pk)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(json.loads(response.content)['id'], pk)
+        self.assertEqual(json.loads(response.content)['tags'], '')
+
+    def test_ok_with_tag(self):
+        pk = 2
+        response = self._callFUT(pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json.loads(response.content)['tags'], 't1,t2')
 
     def test_404(self):
         with self.assertRaises(Http404):
-            self._callFUT(2)
+            self._callFUT(999)
 
 
 class ArticlePutTest(TestCase):
@@ -202,6 +227,20 @@ class ArticlePutTest(TestCase):
         resp = self._callFUT(pk, data)
         self.assert200(resp)
         self.assertObj(pk, data, ['t1', 't2'])
+
+    def test_ok_add_new_tag(self):
+        pk = 1
+        data = {
+            'id': pk,
+            'title': 'updated title1',
+            'body': 'this is updated1',
+            'slug': 'ho-ge',
+            'tags': 't1,t3',
+        }
+        resp = self._callFUT(pk, data)
+        self.assert200(resp)
+        self.assertObj(pk, data, ['t1', 't3'])
+        self.assertTrue(models.Tag.objects.get(pk='t3'))
 
 
 class ArticleDeleteTest(TestCase):

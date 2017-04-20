@@ -14,31 +14,10 @@ from .. import utils
 from .. import models
 
 
-def article_list(objs):
-    return [{
-        'id': o.pk, 'title': o.title, 'slug': o.slug,
-        **dict(zip(
-            ['year', 'month', 'day'],
-            o.created_at.strftime('%Y/%m/%d').split('/')
-        ))
-    } for o in objs]
-
-
 @require_http_methods(['GET', 'POST'])
 def articles(request):
     if request.method == 'GET':
-        return utils.TrustedJsonResponse([{
-            'year': year,
-            'months': [{
-                'month': month,
-                'days': [{
-                    'id': d['id'], 'title': d['title'], 'day': d['day']
-                } for d in _data]
-            } for month, _data in groupby(data, key=lambda x: x['month'])]
-        } for year, data in groupby(
-            article_list(models.Article.objects.published()),
-            key=lambda x: x['year']
-        )])
+        return utils.TrustedJsonResponse(models.Article.objects.published_index())
     elif request.method == 'POST':
         form = forms.ArticleCreateForm(
             json.loads(request.body.decode('utf-8'))
@@ -54,7 +33,13 @@ def articles(request):
 def article(request, pk):
     if request.method == 'GET':
         target = get_object_or_404(models.Article, pk=pk)
-        return utils.TrustedJsonResponse(model_to_dict(target))
+        resp = {}
+        for k, v in model_to_dict(target).items():
+            if k == 'tags':
+                resp[k] = ','.join([x.pk for x in v])
+                continue
+            resp[k] = v
+        return utils.TrustedJsonResponse(resp)
     elif request.method == 'PUT':
         form = forms.ArticleUpdateForm(
             json.loads(request.body.decode('utf-8'))

@@ -7,6 +7,7 @@ import Slug from 'libs/components/slug';
 import Editor from 'libs/components/editor';
 import Preview from 'libs/components/preview';
 import Save from 'libs/components/save';
+import Published from 'libs/components/published';
 import Model from 'libs/models/article';
 
 const model = new Model();
@@ -21,6 +22,7 @@ export default {
         <Title model={model} />
         <Slug model={model} />
         <Tags model={model} />
+        <Published model={model} />
         <div className={styles.editorWrap}>
           <Editor key='editor' model={model} />
           <Preview key='preview' body={model.mdBody()} />

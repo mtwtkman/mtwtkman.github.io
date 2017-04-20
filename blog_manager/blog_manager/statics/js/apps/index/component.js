@@ -58,7 +58,7 @@ const Day = {
     const data = vnode.attrs.data;
     const inner = <span>
       {`${data.day}日 `}
-      <a href={`/article/${data.id}}`}>
+      <a href={`/article/${data.id}`}>
         {data.title}
       </a>
     </span>
