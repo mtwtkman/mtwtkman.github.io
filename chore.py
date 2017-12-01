@@ -2,7 +2,6 @@
 import re
 import os
 import sys
-import time
 import json
 import shutil
 import itertools
@@ -21,7 +20,6 @@ class FileExistsError(Exception):
 
 ARTICLE_TEMPLATE = '''title:
 slug: {slug}
-utime: {utime}
 date: {date}
 tags:
   -
@@ -29,7 +27,7 @@ publish: false
 body: |-
 '''
 
-REQUIRED = ('title', 'slug', 'utime', 'date', 'publish', 'body')
+REQUIRED = ('title', 'slug', 'date', 'publish', 'body')
 NODE_BIN = 'node_modules/.bin'
 IGNORE = ('index.json', 'tagging.json')
 
@@ -43,9 +41,8 @@ def build():
 
 
 def new(slug):
-    utime = int(time.time())
-    path = os.path.join('./articles', time.strftime(
-      '%Y/%m/%d', time.localtime(utime)))
+    now = datetime.now()
+    path = os.path.join('./articles', now.strftime('%Y/%m/%d'))
     os.makedirs(path, exist_ok=True)
 
     yaml_path = os.path.join(path, slug + '.yml')
@@ -53,8 +50,8 @@ def new(slug):
         raise FileExistsError('`{}` exists'.format(yaml_path))
 
     with open(yaml_path, 'w') as f:
-        date = time.strftime('%Y/%m/%d %H:%M:%S', time.localtime(utime))
-        f.write(ARTICLE_TEMPLATE.format(slug=slug, utime=utime, date=date))
+        date = now.strftime('%Y/%m/%d %H:%M:%S')
+        f.write(ARTICLE_TEMPLATE.format(slug=slug, date=date))
 
     index()
 
@@ -72,7 +69,7 @@ def delete(path):
     index()
 
 
-def traverse(ext='json'):
+def traverse(ext='json', exclude_draft=True):
     assert ext in ['json', 'yml']
     for root, dirs, files in os.walk('./articles'):
         for _file in files:
@@ -85,15 +82,18 @@ def traverse(ext='json'):
                     'json': json.loads,
                     'yml': yaml.safe_load,
                 }.get(ext)(f.read())
-            if not data['publish']:
+            if exclude_draft and not data['publish']:
                 continue
             yield root, data, _file
 
 
 def to_json():
-    for root, data, _file in traverse('yml'):
-        with open(os.path.join(root, re.sub(r'\.yml$', '.json', _file)), 'w') as f:
+    for root, data, _file in traverse('yml', False):
+        target = re.sub(r'\.yml$', '.json', _file)
+        print('now convert {} to {}'.format(_file, target))
+        with open(os.path.join(root, target), 'w') as f:
             f.write(json.dumps(data))
+        print('done')
 
 def index():
     result = []
@@ -108,8 +108,10 @@ def index():
         })
 
     result.sort(key=lambda x: (x['year'], x['month'], x['day']), reverse=True)
+    print('now update index')
     with open('./articles/index.json', 'w') as f:
         f.write(json.dumps(result))
+    print('done')
 
 
 def tagging():
@@ -123,8 +125,10 @@ def tagging():
                 'title': data['title']
             })
 
+    print('now update tagging')
     with open('./articles/tagging.json', 'w') as f:
         f.write(json.dumps(result))
+    print('done')
 
 
 def css():
@@ -149,7 +153,7 @@ def css():
 
 
 def webpack():
-    subprocess.call([os.path.join(NODE_BIN, 'webpack')])
+    subprocess.call([os.path.join(NODE_BIN, 'webpack'), '--config', 'webpack/prod.js'])
 
 
 class StylEventHandler(FileSystemEventHandler):
@@ -181,13 +185,15 @@ def rss():
         description='mtwtkman\'s site.',
         lastBuildDate=datetime.utcnow()
     )
-    with open('articles/index.txt') as f:
-        articles = f.read().splitlines()
+    with open('articles/index.json') as f:
+        articles = json.loads(f.read())
 
     for x in articles:
-        with open('articles/' + x) as f:
-            y = yaml.safe_load(f.read())
-        pubdate = time.localtime(y['utime'])
+        with open('articles/{}/{}/{}/{}.json'.format(
+            x['year'], x['month'], x['day'], x['slug'],
+        )) as f:
+            y = json.loads(f.read())
+        dt = datetime.strptime(y['date'], '%Y/%m/%d %H:%M:%S').timetuple()
         feed.items.append(PyRSS2Gen.RSSItem(
             title=y['title'],
             link='http://mtwtkman.github.io/#/blog/article/{}/{}'.format(
@@ -195,16 +201,18 @@ def rss():
                 y['slug']
             ),
             author='mtwtkman',
-            pubDate=datetime(pubdate.tm_year,
-                             pubdate.tm_mon,
-                             pubdate.tm_mday,
-                             pubdate.tm_hour,
-                             pubdate.tm_min,
-                             pubdate.tm_sec),
+            pubDate=datetime(dt.tm_year,
+                             dt.tm_mon,
+                             dt.tm_mday,
+                             dt.tm_hour,
+                             dt.tm_min,
+                             dt.tm_sec),
         ))
 
+    print('now update rss')
     with open('rss.xml', 'w') as f:
         f.write(feed.to_xml('utf-8'))
+    print('done')
 
 
 def man():
