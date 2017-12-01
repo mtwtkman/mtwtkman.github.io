@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import re
 import os
 import sys
 import time
@@ -33,6 +34,7 @@ NODE_BIN = 'node_modules/.bin'
 IGNORE = ('index.json', 'tagging.json')
 
 def build():
+    to_json()
     index()
     tagging()
     css()
@@ -70,28 +72,40 @@ def delete(path):
     index()
 
 
-def index():
-    result = []
+def traverse(ext='json'):
+    assert ext in ['json', 'yml']
     for root, dirs, files in os.walk('./articles'):
         for _file in files:
             if _file in IGNORE:
                 continue
-            if not _file.endswith('.json'):
+            if not _file.endswith('.{}'.format(ext)):
                 continue
             with open(os.path.join(root, _file)) as f:
-                data = json.loads(f.read())
-
+                data = {
+                    'json': json.loads,
+                    'yml': yaml.safe_load,
+                }.get(ext)(f.read())
             if not data['publish']:
                 continue
+            yield root, data, _file
 
-            year, month, day = root.replace('./articles/', '').split('/')
-            result.append({
-                'title': data['title'],
-                'slug': data['slug'],
-                'year': year,
-                'month': month,
-                'day': day,
-            })
+
+def to_json():
+    for root, data, _file in traverse('yml'):
+        with open(os.path.join(root, re.sub(r'\.yml$', '.json', _file)), 'w') as f:
+            f.write(json.dumps(data))
+
+def index():
+    result = []
+    for root, data, _file in traverse():
+        year, month, day = root.replace('./articles/', '').split('/')
+        result.append({
+            'title': data['title'],
+            'slug': data['slug'],
+            'year': year,
+            'month': month,
+            'day': day,
+        })
 
     result.sort(key=lambda x: (x['year'], x['month'], x['day']), reverse=True)
     with open('./articles/index.json', 'w') as f:
@@ -100,23 +114,14 @@ def index():
 
 def tagging():
     result = {}
-    for root, dirs, files in os.walk('./articles'):
-        for _file in files:
-            if _file in IGNORE:
-                continue
-            if not _file.endswith('.json'):
-                continue
-            with open(os.path.join(root, _file)) as f:
-                data = json.loads(f.read())
-            if not data['publish']:
-                continue
-            for tag in data['tags']:
-                t = result.setdefault(tag, [])
-                t.insert(0, {
-                    'path': os.path.join(root.replace('./articles/', ''),
-                                         _file.replace('.json', '')),
-                    'title': data['title']
-                })
+    for root, data, _file in traverse():
+        for tag in data['tags']:
+            t = result.setdefault(tag, [])
+            t.insert(0, {
+                'path': os.path.join(root.replace('./articles/', ''),
+                                     _file.replace('.json', '')),
+                'title': data['title']
+            })
 
     with open('./articles/tagging.json', 'w') as f:
         f.write(json.dumps(result))
@@ -215,7 +220,8 @@ def man():
         ' build: build all articles.',
         ' css  : compile stylesheets.',
         ' watch: start watch tasks.',
-        ' rss  : generate rss feed.'
+        ' rss  : generate rss feed.',
+        ' json : convert yaml to json.',
     ]))
 
 
@@ -240,5 +246,7 @@ if __name__ == '__main__':
         watch()
     elif cmd == 'rss':
         rss()
+    elif cmd == 'json':
+        to_json()
     else:
         man()
