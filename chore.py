@@ -2,6 +2,7 @@
 import os
 import sys
 import time
+import json
 import shutil
 import itertools
 import subprocess
@@ -29,7 +30,7 @@ body: |-
 
 REQUIRED = ('title', 'slug', 'utime', 'date', 'publish', 'body')
 NODE_BIN = 'node_modules/.bin'
-IGNORE_YAML = ('index.yml', 'tags.yml')
+IGNORE = ('index.json', 'tagging.json')
 
 def build():
     index()
@@ -73,12 +74,13 @@ def index():
     result = []
     for root, dirs, files in os.walk('./articles'):
         for _file in files:
-            if _file in IGNORE_YAML:
+            if _file in IGNORE:
                 continue
-            if not _file.endswith('.yml'):
+            if not _file.endswith('.json'):
                 continue
             with open(os.path.join(root, _file)) as f:
-                data = yaml.safe_load(f.read())
+                data = json.loads(f.read())
+
             if not data['publish']:
                 continue
 
@@ -90,33 +92,34 @@ def index():
                 'month': month,
                 'day': day,
             })
+
     result.sort(key=lambda x: (x['year'], x['month'], x['day']), reverse=True)
-    with open('./articles/index.yml', 'w') as f:
-        f.write(yaml.dump(result))
+    with open('./articles/index.json', 'w') as f:
+        f.write(json.dumps(result))
 
 
 def tagging():
     result = {}
     for root, dirs, files in os.walk('./articles'):
         for _file in files:
-            if _file in IGNORE_YAML:
+            if _file in IGNORE:
                 continue
-            if not _file.endswith('.yml'):
+            if not _file.endswith('.json'):
                 continue
             with open(os.path.join(root, _file)) as f:
-                data = yaml.safe_load(f.read())
+                data = json.loads(f.read())
             if not data['publish']:
                 continue
             for tag in data['tags']:
                 t = result.setdefault(tag, [])
                 t.insert(0, {
                     'path': os.path.join(root.replace('./articles/', ''),
-                                         _file.replace('.yml', '')),
+                                         _file.replace('.json', '')),
                     'title': data['title']
                 })
 
-    with open('./articles/tagging.yml', 'w') as f:
-        f.write(yaml.dump(result))
+    with open('./articles/tagging.json', 'w') as f:
+        f.write(json.dumps(result))
 
 
 def css():

@@ -8,12 +8,16 @@ use iron::status;
 use router::Router;
 use serde_json::{Value, from_str};
 
-use read_file;
-
-
 fn json_response(body: String) -> IronResult<Response> {
     let content_type = "application/json".parse::<Mime>().unwrap();
     Ok(Response::with((content_type, status::Ok, body)))
+}
+
+fn read_file(file_name: &str) -> String {
+    let mut file = File::open(file_name).unwrap();
+    let mut contents = String::new();
+    file.read_to_string(&mut contents);
+    contents
 }
 
 pub fn articles(_: &mut Request) -> IronResult<Response> {
