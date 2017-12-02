@@ -4,5 +4,8 @@ version = "0.1.0"
 authors = ["mtwtkman <punipuniomochi@gmail.com>"]
 
 [dependencies]
+hyper = "*"
 iron = "*"
 router = "*"
+staticfile = "*"
+diesel = "0.9.0"

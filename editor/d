@@ -1,0 +1,11 @@
+#! /bin/sh
+
+de="docker exec -ti editor"
+cargo="$de cargo"
+
+case $1 in
+  up) docker run -d --rm -ti --name editor -v `pwd`:/source -p 3000:3000 jimmycuadra/rust /bin/sh;;
+  build) $cargo build;;
+  run) $cargo run;;
+  sh) $de sh;;
+esac

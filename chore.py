@@ -217,12 +217,13 @@ def rss():
     print('done')
 
 
-def sql():
-    dbname = 'blog.db'
-    if os.path.exists(dbname):
-        os.remove(dbname)
+DB = 'blog.db'
 
-    conn = sqlite3.connect(dbname)
+def sql():
+    if os.path.exists(DB):
+        os.remove(DB)
+
+    conn = sqlite3.connect(DB)
     with contextlib.closing(conn.cursor()) as cursor:
         print('create tables')
         with open('blog.ddl') as f:
