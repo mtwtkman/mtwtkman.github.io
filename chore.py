@@ -4,8 +4,10 @@ import os
 import sys
 import json
 import shutil
+import sqlite3
 import itertools
 import subprocess
+import contextlib
 from datetime import datetime
 
 import yaml
@@ -215,6 +217,55 @@ def rss():
     print('done')
 
 
+def sql():
+    dbname = 'blog.db'
+    if os.path.exists(dbname):
+        os.remove(dbname)
+
+    conn = sqlite3.connect(dbname)
+    with contextlib.closing(conn.cursor()) as cursor:
+        print('create tables')
+        with open('blog.ddl') as f:
+            cursor.executescript(f.read())
+        print('done')
+
+        with open('articles/tagging.json') as f:
+            tags = {
+                t: i for i, t in
+                enumerate({t for t in json.loads(f.read()).keys()}, 1)
+            }
+            print('insert tags')
+            cursor.executemany('insert into tags(name, id) values (?, ?)', list(tags.items()))
+            print('done')
+
+        max_tag_id = len(tags.values())
+
+        print('insert articles and taggings')
+        for i, (_, x, _) in enumerate(traverse(exclude_draft=False), 1):
+            d = datetime.strptime(x['date'], '%Y/%m/%d %H:%M:%S')
+            article = (i, x['title'], x['slug'], x['publish'], str(d.year), '{:02}'.format(d.day), '{:02}'.format(d.month))
+            print(article)
+            cursor.execute(
+                'insert into articles(id, title, slug, published, year, day, month) values (?, ?, ?, ?, ?, ?, ?)',
+                article
+            )
+            if not all(x['tags']):
+                continue
+            not_registered = set(x['tags']) - set(tags.keys())
+            if not_registered:
+                not_registered_tags = {t: max_tag_id + i for i, t in enumerate(not_registered, 1)}
+                cursor.executemany(
+                    'insert into tags(name, id) values (?, ?)',
+                    [(t, i) for t, i in not_registered_tags.items()]
+                )
+                max_tag_id += len(not_registered_tags)
+                tags.update(not_registered_tags)
+            tagging = [(article[0], tags[t]) for t in x['tags']]
+            cursor.executemany('insert into taggings(article_id, tag_id) values (?, ?)', tagging)
+        print('done')
+        conn.commit()
+
+
 def man():
     print('\n'.join([
         'Commands are:',
@@ -230,6 +281,7 @@ def man():
         ' watch: start watch tasks.',
         ' rss  : generate rss feed.',
         ' json : convert yaml to json.',
+        ' sql  : import json data to sql.',
     ]))
 
 
@@ -256,5 +308,7 @@ if __name__ == '__main__':
         rss()
     elif cmd == 'json':
         to_json()
+    elif cmd == 'sql':
+        sql()
     else:
         man()
