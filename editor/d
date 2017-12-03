@@ -7,5 +7,6 @@ case $1 in
   up) docker run -d --rm -ti --name editor -v `pwd`:/source -p 3000:3000 editor /bin/sh;;
   build) $cargo build;;
   run) $cargo run;;
+  watch) $cargo run --features "watch";;
   sh) $de sh;;
 esac

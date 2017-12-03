@@ -9,3 +9,10 @@ iron = "*"
 router = "*"
 staticfile = "*"
 diesel = "0.9.0"
+handlebars-iron = "*"
+serde = "*"
+serde_json = "*"
+serde_derive = "*"
+
+[features]
+watch = ["handlebars-iron/watch"]

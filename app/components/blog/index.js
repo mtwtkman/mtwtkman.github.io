@@ -23,8 +23,12 @@ export default {
     Index.fetch();
   },
   head() {
-    document.querySelector('meta[property="og:url"]').content = location.href
-    document.querySelector('meta[property="og:title"]').content = 'blog'
+    const meta = (property, content) => {
+        document.querySelector(`meta[property="og:${property}"]`).content = content
+    }
+    meta('type', 'blog')
+    meta('url', location.href)
+    meta('title', 'blog')
   },
   view: function(vnode) {
     this.head()

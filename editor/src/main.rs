@@ -1,45 +1,37 @@
 extern crate iron;
+#[macro_use]
 extern crate router;
-extern crate hyper;
-
-use std::fs::File;
-use std::io::prelude::*;
+#[macro_use]
+extern crate serde_json;
+extern crate handlebars_iron as hbs;
 
 use iron::prelude::*;
-use iron::mime::{Mime, TopLevel, SubLevel, Attr, Value};
-use iron::{AfterMiddleware, status};
-use iron::headers::ContentType;
-use router::Router;
+use hbs::{HandlebarsEngine, DirectorySource};
+#[cfg(feature = "watch")]
+use hbs::Watchable;
+#[cfg(feature = "watch")]
+use std::sync::Arc;
 
-fn index(_: &mut Request) -> IronResult<Response> {
-    let mut file = File::open("./assets/index.html").unwrap();
-    let mut contents = String::new();
-    let content_type: Mime = "text/html".parse().unwrap();
-    let _ = file.read_to_string(&mut contents);
-    Ok(Response::with((content_type, status::Ok, contents)))
-}
+mod handlers;
+use handlers::index;
 
-struct JsonResponseMiddleware;
-impl AfterMiddleware for JsonResponseMiddleware {
-    fn after(&self, _: &mut Request, mut res: Response) -> IronResult<Response> {
-        res.headers.set(
-            ContentType(Mime(
-                TopLevel::Application,
-                SubLevel::Json,
-                vec![(Attr::Charset, Value::Utf8)]
-            ))
-        );
-        Ok(res)
-    }
-}
-
-mod api;
-
+#[cfg(feature = "watch")]
 fn main() {
-    let mut router = Router::new();
-    router.get("/", index, "index");
-    let mut articles_index_chain = Chain::new(api::articles::index);
-    articles_index_chain.link_after(JsonResponseMiddleware);
-    router.get("/api/articles", articles_index_chain, "articles");
-    Iron::new(router).http("0.0.0.0:3000").unwrap();
+    let template_path = "./templates/";
+    let mut hbse = HandlebarsEngine::new();
+    hbse.add(Box::new(DirectorySource::new(template_path, ".hbs")));
+    if let Err(r) = hbse.reload() {
+        panic!("{}", r);
+    }
+    let hbse_ref = Arc::new(hbse);
+    hbse_ref.watch(template_path);
+
+    let router = router!(
+        index: get "/" => index::handler,
+    );
+
+    let mut chain = Chain::new(router);
+    chain.link_after(hbse_ref);
+
+    Iron::new(chain).http("0.0.0.0:3000").unwrap();
 }

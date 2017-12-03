@@ -46,7 +46,7 @@ export default {
     const meta = (property, content) => {
       document.querySelector(`meta[property="og:${property}"`).content = content
     }
-    meta('type', 'website')
+    meta('type', 'blog')
     meta('url', location.href)
     meta('title', data.title)
   },
