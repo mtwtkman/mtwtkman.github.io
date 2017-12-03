@@ -22,7 +22,12 @@ export default {
     utils.setTitle('blog');
     Index.fetch();
   },
+  head() {
+    document.querySelector('meta[property="og:url"]').content = location.href
+    document.querySelector('meta[property="og:title"]').content = 'blog'
+  },
   view: function(vnode) {
+    this.head()
     return m('div#article-list-wrapper', [
       m('div#article-list', Index.data.map(article => {
         const date = `${article.year}/${article.month}/${article.day}`;

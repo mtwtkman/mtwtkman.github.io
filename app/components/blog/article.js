@@ -42,8 +42,17 @@ export default {
       hljs.highlightBlock(x);
     });
   },
+  head(data) {
+    const meta = (property, content) => {
+      document.querySelector(`meta[property="og:${property}"`).content = content
+    }
+    meta('type', 'website')
+    meta('url', location.href)
+    meta('title', data.title)
+  },
   view: function(vnode) {
     const data = Article.data;
+    this.head(data)
     return m('section', [
       m('header', [
         m('h1', data.title),

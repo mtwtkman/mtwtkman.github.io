@@ -3,6 +3,7 @@ import re
 import os
 import sys
 import json
+import time
 import shutil
 import sqlite3
 import itertools
@@ -172,7 +173,7 @@ def watch():
     observer.start()
     try:
         # webpack watch
-        subprocess.call([os.path.join(NODE_BIN, 'webpack'), '--watch'])
+        subprocess.call([os.path.join(NODE_BIN, 'webpack'), '--watch', '--config', 'webpack/dev.js'])
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
