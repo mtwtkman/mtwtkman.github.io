@@ -1,0 +1,113 @@
+title: kokoro.ioのAPIレスポンスエンティティ管理の妥協点
+slug: kokoro-io-advent-calendar-day4
+date: 2017/12/04 19:32:39
+tags:
+  - kokoro.io
+publish: true
+body: |-
+  [kokoro.ioアドベントカレンダー](https://adventar.org/calendars/2519)4日目の記事です。昨日はbokuさんのアレでした。
+
+  今日は書くつもりなかったのですが、誰もかかなさそうなので思いつきで書きます。
+
+  kokoro.ioはフロントエンドとがTypeScript + VueJS, バックエンドがRuby on Railsという構成です。
+
+  サーバー側は歴史的経緯によりSPAで作っているチャット画面が問い合わせるRESTful APIサーバーとコントローラーが並存しています。
+
+  今回はkokoro.io開発にあたってAPIの設計と悩みどころと妥協点を挙げます。多分割と一般的な話だと思う。
+
+  # エンティティの循環参照
+  `GET /v1/channels` と `GET /v1/memberships` はお互いにチャンネルの情報とメンバーシップの情報を持っています。
+
+  そうした場合、エンティティの定義は再利用したいというのが世の常ですがナイーブに実装すると当然循環参照が起きてしまします。
+
+  そこで、以下のようなワークアラウンドで対応しています。
+
+  ```ruby
+  class ChannelEntity < Grape::Entity
+    expose :membership, ...
+    ...
+  end
+
+  # ChannelEntity 内の membership を外す
+  class ChannelWithoutMembershipEntity < ChannelEntity
+    unexpose :membership
+  end
+
+  class MembershipEntity < Grape::Entity
+    expose :channel, documentation: { type: ChannelWithoutMembershipEntity, desc: 'チャンネル情報' }, using: ChannelWithoutMembershipEntity
+    ...
+  end
+  ```
+
+  私が実装したのですが我ながら最悪ですね。でもこうするしかなかった。多分設計が悪いんですけど、ダルすぎてあんまり再考していません。
+
+  `MembershipEntity`にチャンネルの情報をもたせたい理由を考えてみます。
+
+  ログインユーザーが最初にチャット画面を開く瞬間、裏側では自分の参加しているチャンネル一覧を取得しに行っています。そのエンドポイントは`GET /v1/memberships`だったりします。
+
+  なぜメンバーシップを取りに行ってるかというと、ログインユーザーのメンバーシップはチャンネルに対して当然一意だからです。
+
+  問題なのはチャンネルをアクティブにした時に自分の以外のメンバーシップを取得する必要があり、そのエンドポイントが`GET /v1/channels`なのです。
+
+  チャンネルリソースに生えているメンバーシップリソースの取得という意味では理屈はあっています。なのでここもいじりようがありません。
+
+  ようはリソースの主従がはっきりしていないことが原因です。でも、ダルい。。。。。。無限に。リプレイスが計画されているようなのでそこでごっそり変えると思います。
+
+  良くなる。そう言っておきます。
+
+  ちなみに、GraphQLは？みたいな話も当然出たんですがなんとなく食指が動かないとか、あとなんかユースケースにあってなくね？みたいなところがあった気がするけど全部忘れた。
+
+  # フロントエンドのエンティティ管理
+  TypeScript を使っているんだから、 APIのエンティティスキーマを型としてフロントエンドでも管理したいですよね。
+
+  ただ、現状はそこまで手が回っておらずカオスです。どの程度カオスかというと
+
+  ```javascript
+  export interface Channel {
+    id: string | null;
+    requestParams: {
+        limit: number;
+        before_id: number | null;
+    };
+    channel_name: string | null;
+    messages: Array<Message>;
+    member_id: string;
+    authority: string;
+    memberships: Array<Membership>;
+    reachedEnd: boolean;
+    nobodyPost: boolean;
+    unreadCount?: number;
+    kind?: ChannelKind;
+    draftMessage: DraftMessage;
+    transitMessagesMap: object;
+    fetchingMessage: boolean;
+    fetchingMemberships: boolean;
+    currentScrollPosition: number;
+    atScrollBottom: boolean;
+    initialMessagesFetched: boolean;
+    depth: number;
+    displayName: string | null;
+  }
+  ```
+
+  ぱっと見では伝わらないと思いますが、なぜ主キーであるidがnullableなの？とかがわかりやすいと思います。
+
+  これは、、、、、、、、ですね、、、、、、その、、、、、、、チャンネル取得前のダミーチャンネルと実態としてのチャンネルを一つのインターフェースで表現しようとしているからです。
+
+  また、APIのエンティティに存在しないプロパティが生えまくっています。
+
+  これはフロントエンドの文脈とAPIレスポンスの文脈を一つのモデルで扱おうとして起きている問題です。
+
+  ただ、まあこれに関しては鋭意直してます。修正方針は明快で、フロントエンドでも頑張ってエンティティの定義に追随しよう、フロントエンド独自のインターフェースとしてエンティティの型とは明確に分けよう。
+
+  というものです。最初からそうやれや。。。。。。。。
+
+
+  # これらの割れ窓が存在する理由
+  気合が足りません。仲間を思う気持ち、絆、思いやり、地元愛、それらの大切な要素が欠如している結果だと思います。
+
+  # 泣けるという方へ
+  泣きましょう。どうぞ、泣いてください。好きなだけ泣いて、全部を受け入れましょう。
+
+
+  〜fin〜
