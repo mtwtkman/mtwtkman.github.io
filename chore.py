@@ -221,15 +221,8 @@ def rss():
 DB = './editor/blog.db'
 
 def sql():
-    if os.path.exists(DB):
-        os.remove(DB)
-
     conn = sqlite3.connect(DB)
     with contextlib.closing(conn.cursor()) as cursor:
-        print('create tables')
-        with open('blog.ddl') as f:
-            cursor.executescript(f.read())
-        print('done')
 
         with open('articles/tagging.json') as f:
             tags = {
@@ -241,14 +234,15 @@ def sql():
             print('done')
 
         max_tag_id = len(tags.values())
+        max_tagging_id = 1
 
         print('insert articles and taggings')
         for i, (_, x, _) in enumerate(traverse(exclude_draft=False), 1):
             d = datetime.strptime(x['date'], '%Y/%m/%d %H:%M:%S')
-            article = (i, x['title'], x['slug'], x['publish'], str(d.year), '{:02}'.format(d.day), '{:02}'.format(d.month))
+            article = (i, x['title'], x['slug'], x['publish'], x['body'], str(d.year), '{:02}'.format(d.day), '{:02}'.format(d.month))
             print(article)
             cursor.execute(
-                'insert into articles(id, title, slug, published, year, day, month) values (?, ?, ?, ?, ?, ?, ?)',
+                'insert into articles(id, title, slug, published, content, year, day, month) values (?, ?, ?, ?, ?, ?, ?, ?)',
                 article
             )
             if not all(x['tags']):
@@ -262,8 +256,9 @@ def sql():
                 )
                 max_tag_id += len(not_registered_tags)
                 tags.update(not_registered_tags)
-            tagging = [(article[0], tags[t]) for t in x['tags']]
-            cursor.executemany('insert into taggings(article_id, tag_id) values (?, ?)', tagging)
+            tagging = [(i, article[0], tags[t]) for i, t in enumerate(x['tags'], max_tagging_id)]
+            max_tagging_id += len(tagging)
+            cursor.executemany('insert into taggings(id, article_id, tag_id) values (?, ?, ?)', tagging)
         print('done')
         conn.commit()
 

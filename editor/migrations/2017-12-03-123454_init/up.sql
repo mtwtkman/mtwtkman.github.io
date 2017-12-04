@@ -24,4 +24,3 @@ create table taggings (
   foreign key(tag_id) references tags(id)
 )
 ;
-
