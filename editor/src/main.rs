@@ -3,17 +3,22 @@ extern crate iron;
 extern crate router;
 #[macro_use]
 extern crate serde_json;
+#[macro_use]
+extern crate serde_derive;
+#[macro_use]
+extern crate diesel_infer_schema;
 extern crate handlebars_iron as hbs;
+extern crate editor;
 
 use iron::prelude::*;
 use hbs::{HandlebarsEngine, DirectorySource};
+
 #[cfg(feature = "watch")]
 use hbs::Watchable;
 #[cfg(feature = "watch")]
 use std::sync::Arc;
 
-mod handlers;
-use handlers::index;
+use editor::handlers::index;
 
 #[cfg(feature = "watch")]
 fn main() {

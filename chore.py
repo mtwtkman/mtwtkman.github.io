@@ -218,7 +218,7 @@ def rss():
     print('done')
 
 
-DB = 'blog.db'
+DB = './editor/blog.db'
 
 def sql():
     if os.path.exists(DB):

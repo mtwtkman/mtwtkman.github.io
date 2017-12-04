@@ -8,11 +8,13 @@ hyper = "*"
 iron = "*"
 router = "*"
 staticfile = "*"
-diesel = "0.9.0"
+diesel = "*"
+diesel_infer_schema = { version = "*", features = ["sqlite"] }
 handlebars-iron = "*"
 serde = "*"
 serde_json = "*"
 serde_derive = "*"
+dotenv = "*"
 
 [features]
 watch = ["handlebars-iron/watch"]
