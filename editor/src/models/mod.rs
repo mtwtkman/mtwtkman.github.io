@@ -4,6 +4,7 @@ use std::env;
 
 mod article;
 pub use self::article::Article;
+pub use self::article::EditArticle;
 mod tag;
 pub use self::tag::Tag;
 pub mod schema;

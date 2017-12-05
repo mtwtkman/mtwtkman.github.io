@@ -12,7 +12,7 @@ use hbs::Watchable;
 #[cfg(feature = "watch")]
 use std::sync::Arc;
 
-use editor::handlers::index;
+use editor::handlers::{index, edit};
 
 #[cfg(feature = "watch")]
 fn main() {
@@ -27,6 +27,7 @@ fn main() {
 
     let router = router!(
         index: get "/" => index::handler,
+        edit: get "/:id" => edit::handler,
     );
 
     let mut chain = Chain::new(router);

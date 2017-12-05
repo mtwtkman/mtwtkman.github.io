@@ -1,0 +1,21 @@
+<html>
+  <head>
+    <title>Edit - {{title}}</title>
+  </head>
+  <body>
+    <h1>{{title}}</h1>
+    <h2>{{slug}}</h2>
+    <h2>{{year}}/{{month}}/{{day}}</h2>
+    <h3>
+      {{#if published}}
+        published
+      {{else}}
+        draft
+      {{/if}}
+    </h3>
+    <div class="content">
+      {{content}}
+    </div>
+  </body>
+</html>
+

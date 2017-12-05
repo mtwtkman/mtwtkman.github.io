@@ -10,6 +10,7 @@ extern crate handlebars_iron as hbs;
 extern crate serde_json;
 #[macro_use]
 extern crate serde_derive;
+extern crate router;
 
 pub mod models;
 pub mod handlers;
