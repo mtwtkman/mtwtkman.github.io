@@ -7,9 +7,15 @@
     <div class="articles">
       {{#each articles}}
         <div class="article">
-          <a href="{{year}}/{{month}}/{{day}}/{{title}}">
+          <span>
+            {{year}}/{{month}}/{{day}}
+          </span>
+          <a href="{{id}}">
             {{title}}
           </a>
+          {{#unless published}}
+            - draft
+          {{/unless}}
         </div>
       {{/each}}
     </div>
