@@ -6,7 +6,10 @@ extern crate diesel_infer_schema;
 extern crate dotenv;
 extern crate iron;
 extern crate handlebars_iron as hbs;
+#[macro_use]
 extern crate serde_json;
+#[macro_use]
+extern crate serde_derive;
 
 pub mod models;
 pub mod handlers;

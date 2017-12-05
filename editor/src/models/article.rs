@@ -1,7 +1,7 @@
 use diesel::prelude::*;
 use models::establish_connection;
 
-#[derive(Queryable)]
+#[derive(Queryable, Serialize)]
 pub struct Article {
     pub id: i32,
     pub title: String,
