@@ -3,7 +3,7 @@ slug: kokoro-io-advent-calendar-day7
 date: 2017/12/07 00:00:00
 tags:
   - kokoro.io
-publish: false
+publish: true
 body: |-
   この記事は[kokoro.ioアドベントカレンダー](adventar.org/calendars/2519)7日目の記事です。5, 6日分が空席なので、ご自由に。
 
@@ -85,7 +85,7 @@ body: |-
   vuexはシンプルに使うべきです。モデル層のロジックはモデルに生やすべきだし、グローバルステートをこねくり回す責務だけ突っ込めばいい。という当たり前の結論です。すいません。
 
   ## vue-property-decorator が素晴らしい
-  素晴らしい。TypeScriptを使うのであれば必須な気がする。現場からは以上です。
+  素晴らしい。decorator はガンガン使っていきたい。みなさん有効にしましょう。現場からは以上です。
 
   ## その他
   webpack は別に慣れてるので特にアレだし、TypeScriptはいいですね、としか言いようがない。今、VueJS関連で一番の関心はVueJSのUIコンポーネントです。気が熟したら[element](http://element.eleme.io/#/en-US/component/installation)か何かに乗り換えようと考えています。
