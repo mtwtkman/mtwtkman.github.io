@@ -223,6 +223,9 @@ DB = './editor/blog.db'
 def sql():
     conn = sqlite3.connect(DB)
     with contextlib.closing(conn.cursor()) as cursor:
+        cursor.execute('delete from taggings')
+        cursor.execute('delete from articles')
+        cursor.execute('delete from tags')
 
         with open('articles/tagging.json') as f:
             tags = {
