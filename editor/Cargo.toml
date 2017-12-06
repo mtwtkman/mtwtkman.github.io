@@ -15,6 +15,7 @@ serde = "*"
 serde_json = "*"
 serde_derive = "*"
 dotenv = "*"
+pulldown-cmark = "*"
 
 [features]
 watch = ["handlebars-iron/watch"]

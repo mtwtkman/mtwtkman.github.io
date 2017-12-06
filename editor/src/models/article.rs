@@ -1,7 +1,8 @@
 use diesel::prelude::*;
 use models::establish_connection;
+use models::schema::articles;
 
-#[derive(Queryable, Serialize)]
+#[derive(Identifiable, Queryable, Serialize)]
 pub struct Article {
     pub id: i32,
     pub title: String,
@@ -9,8 +10,8 @@ pub struct Article {
     pub content: String,
     pub published: bool,
     pub year: String,
-    pub day: String,
     pub month: String,
+    pub day: String,
 }
 
 impl Article {
@@ -23,26 +24,12 @@ impl Article {
             .load(&conn)
             .expect("Error loading articles")
     }
-}
 
-#[derive(Queryable, Serialize)]
-pub struct EditArticle {
-    pub id: i32,
-    pub title: String,
-    pub slug: String,
-    pub published: bool,
-    pub content: String,
-    pub year: String,
-    pub month: String,
-    pub day: String,
-}
-
-impl EditArticle {
-    pub fn select(pk: i32) -> EditArticle {
+    pub fn select(pk: i32) -> Article {
         use models::schema::articles::dsl::*;
         let conn = establish_connection();
         articles
-            .select((id, title, slug, published, content, year, month, day))
+            .select((id, title, slug, content, published, year, month, day))
             .find(pk)
             .first(&conn)
             .expect("Error loading articles")

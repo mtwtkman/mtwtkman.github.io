@@ -11,6 +11,7 @@ extern crate serde_json;
 #[macro_use]
 extern crate serde_derive;
 extern crate router;
+extern crate pulldown_cmark;
 
 pub mod models;
 pub mod handlers;

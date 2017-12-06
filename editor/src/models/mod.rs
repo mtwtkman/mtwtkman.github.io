@@ -4,9 +4,10 @@ use std::env;
 
 mod article;
 pub use self::article::Article;
-pub use self::article::EditArticle;
 mod tag;
 pub use self::tag::Tag;
+mod tagging;
+pub use self::tagging::Tagging;
 pub mod schema;
 
 pub fn establish_connection() -> SqliteConnection {
