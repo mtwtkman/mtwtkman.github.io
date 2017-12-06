@@ -5,7 +5,7 @@ tags:
   - kokoro.io
 publish: true
 body: |-
-  この記事は[kokoro.ioアドベントカレンダー](adventar.org/calendars/2519)7日目の記事です。5, 6日分が空席なので、ご自由に。
+  この記事は[kokoro.ioアドベントカレンダー](https://adventar.org/calendars/2519)7日目の記事です。5, 6日分が空席なので、ご自由に。
 
   今回はkokoro.ioのフロントエンド事情についてつらつらと書きます。
 
