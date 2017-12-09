@@ -3,9 +3,9 @@ slug: kokoro-io-advent-calendar-day10
 date: 2017/12/10 00:00:00
 tags:
   - kokoro.io
-publish: false
+publish: true
 body: |-
-  [kokoro.ioアドベントカレンダー](https://adventar.org/calendars/2519)10日目の記事です。今回はkokoro.ioでbotを作る手順をシェア〜します。
+  [kokoro.ioアドベントカレンダー](https://adventar.org/calendars/2519)10日目の記事です。今回はkokoro.ioでbotを作る手順をｼｪｱｰします。
 
   公式ドキュメントとかないのですが、そのうち作られるかもしれない。
 
