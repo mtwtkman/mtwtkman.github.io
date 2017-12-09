@@ -2,6 +2,7 @@ use models::schema::taggings;
 use models::Article;
 use models::Tag;
 
+
 #[derive(Identifiable, Queryable, Associations)]
 #[belongs_to(Article)]
 #[belongs_to(Tag)]

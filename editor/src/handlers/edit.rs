@@ -2,9 +2,8 @@ use iron::prelude::*;
 use iron::{status, Response};
 use router::Router;
 use hbs::Template;
-use pulldown_cmark::{html, Parser};
 
-use models::Article;
+use models::{Article, Tag};
 
 pub fn handler(req: &mut Request) -> IronResult<Response> {
     let id: i32 = req
@@ -17,17 +16,10 @@ pub fn handler(req: &mut Request) -> IronResult<Response> {
         .unwrap();
     let mut resp = Response::new();
     let article = Article::select(id);
-    let mut content = String::new();
-    let parser = Parser::new(article.content.as_str());
-    html::push_html(&mut content, parser);
+    let tags = Tag::select_related_with(&article);
     let data = json!({
-        "title": article.title,
-        "slug": article.slug,
-        "published": article.published,
-        "year": article.year,
-        "month": article.month,
-        "day": article.day,
-        "content": content,
+        "article": &article,
+        "tags": &tags,
     });
     resp.set_mut(Template::new("edit", data)).set_mut(status::Ok);
     Ok(resp)

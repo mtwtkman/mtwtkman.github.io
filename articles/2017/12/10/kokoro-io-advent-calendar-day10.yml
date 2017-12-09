@@ -1,0 +1,131 @@
+title: kokoro.ioでbotを作ろう
+slug: kokoro-io-advent-calendar-day10
+date: 2017/12/10 00:00:00
+tags:
+  - kokoro.io
+publish: false
+body: |-
+  [kokoro.ioアドベントカレンダー](https://adventar.org/calendars/2519)10日目の記事です。今回はkokoro.ioでbotを作る手順をシェア〜します。
+
+  公式ドキュメントとかないのですが、そのうち作られるかもしれない。
+
+  1. botアカウント作成
+  1. botプログラム作成
+  1. botをチャンネル登録
+
+  # botアカウント作成
+  [ここ](https://kokoro.io/bots/new)から入力項目を満たせば完了です。ところでBot一覧とはなんでしょう？私もわかりません。
+
+  アカウントが作られるとbot用のアクセストークンが付与されるのでそいつを今後使います。
+
+  # botプログラム作成
+  では、早速作ってみましょう。
+
+  特に明示されていない部分ですが、現在の使用では次の2種類の方法でbotを動かすことができます。
+
+  - チャンネルのメンバーの発言に対して任意の発言をする
+  - 任意のタイミングまたは定時バッチで発言をする
+
+  いずれの処理も、botの発言としてはリクエストヘッダに`X-ACCESS-TOKEN=<アクセストークン>`を指定して[POST POST /v1/bot/channels/{channel_id}/messages](https://kokoro.io/apidoc#!/bot/postV1BotChannelsChannelIdMessages)で行います。
+
+  また、無差別なCallback urlへのリクエストが起き得るのですが、リクエストヘッダに生えている`Authorization`プロパティの値と`callback_secret`でバリデーションを行います。
+
+  bot用エンドポイントのペイロードについてはAPIドキュメント参照のこと。
+
+  ## チャンネルのメンバーの発言に対して任意の発言をする
+  Callback urlを入力すると、botが参加しているチャンネルにおけるメンバーの発言をペイロードとしてCallback urlにリクエストが来ます。
+  Callback urlで待ち受けているbotがペイロードを解析して任意の処理を行うわけです。
+
+  コード例としてAPIの変更に追いついてなくて動かなくなっている[KFC bot](https://github.com/mtwtkman/kfc-kokoroio-bot/blob/master/src/main/scala/io/kokoro/bot/KfcServlet.scala#L54-L95)のコードをちょっといじって挙げてみます。
+
+  ```scala
+  ...
+  post("/") {  // Callback url のルートパス
+    val body = parse(request.body)
+
+    // callback_secret のバリデーション
+    request.getHeader("Authorization") match {
+      case x if x == callback_secret =>
+      case _ => {
+        logger.debug("Invalid callback_secret")
+        halt(401, "Invalid callback_secret")
+      }
+    }
+
+    // 発言内容のパース
+    val parsed: List[(String, String)] = for {
+      JObject(elem) <- body
+      JField("raw_content", JString(message)) <- elem
+      JField("room", JObject(room)) <- elem
+      JField("id", JString(room_id)) <- room
+    } yield (message, room_id)
+    parsed match {
+      case List((message, room_id)) if message.matches(TORI_PTN) && room_id != "" => {
+
+        // botのリアクション作成
+        val tori_message = calc_date() match {
+          case Some(day) => s"次のとりの日まであと`${day}日`です"
+          case None => "今日はとりの日です!今すぐとりの日パックを買いましょう!"
+        }
+        val req_data = s"""{
+          "message": "$tori_message",
+          "display_name": "KFC"
+        }"""
+        val url = s"${API_ENDPOINT}${room_id}/messages"
+        logger.info(s"post ${tori_message} to kokoro.io")
+        val resp = Http(url)
+          .postData(req_data)
+          .header("Content-Type", "application/json")
+          .header("X-Access-Token", access_token)
+          .asString
+      }
+      case _ => {
+        logger.debug(s"Not matched with `${TORI_PTN}`")
+        halt(401, "Not matched")
+      }
+    }
+  }
+  ```
+
+  楽チンですね。
+
+  ## 任意のタイミングまたは定時バッチで発言をする
+  これも簡単です。botのアクセストークンを使って好きなタイミングで発言したらおしまいです。
+
+  よかったですね。
+
+  # 今の仕様でできないこと
+  できないだけで対応しないわけではないと思います。あんまりポリシーはわかってないので詳しく知りたければ[s10aさん](https://twitter.com/supermomonga)に質問してみると何かわかるかもしれません。
+
+  ## websocketのイベントが監視できない
+  例えばメンバーがチャンネルにjoinしたイベントをbotが補足することはできません。もちろん手動でwebsocketのコネクションを作って任意のチャンネルをsubscribeすれば技術的には可能です。まあでも非公式です。
+
+  ## アバター画像が変更できない
+  `display_name`は変えられるんだけどアバター画像は変更できません。
+
+  ## サードパーティのwebhookに紐つくbotはチャンネル横断できない
+  日本語が極めて不自由なので具体例をば。できないというか、そういう仕様ですみたいな身もふたもないことをいう感じになるんですけど…
+
+  1. `A`botがgithubの`知世`リポジトリのwebhookと連携
+  1. `A`を`#sakura`チャンネルに登録
+  1. `A`は`知世`のpushイベントに対応したメッセージを`#sakura`にpost
+
+  というのがまずあるとします。`A`は汎用的な目的で作ったつもりなので`苺鈴`リポジトリのwebhookにも連携させつつ`#syaoran`チャンネルに通知させたいとしましょう。
+
+  ここで問題があります。`A`の実装内でどのリポジトリからのリクエストなのかを判断してリポジトリに応じてpostするチャンネルを判定しなければなりません。
+
+  なので実質的に`A`は使い回すことができず基本的には`苺鈴`+`#syaoran`という組み合わせに応じたbotを新規に作成せねばなりません。多分。
+
+  `苺鈴`のイベントを`#sakura`に流すのであればそのまま`A`はそのまま使えます。
+
+  もしかしたら嘘かもしれませんが、本当だと思います。是非試して御覧じろ。
+
+  # クライアントライブラリ
+  私の確認してる限り、`C#`と`Python`バインディングがあります。　
+
+  - [kokoro-io-net](https://github.com/kokoro-io/kokoro-io-net): pgrho氏が作ってる
+  - [kokoro-io-py](https://github.com/mtwtkman/kokoro-io-py): 拙作。メンテしてないので動かない可能性がめっちゃ高いのと実装いい加減なのでPRください。
+
+  一説によるとbotを作ると健康が良くなりますので、よろしくお願いします。
+
+  現場からは以上です。
