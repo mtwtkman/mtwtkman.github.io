@@ -26,7 +26,7 @@ body: |-
   - チャンネルのメンバーの発言に対して任意の発言をする
   - 任意のタイミングまたは定時バッチで発言をする
 
-  いずれの処理も、botの発言としてはリクエストヘッダに`X-ACCESS-TOKEN=<アクセストークン>`を指定して[POST POST /v1/bot/channels/{channel_id}/messages](https://kokoro.io/apidoc#!/bot/postV1BotChannelsChannelIdMessages)で行います。
+  いずれの処理も、botの発言としてはリクエストヘッダに`X-ACCESS-TOKEN=<アクセストークン>`を指定して[POST /v1/bot/channels/{channel_id}/messages](https://kokoro.io/apidoc#!/bot/postV1BotChannelsChannelIdMessages)で行います。
 
   また、無差別なCallback urlへのリクエストが起き得るのですが、リクエストヘッダに生えている`Authorization`プロパティの値と`callback_secret`でバリデーションを行います。
 
@@ -98,7 +98,7 @@ body: |-
   できないだけで対応しないわけではないと思います。あんまりポリシーはわかってないので詳しく知りたければ[s10aさん](https://twitter.com/supermomonga)に質問してみると何かわかるかもしれません。
 
   ## websocketのイベントが監視できない
-  例えばメンバーがチャンネルにjoinしたイベントをbotが補足することはできません。もちろん手動でwebsocketのコネクションを作って任意のチャンネルをsubscribeすれば技術的には可能です。まあでも非公式です。
+  例えばメンバーがチャンネルにjoinしたイベントをbotが捕捉することはできません。もちろん手動でwebsocketのコネクションを作って任意のチャンネルをsubscribeすれば技術的には可能です。まあでも非公式です。
 
   ## アバター画像が変更できない
   `display_name`は変えられるんだけどアバター画像は変更できません。
