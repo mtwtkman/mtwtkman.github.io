@@ -1,20 +1,25 @@
 <html>
   <head>
-    <title>Edit - {{title}}</title>
+    <title>Edit - {{article.title}}</title>
   </head>
   <body>
-    <h1>{{title}}</h1>
-    <h2>{{slug}}</h2>
-    <h2>{{year}}/{{month}}/{{day}}</h2>
+    <h1>{{article.title}}</h1>
+    <h2>{{article.slug}}</h2>
+    <h2>{{article.year}}/{{article.month}}/{{article.day}}</h2>
     <h3>
-      {{#if published}}
+      {{#each tags}}
+        {{id}} - {{name}},
+      {{/each}}
+    </h3>
+    <h3>
+      {{#if article.published}}
         published
       {{else}}
         draft
       {{/if}}
     </h3>
     <div class="content">
-      {{{content}}}
+      {{{article.content}}}
     </div>
   </body>
 </html>
