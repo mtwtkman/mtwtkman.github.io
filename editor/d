@@ -8,5 +8,6 @@ case $1 in
   build) $cargo build;;
   run) $cargo run;;
   watch) $cargo run --features "watch";;
+  cargo) $cargo $2;;
   sh) $de sh;;
 esac

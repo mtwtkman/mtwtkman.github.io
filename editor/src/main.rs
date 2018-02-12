@@ -1,37 +1,33 @@
-extern crate iron;
+#![feature(plugin, custom_attribute)]
+#![plugin(rocket_codegen)]
+
+extern crate rocket;
+extern crate rocket_contrib;
 #[macro_use]
-extern crate router;
-extern crate handlebars_iron as hbs;
-extern crate editor;
+extern crate diesel;
+#[macro_use]
+extern crate diesel_derives;
+#[macro_use]
+extern crate serde_derive;
+extern crate r2d2;
+extern crate r2d2_diesel;
 
-use iron::prelude::*;
-use hbs::{HandlebarsEngine, DirectorySource};
+mod handlers;
+mod models;
+mod db;
 
-#[cfg(feature = "watch")]
-use hbs::Watchable;
-#[cfg(feature = "watch")]
-use std::sync::Arc;
 
-use editor::handlers::{index, edit};
-
-#[cfg(feature = "watch")]
 fn main() {
-    let template_path = "./templates/";
-    let mut hbse = HandlebarsEngine::new();
-    hbse.add(Box::new(DirectorySource::new(template_path, ".hbs")));
-    if let Err(r) = hbse.reload() {
-        panic!("{}", r);
-    }
-    let hbse_ref = Arc::new(hbse);
-    hbse_ref.watch(template_path);
-
-    let router = router!(
-        index: get "/" => index::handler,
-        edit: get "/:id" => edit::handler,
-    );
-
-    let mut chain = Chain::new(router);
-    chain.link_after(hbse_ref);
-
-    Iron::new(chain).http("0.0.0.0:3000").unwrap();
+    let pool = db::init_pool();
+    rocket::ignite()
+        .manage(pool)
+        .mount("/", routes![handlers::index::handler])
+        .mount("/asset/", routes![
+            handlers::asset::javascripts::handler,
+            handlers::asset::styles::handler,
+        ])
+        .mount("/api/", routes![
+            handlers::api::articles::fetch,
+        ])
+        .launch();
 }

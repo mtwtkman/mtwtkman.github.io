@@ -1,20 +1,17 @@
 [package]
 name = "editor"
-version = "0.1.0"
+version = "0.0.1"
 authors = ["mtwtkman <punipuniomochi@gmail.com>"]
 
 [dependencies]
-hyper = "*"
-iron = "*"
-router = "*"
-staticfile = "*"
-diesel = "*"
-diesel_infer_schema = { version = "*", features = ["sqlite"] }
-handlebars-iron = "*"
+rocket = "*"
+rocket_contrib = { version = "*", features = ["json"] }
+rocket_codegen = "*"
+diesel = { version = "*", features = ["sqlite"] }
+diesel_derives = { version = "*", features = ["sqlite"] }
 serde = "*"
 serde_json = "*"
 serde_derive = "*"
+r2d2 = "*"
+r2d2-diesel = "*"
 dotenv = "*"
-
-[features]
-watch = ["handlebars-iron/watch"]

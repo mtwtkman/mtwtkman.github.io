@@ -1,8 +1,28 @@
 use diesel::prelude::*;
-use models::establish_connection;
-use models::schema::articles;
+use diesel::sqlite::SqliteConnection;
 
-#[derive(Identifiable, Queryable, Serialize)]
+
+mod schema {
+    table! {
+        articles {
+            id -> Integer,
+            title -> Text,
+            slug -> Text,
+            content -> Text,
+            published -> Bool,
+            year -> Text,
+            month -> Text,
+            day -> Text,
+        }
+    }
+}
+
+
+use self::schema::articles;
+use self::schema::articles::dsl::*;
+
+#[table_name="articles"]
+#[derive(Serialize, Queryable)]
 pub struct Article {
     pub id: i32,
     pub title: String,
@@ -15,23 +35,10 @@ pub struct Article {
 }
 
 impl Article {
-    pub fn select_all() -> Vec<Article> {
-        use models::schema::articles::dsl::*;
-        let conn = establish_connection();
+    pub fn select_all(conn: &SqliteConnection) -> Vec<Article> {
         articles
-            .select((id, title, slug, content, published, year, month, day))
-            .order((year.desc(), month.desc(), day.desc()))
-            .load(&conn)
-            .expect("Error loading articles")
-    }
-
-    pub fn select(pk: i32) -> Article {
-        use models::schema::articles::dsl::*;
-        let conn = establish_connection();
-        articles
-            .select((id, title, slug, content, published, year, month, day))
-            .find(pk)
-            .first(&conn)
-            .expect("Error loading articles")
+            .order((articles::year.desc(), articles::month.desc(), articles::day.desc()))
+            .load::<Article>(conn)
+            .unwrap()
     }
 }
