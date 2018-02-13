@@ -21,7 +21,6 @@ mod schema {
 use self::schema::articles;
 use self::schema::articles::dsl::*;
 
-#[table_name="articles"]
 #[derive(Serialize, Queryable)]
 pub struct Article {
     pub id: i32,
@@ -39,6 +38,13 @@ impl Article {
         articles
             .order((articles::year.desc(), articles::month.desc(), articles::day.desc()))
             .load::<Article>(conn)
+            .unwrap()
+    }
+
+    pub fn select(pk: i32, conn: &SqliteConnection) -> Article {
+        articles
+            .find(pk)
+            .get_result::<Article>(conn)
             .unwrap()
     }
 }

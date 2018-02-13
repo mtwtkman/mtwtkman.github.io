@@ -28,6 +28,7 @@ fn main() {
         ])
         .mount("/api/", routes![
             handlers::api::articles::fetch,
+            handlers::api::articles::one,
         ])
         .launch();
 }
