@@ -11,6 +11,7 @@ extern crate diesel_derives;
 extern crate serde_derive;
 extern crate r2d2;
 extern crate r2d2_diesel;
+extern crate chrono;
 
 mod handlers;
 mod models;
@@ -29,6 +30,7 @@ fn main() {
         .mount("/api/", routes![
             handlers::api::articles::fetch,
             handlers::api::articles::one,
+            handlers::api::articles::create,
         ])
         .launch();
 }
