@@ -13,7 +13,7 @@ fn one(id: i32, conn: Conn) -> Json<Article> {
     Json(Article::select(id, &conn))
 }
 
-#[post("/articles"), format = "application/json", data = "<article>"]
+#[post("/articles", format = "application/json", data = "<article>")]
 fn create(article: Json<ArticleData>, conn: Conn) -> Option<Json<Article>> {
     Article::insert(article.into_inner(), &conn).map(|x| Json(x))
 }
