@@ -80,3 +80,16 @@ impl Article {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    fn setup() {
+    }
+    mod articles {
+        #[test]
+        fn insert() {
+            assert!(true);
+        }
+    }
+}

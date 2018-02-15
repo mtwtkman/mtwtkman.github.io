@@ -2,6 +2,7 @@
 
 de="docker exec -ti editor"
 cargo="$de cargo"
+diesel="$de diesel"
 
 case $1 in
   up) docker run -d --rm -ti --name editor -v `pwd`:/source -p 3000:3000 editor /bin/sh;;
@@ -9,5 +10,8 @@ case $1 in
   run) $cargo run;;
   watch) $cargo run --features "watch";;
   cargo) $cargo $2;;
+  test) $cargo test;;
+  diesel) $diesel $2;;
+  migration) $diesel migration $2;;
   sh) $de sh;;
 esac
