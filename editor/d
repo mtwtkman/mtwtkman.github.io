@@ -1,7 +1,9 @@
 #! /bin/sh
 
 de="docker exec -ti editor"
+dt="docker exec -ti -e EDITOR_ENV=test editor"
 cargo="$de cargo"
+cargot="$dt cargo"
 diesel="$de diesel"
 
 case $1 in
@@ -10,7 +12,7 @@ case $1 in
   run) $cargo run;;
   watch) $cargo run --features "watch";;
   cargo) $cargo $2;;
-  test) $cargo test;;
+  test) $cargot test;;
   diesel) $diesel $2;;
   migration) $diesel migration $2;;
   sh) $de sh;;
