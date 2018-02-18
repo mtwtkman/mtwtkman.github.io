@@ -1,2 +1,2 @@
 mod article;
-pub use self::article::{Article, ArticleData};
+pub use self::article::{Article, NewArticle};

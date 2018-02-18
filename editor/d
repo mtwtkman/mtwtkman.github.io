@@ -8,7 +8,7 @@ diesel="$de diesel"
 
 case $1 in
   up) docker run -d --rm -ti --name editor -v `pwd`:/source -p 3000:3000 editor /bin/sh;;
-  build) $cargo build;;
+  build) $cargo build $2;;
   run) $cargo run;;
   watch) $cargo run --features "watch";;
   cargo) $cargo $2;;

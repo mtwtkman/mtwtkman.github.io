@@ -7,11 +7,11 @@ authors = ["mtwtkman <punipuniomochi@gmail.com>"]
 rocket = "*"
 rocket_contrib = { version = "*", features = ["json"] }
 rocket_codegen = "*"
-diesel = { version = "*", features = ["sqlite"] }
+diesel = { version = "*", features = ["sqlite", "chrono"] }
 diesel_derives = { version = "*", features = ["sqlite"] }
 serde = "*"
 serde_json = "*"
 serde_derive = "*"
 r2d2 = "*"
 r2d2-diesel = "*"
-chrono = "*"
+chrono = { version = "*", features = ["serde"] }

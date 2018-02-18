@@ -242,10 +242,10 @@ def sql():
         print('insert articles and taggings')
         for i, (_, x, _) in enumerate(traverse(exclude_draft=False), 1):
             d = datetime.strptime(x['date'], '%Y/%m/%d %H:%M:%S')
-            article = (i, x['title'], x['slug'], x['publish'], x['body'], str(d.year), '{:02}'.format(d.day), '{:02}'.format(d.month))
+            article = (i, x['title'], x['slug'], x['publish'], x['body'], d)
             print(article)
             cursor.execute(
-                'insert into articles(id, title, slug, published, content, year, day, month) values (?, ?, ?, ?, ?, ?, ?, ?)',
+                'insert into articles(id, title, slug, published, content, created_at) values (?, ?, ?, ?, ?, ?)',
                 article
             )
             if not all(x['tags']):

@@ -2,7 +2,6 @@ use diesel;
 use diesel::prelude::*;
 use chrono::prelude::*;
 
-
 mod schema {
     table! {
         articles {
@@ -11,32 +10,28 @@ mod schema {
             slug -> Text,
             content -> Text,
             published -> Bool,
-            year -> Text,
-            month -> Text,
-            day -> Text,
+            created_at -> Timestamp,
         }
     }
 }
 
-
 use self::schema::articles;
 use self::schema::articles::{dsl as articles_dsl};
 
-#[table_name="articles"]
-#[derive(Serialize, Queryable, Insertable, Debug, Clone)]
+#[derive(Serialize, Queryable)]
+#[table_name = "articles"]
 pub struct Article {
     pub id: i32,
     pub title: String,
     pub slug: String,
     pub content: String,
     pub published: bool,
-    pub year: String,
-    pub month: String,
-    pub day: String,
+    pub created_at: NaiveDateTime,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
-pub struct ArticleData {
+#[derive(Clone, Deserialize, Insertable)]
+#[table_name = "articles"]
+pub struct NewArticle {
     pub title: String,
     pub slug: String,
     pub content: String,
@@ -46,13 +41,7 @@ pub struct ArticleData {
 impl Article {
     pub fn select_all(conn: &SqliteConnection) -> Vec<Article> {
         articles_dsl::articles
-            .order(
-                (
-                    articles::year.desc(),
-                    articles::month.desc(),
-                    articles::day.desc()
-                )
-            )
+            .order(articles::created_at.desc())
             .load::<Article>(conn)
             .unwrap()
     }
@@ -64,31 +53,23 @@ impl Article {
             .unwrap()
     }
 
-    pub fn insert(data: ArticleData, conn: &SqliteConnection) -> Option<Article> {
-        let now: DateTime<Local> = Local::now();
-        let next_id: i32 = match articles_dsl::articles
-            .order(articles::id.desc())
-            .first::<Article>(conn) {
-            Ok(a) => a.id + 1,
-            Err(_) => 1,
-        };
-        let t = Article {
-            id: next_id,
-            title: data.title,
-            slug: data.slug,
-            content: data.content,
-            published: data.published,
-            year: format!("{:04}", now.year()),
-            month: format!("{:02}", now.month()),
-            day: format!("{:02}", now.day()),
-        };
-        let result = diesel::insert_into(articles::table)
-            .values(&t)
-            .execute(conn);
-        match result.is_ok() {
-            true => Some(t),
-            false => None,
-        }
+    pub fn insert(data: NewArticle, conn: &SqliteConnection) -> usize {
+        diesel::insert_into(articles::table)
+            .values(&data)
+            .execute(conn)
+            .unwrap()
+    }
+
+    pub fn update(data: Article, conn: &SqliteConnection) -> usize {
+        diesel::update(articles_dsl::articles.filter(articles::id.eq(&data.id)))
+            .set((
+                articles::title.eq(&data.title),
+                articles::slug.eq(&data.slug),
+                articles::content.eq(&data.slug),
+                articles::published.eq(&data.published)
+            ))
+            .execute(conn)
+            .unwrap()
     }
 }
 
@@ -109,13 +90,13 @@ mod tests {
     #[test]
     fn insert_first_article_test() {
         let conn = connection();
-        let data = ArticleData {
+        let data = NewArticle {
             title: "test".to_string(),
             slug: "a-h-o".to_string(),
             content: "uoooo".to_string(),
             published: true,
         };
-        Article::insert(data.clone(), &conn);
+        Article::insert(data, &conn);
         let subject: Article = articles_dsl::articles
             .order(articles::id.desc())
             .first::<Article>(&*conn)
@@ -124,7 +105,6 @@ mod tests {
         assert_eq!(subject.slug, data.slug);
         assert_eq!(subject.content, data.content);
         assert_eq!(subject.published, data.published);
-        assert_eq!(subject.id, 1);
         clear_tables(&conn);
     }
 }

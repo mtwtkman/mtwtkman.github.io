@@ -1,11 +1,9 @@
 create table articles (
-  id integer primary key not null,
-  title text not null,
-  slug text not null,
-  content text not null,
+  id integer primary key autoincrement,
+  title text not null unique,
+  slug text not null unique,
+  content text not null unique,
   published boolean not null default false,
-  year varchar(4) not null,
-  day varchar(2) not null,
-  month varchar(2) not null
+  created_at datetime not null default CURRENT_TIMESTAMP
 )
 ;
