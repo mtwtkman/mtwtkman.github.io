@@ -18,7 +18,7 @@ mod schema {
 use self::schema::articles;
 use self::schema::articles::{dsl as articles_dsl};
 
-#[derive(Serialize, Queryable)]
+#[derive(Debug, PartialEq, Clone, Serialize, Queryable)]
 #[table_name = "articles"]
 pub struct Article {
     pub id: i32,
@@ -65,7 +65,7 @@ impl Article {
             .set((
                 articles::title.eq(&data.title),
                 articles::slug.eq(&data.slug),
-                articles::content.eq(&data.slug),
+                articles::content.eq(&data.content),
                 articles::published.eq(&data.published)
             ))
             .execute(conn)
@@ -80,6 +80,9 @@ mod tests {
     use r2d2::PooledConnection;
     use r2d2_diesel::ConnectionManager;
 
+    struct Conn {
+    }
+
     fn connection() -> PooledConnection<ConnectionManager<SqliteConnection>> {
         let pool = init_pool();
         pool.get().unwrap()
@@ -88,23 +91,69 @@ mod tests {
         diesel::delete(articles::table).execute(conn);
     }
     #[test]
-    fn insert_first_article_test() {
+    fn main() {
         let conn = connection();
+        insert_test(&conn);
+        update_test(&conn);
+        clear_tables(&conn);
+    }
+
+    fn insert_test(conn: &SqliteConnection) {
+        clear_tables(conn);
+        let all_articles = Article::select_all(conn).len();
         let data = NewArticle {
             title: "test".to_string(),
             slug: "a-h-o".to_string(),
             content: "uoooo".to_string(),
             published: true,
         };
-        Article::insert(data, &conn);
+        let created_count = Article::insert(data.clone(), conn);
         let subject: Article = articles_dsl::articles
             .order(articles::id.desc())
-            .first::<Article>(&*conn)
+            .first::<Article>(conn)
             .unwrap();
-        assert_eq!(subject.title, data.title);
-        assert_eq!(subject.slug, data.slug);
-        assert_eq!(subject.content, data.content);
-        assert_eq!(subject.published, data.published);
+        assert_eq!(created_count, 1);
+        assert_eq!(&subject.title, &data.title);
+        assert_eq!(&subject.slug, &data.slug);
+        assert_eq!(&subject.content, &data.content);
+        assert_eq!(&subject.published, &data.published);
+        assert_eq!(Article::select_all(conn).len(), all_articles + 1);
+    }
+
+    fn update_test(conn: &SqliteConnection) {
         clear_tables(&conn);
+        let data1 = NewArticle {
+            title: "one".to_string(),
+            slug: "o-n-e".to_string(),
+            content: "hoge".to_string(),
+            published: false,
+        };
+        let data2 = NewArticle {
+            title: "two".to_string(),
+            slug: "t-w-o".to_string(),
+            content: "fuga".to_string(),
+            published: false,
+        };
+        for x in vec![data1.clone(), data2.clone()] {
+            Article::insert(x, &conn);
+        }
+        let target = {
+            let x = articles_dsl::articles
+                .filter(articles::title.eq(&data1.title))
+                .get_result::<Article>(conn)
+                .unwrap();
+            Article {
+                id: x.id,
+                title: "solami".to_string(),
+                slug: "so-la-mi".to_string(),
+                content: "laala".to_string(),
+                published: true,
+                created_at: x.created_at,
+            }
+        };
+        let result = Article::update(target.clone(), &conn);
+        let updated = Article::select(*&target.id, &conn);
+        assert_eq!(result, 1);
+        assert_eq!(target, updated);
     }
 }
