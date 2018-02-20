@@ -1,6 +1,6 @@
 use rocket_contrib::Json;
 
-use models::{Article, NewArticle};
+use models::{Article, NewArticle, ExistingArticle};
 use db::Conn;
 
 #[get("/articles")]
@@ -15,5 +15,10 @@ fn one(id: i32, conn: Conn) -> Json<Article> {
 
 #[post("/articles", format = "application/json", data = "<article>")]
 fn create(article: Json<NewArticle>, conn: Conn) -> Json<usize> {
-    Json(Article::insert(article.into_inner(), &conn))
+    Json(Article::insert(&article.into_inner(), &conn))
+}
+
+#[put("/articles/<id>", format = "application/json", data = "<article>")]
+fn update(id: i32, article: Json<ExistingArticle>, conn: Conn) -> Json<usize> {
+    Json(Article::update(id, &article.into_inner(), &conn))
 }

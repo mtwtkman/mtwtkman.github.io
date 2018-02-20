@@ -18,7 +18,7 @@ mod schema {
 use self::schema::articles;
 use self::schema::articles::{dsl as articles_dsl};
 
-#[derive(Debug, PartialEq, Clone, Serialize, Queryable)]
+#[derive(Serialize, Queryable)]
 #[table_name = "articles"]
 pub struct Article {
     pub id: i32,
@@ -29,7 +29,16 @@ pub struct Article {
     pub created_at: NaiveDateTime,
 }
 
-#[derive(Clone, Deserialize, Insertable)]
+#[derive(Deserialize, Serialize, AsChangeset)]
+#[table_name = "articles"]
+pub struct ExistingArticle {
+    pub title: String,
+    pub slug: String,
+    pub content: String,
+    pub published: bool,
+}
+
+#[derive(Deserialize, Insertable)]
 #[table_name = "articles"]
 pub struct NewArticle {
     pub title: String,
@@ -53,21 +62,16 @@ impl Article {
             .unwrap()
     }
 
-    pub fn insert(data: NewArticle, conn: &SqliteConnection) -> usize {
+    pub fn insert(data: &NewArticle, conn: &SqliteConnection) -> usize {
         diesel::insert_into(articles::table)
-            .values(&data)
+            .values(data)
             .execute(conn)
             .unwrap()
     }
 
-    pub fn update(data: Article, conn: &SqliteConnection) -> usize {
-        diesel::update(articles_dsl::articles.filter(articles::id.eq(&data.id)))
-            .set((
-                articles::title.eq(&data.title),
-                articles::slug.eq(&data.slug),
-                articles::content.eq(&data.content),
-                articles::published.eq(&data.published)
-            ))
+    pub fn update(id: i32, data: &ExistingArticle, conn: &SqliteConnection) -> usize {
+        diesel::update(articles_dsl::articles.filter(articles::id.eq(id)))
+            .set(data)
             .execute(conn)
             .unwrap()
     }
@@ -79,9 +83,6 @@ mod tests {
     use db::init_pool;
     use r2d2::PooledConnection;
     use r2d2_diesel::ConnectionManager;
-
-    struct Conn {
-    }
 
     fn connection() -> PooledConnection<ConnectionManager<SqliteConnection>> {
         let pool = init_pool();
@@ -107,7 +108,7 @@ mod tests {
             content: "uoooo".to_string(),
             published: true,
         };
-        let created_count = Article::insert(data.clone(), conn);
+        let created_count = Article::insert(&data, conn);
         let subject: Article = articles_dsl::articles
             .order(articles::id.desc())
             .first::<Article>(conn)
@@ -122,38 +123,33 @@ mod tests {
 
     fn update_test(conn: &SqliteConnection) {
         clear_tables(&conn);
-        let data1 = NewArticle {
-            title: "one".to_string(),
-            slug: "o-n-e".to_string(),
-            content: "hoge".to_string(),
-            published: false,
-        };
-        let data2 = NewArticle {
-            title: "two".to_string(),
-            slug: "t-w-o".to_string(),
-            content: "fuga".to_string(),
-            published: false,
-        };
-        for x in vec![data1.clone(), data2.clone()] {
-            Article::insert(x, &conn);
+        for x in vec![
+            ("one", "o-n-e", "hoge", false),
+            ("two", "t-w-o", "fuga", false),
+        ] {
+            Article::insert(&NewArticle {
+                title: x.0.to_owned(),
+                slug: x.1.to_owned(),
+                content: x.2.to_owned(),
+                published: x.3,
+            }, &conn);
         }
-        let target = {
-            let x = articles_dsl::articles
-                .filter(articles::title.eq(&data1.title))
-                .get_result::<Article>(conn)
-                .unwrap();
-            Article {
-                id: x.id,
-                title: "solami".to_string(),
-                slug: "so-la-mi".to_string(),
-                content: "laala".to_string(),
-                published: true,
-                created_at: x.created_at,
-            }
+        let updated: Article = articles_dsl::articles
+            .filter(articles::title.eq("one"))
+            .get_result::<Article>(conn)
+            .unwrap();
+        let target = ExistingArticle {
+            title: "updated".to_string(),
+            slug: "u-p-dated".to_string(),
+            content: "hi".to_string(),
+            published: true,
         };
-        let result = Article::update(target.clone(), &conn);
-        let updated = Article::select(*&target.id, &conn);
+        let result = Article::update(*&updated.id, &target, &conn);
+        let subject = Article::select(*&updated.id, &conn);
         assert_eq!(result, 1);
-        assert_eq!(target, updated);
+        assert_eq!(&target.title, &subject.title);
+        assert_eq!(&target.slug, &subject.slug);
+        assert_eq!(&target.content, &subject.content);
+        assert_eq!(&target.published, &subject.published);
     }
 }

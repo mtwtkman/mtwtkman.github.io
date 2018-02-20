@@ -31,6 +31,7 @@ fn main() {
             handlers::api::articles::fetch,
             handlers::api::articles::one,
             handlers::api::articles::create,
+            handlers::api::articles::update,
         ])
         .launch();
 }
