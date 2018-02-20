@@ -1,10 +1,11 @@
 #! /bin/sh
 
 de="docker exec -ti editor"
-dt="docker exec -ti -e EDITOR_ENV=test editor"
+dt="docker exec -ti -e DATABASE_URL=test.db -e EDITOR_ENV=test editor"
 cargo="$de cargo"
 cargot="$dt cargo"
 diesel="$de diesel"
+dieselt="$dt diesel"
 
 case $1 in
   up) docker run -d --rm -ti --name editor -v `pwd`:/source -p 3000:3000 editor /bin/sh;;
@@ -15,5 +16,6 @@ case $1 in
   test) $cargot test;;
   diesel) $diesel $2;;
   migration) $diesel migration $2;;
+  migration:test) $dieselt migration $2;;
   sh) $de sh;;
 esac
