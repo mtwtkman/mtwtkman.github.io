@@ -18,7 +18,7 @@ mod schema {
 use self::schema::articles;
 use self::schema::articles::{dsl as articles_dsl};
 
-#[derive(Serialize, Queryable)]
+#[derive(Serialize, Queryable, Identifiable)]
 #[table_name = "articles"]
 pub struct Article {
     pub id: i32,

@@ -12,8 +12,9 @@ mod schema {
 use self::schema::tags;
 use self::schema::tags::{dsl as tags_dsl};
 
-#[derive(Deserialize, Serialize, Insertable, Queryable)]
+#[derive(Identifiable, Deserialize, Serialize, Insertable, Queryable)]
 #[table_name = "tags"]
+#[primary_key(name)]
 pub struct Tag {
     pub name: String,
 }
