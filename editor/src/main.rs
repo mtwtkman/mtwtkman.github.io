@@ -17,7 +17,6 @@ mod handlers;
 mod models;
 mod db;
 
-
 fn main() {
     let pool = db::init_pool();
     rocket::ignite()

@@ -1,7 +1,7 @@
 #! /bin/sh
 
 de="docker exec -ti editor"
-dt="docker exec -ti -e DATABASE_URL=test.db -e EDITOR_ENV=test editor"
+dt="docker exec -ti -e RUST_TEST_THREADS=1 -e DATABASE_URL=test.db -e RUST_BACKTRACE=full editor"
 cargo="$de cargo"
 cargot="$dt cargo"
 diesel="$de diesel"
@@ -13,7 +13,7 @@ case $1 in
   run) $cargo run;;
   watch) $cargo run --features "watch";;
   cargo) $cargo $2;;
-  test) $cargot test;;
+  test) $cargot test -- --nocapture ;;
   diesel) $diesel $2;;
   migration) $diesel migration $2;;
   migration:test) $dieselt migration $2;;

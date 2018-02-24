@@ -22,3 +22,8 @@ fn create(article: Json<NewArticle>, conn: Conn) -> Json<usize> {
 fn update(id: i32, article: Json<ExistingArticle>, conn: Conn) -> Json<usize> {
     Json(Article::update(id, &article.into_inner(), &conn))
 }
+
+#[delete("/articles/<id>")]
+fn delete(id: i32, conn: Conn) -> Json<usize> {
+    Json(Article::delete(id, &conn))
+}

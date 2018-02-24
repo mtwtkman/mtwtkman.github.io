@@ -75,54 +75,58 @@ impl Article {
             .execute(conn)
             .unwrap()
     }
+
+    pub fn delete(id: i32, conn: &SqliteConnection) -> usize {
+        diesel::delete(articles_dsl::articles.filter(articles::id.eq(id)))
+            .execute(conn)
+            .unwrap()
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use db::init_pool;
+    use super::*;
     use r2d2::PooledConnection;
     use r2d2_diesel::ConnectionManager;
 
     fn connection() -> PooledConnection<ConnectionManager<SqliteConnection>> {
-        let pool = init_pool();
-        pool.get().unwrap()
+        init_pool().get().unwrap()
     }
+
     fn clear_tables(conn: &SqliteConnection) {
         diesel::delete(articles::table).execute(conn);
     }
-    #[test]
-    fn main() {
-        let conn = connection();
-        insert_test(&conn);
-        update_test(&conn);
-        clear_tables(&conn);
-    }
 
-    fn insert_test(conn: &SqliteConnection) {
-        clear_tables(conn);
-        let all_articles = Article::select_all(conn).len();
+    #[test]
+    fn creates_new_article() {
+        let conn = connection();
+        clear_tables(&*conn);
+        let all_articles = Article::select_all(&conn).len();
         let data = NewArticle {
             title: "test".to_string(),
             slug: "a-h-o".to_string(),
             content: "uoooo".to_string(),
             published: true,
         };
-        let created_count = Article::insert(&data, conn);
+        let created_count = Article::insert(&data, &conn);
         let subject: Article = articles_dsl::articles
             .order(articles::id.desc())
-            .first::<Article>(conn)
+            .first::<Article>(&*conn)
             .unwrap();
         assert_eq!(created_count, 1);
         assert_eq!(&subject.title, &data.title);
         assert_eq!(&subject.slug, &data.slug);
         assert_eq!(&subject.content, &data.content);
         assert_eq!(&subject.published, &data.published);
-        assert_eq!(Article::select_all(conn).len(), all_articles + 1);
+        assert_eq!(Article::select_all(&conn).len(), all_articles + 1);
+        clear_tables(&*conn);
     }
 
-    fn update_test(conn: &SqliteConnection) {
-        clear_tables(&conn);
+    #[test]
+    fn updates_certain_article() {
+        let conn = connection();
+        clear_tables(&*conn);
         for x in vec![
             ("one", "o-n-e", "hoge", false),
             ("two", "t-w-o", "fuga", false),
@@ -136,7 +140,7 @@ mod tests {
         }
         let updated: Article = articles_dsl::articles
             .filter(articles::title.eq("one"))
-            .get_result::<Article>(conn)
+            .get_result::<Article>(&*conn)
             .unwrap();
         let target = ExistingArticle {
             title: "updated".to_string(),
@@ -151,5 +155,27 @@ mod tests {
         assert_eq!(&target.slug, &subject.slug);
         assert_eq!(&target.content, &subject.content);
         assert_eq!(&target.published, &subject.published);
+        clear_tables(&*conn);
+    }
+
+    #[test]
+    fn deletes_an_artcile() {
+        let conn = connection();
+        clear_tables(&*conn);
+        let title = "mirei";
+        Article::insert(&NewArticle {
+            title: title.to_string(),
+            slug: "3-7-3".to_string(),
+            content: "go go mirei".to_string(),
+            published: true,
+        }, &conn);
+        let created_id: i32 = articles_dsl::articles
+            .filter(articles::title.eq(title))
+            .get_result::<Article>(&*conn)
+            .unwrap()
+            .id;
+        Article::delete(created_id, &conn);
+        assert_eq!(Article::select_all(&conn).len(), 0);
+        clear_tables(&*conn);
     }
 }

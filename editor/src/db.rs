@@ -1,5 +1,4 @@
 use std::ops::Deref;
-use std::env;
 
 use r2d2;
 use diesel::sqlite::SqliteConnection;
@@ -11,12 +10,7 @@ use rocket::{Request, State, Outcome};
 pub type Pool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
 
 pub fn init_pool() -> Pool {
-    let db_name = match env::var("EDITOR_ENV") {
-        Ok(ref val) if val == "test" => "test",
-        Ok(_) => "blog",
-        Err(_) => "blog",
-    };
-    let manager = ConnectionManager::<SqliteConnection>::new(format!("{}.db", db_name));
+    let manager = ConnectionManager::<SqliteConnection>::new("blog.db");
     r2d2::Pool::new(manager).expect("db pool")
 }
 
