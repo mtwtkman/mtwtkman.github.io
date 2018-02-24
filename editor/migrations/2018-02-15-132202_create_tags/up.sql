@@ -4,7 +4,6 @@ create table tags (
 ;
 
 create table taggings (
-  id integer primary key autoincrement,
   article_id int not null,
   tag_name text not null,
   foreign key(article_id) references articles(id),

@@ -228,16 +228,10 @@ def sql():
         cursor.execute('delete from tags')
 
         with open('articles/tagging.json') as f:
-            tags = {
-                t: i for i, t in
-                enumerate({t for t in json.loads(f.read()).keys()}, 1)
-            }
+            tags = {t for t in json.loads(f.read()).keys()}
             print('insert tags')
-            cursor.executemany('insert into tags(name, id) values (?, ?)', list(tags.items()))
+            cursor.executemany('insert into tags(name) values (?)', [(t,) for t in tags])
             print('done')
-
-        max_tag_id = len(tags.values())
-        max_tagging_id = 1
 
         print('insert articles and taggings')
         for i, (_, x, _) in enumerate(traverse(exclude_draft=False), 1):
@@ -250,18 +244,12 @@ def sql():
             )
             if not all(x['tags']):
                 continue
-            not_registered = set(x['tags']) - set(tags.keys())
-            if not_registered:
-                not_registered_tags = {t: max_tag_id + i for i, t in enumerate(not_registered, 1)}
-                cursor.executemany(
-                    'insert into tags(name, id) values (?, ?)',
-                    [(t, i) for t, i in not_registered_tags.items()]
-                )
-                max_tag_id += len(not_registered_tags)
-                tags.update(not_registered_tags)
-            tagging = [(i, article[0], tags[t]) for i, t in enumerate(x['tags'], max_tagging_id)]
-            max_tagging_id += len(tagging)
-            cursor.executemany('insert into taggings(id, article_id, tag_id) values (?, ?, ?)', tagging)
+            not_registered_tags = set(x['tags']) - tags
+            if not_registered_tags:
+                cursor.executemany('insert into tags(name) values (?)', [(i,) for i in not_registered_tags])
+                tags += not_registered_tags
+            tagging = [(article[0], t) for t in x['tags']]
+            cursor.executemany('insert into taggings(article_id, tag_name) values (?, ?)', tagging)
         print('done')
         conn.commit()
 
