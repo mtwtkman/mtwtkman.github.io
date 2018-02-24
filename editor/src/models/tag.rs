@@ -46,6 +46,12 @@ impl Tag {
             .execute(conn)
             .unwrap()
     }
+
+    pub fn delete(name: String, conn: &SqliteConnection) -> usize {
+        diesel::delete(tags_dsl::tags.filter(tags::name.eq(&name)))
+            .execute(conn)
+            .unwrap()
+    }
 }
 
 #[cfg(test)]
@@ -86,6 +92,17 @@ mod tests {
         Tag::insert(n1.to_string(), &conn);
         Tag::update(n1.to_string(), n2.to_string(), &conn);
         assert_eq!(Tag::select(n2.to_string(), &conn).name, n2);
+        clear_tables(&*conn);
+    }
+
+    #[test]
+    fn deletes_a_tag() {
+        let conn = connection();
+        clear_tables(&*conn);
+        let name = "laala";
+        Tag::insert(name.to_string(), &conn);
+        Tag::delete(name.to_string(), &conn);
+        assert_eq!(Tag::select_all(&conn).len(), 0);
         clear_tables(&*conn);
     }
 }
