@@ -16,6 +16,8 @@ extern crate chrono;
 mod handlers;
 mod models;
 mod db;
+
+#[cfg(test)]
 mod tests;
 
 fn main() {
