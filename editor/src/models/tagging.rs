@@ -1,4 +1,3 @@
-use diesel;
 use diesel::prelude::*;
 use super::{Article, Tag};
 
@@ -12,7 +11,7 @@ mod schema {
 }
 
 use self::schema::taggings;
-use self::schema::taggings::{dsl as taggings_dsl};
+use self::schema::taggings::dsl;
 
 #[derive(Identifiable, Serialize, Queryable, Associations)]
 #[belongs_to(Article, foreign_key = "article_id")]
@@ -24,3 +23,11 @@ pub struct Tagging {
     pub tag_name: String,
 }
 
+impl Tagging {
+    pub fn tags_by_article(article: Article, conn: &SqliteConnection) -> Vec<String> {
+        Tagging::belonging_to(&article)
+            .select(taggings::tag_name)
+            .load::<String>(conn)
+            .unwrap()
+    }
+}

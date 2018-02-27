@@ -16,6 +16,7 @@ extern crate chrono;
 mod handlers;
 mod models;
 mod db;
+mod tests;
 
 fn main() {
     let pool = db::init_pool();

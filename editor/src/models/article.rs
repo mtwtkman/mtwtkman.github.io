@@ -15,8 +15,8 @@ mod schema {
     }
 }
 
-use self::schema::articles;
-use self::schema::articles::{dsl as articles_dsl};
+pub use self::schema::articles;
+pub use self::schema::articles::dsl;
 
 #[derive(Serialize, Queryable, Identifiable)]
 #[table_name = "articles"]
@@ -49,14 +49,14 @@ pub struct NewArticle {
 
 impl Article {
     pub fn select_all(conn: &SqliteConnection) -> Vec<Article> {
-        articles_dsl::articles
+        dsl::articles
             .order(articles::created_at.desc())
             .load::<Article>(conn)
             .unwrap()
     }
 
     pub fn select(pk: i32, conn: &SqliteConnection) -> Article {
-        articles_dsl::articles
+        dsl::articles
             .find(pk)
             .get_result::<Article>(conn)
             .unwrap()
@@ -70,14 +70,14 @@ impl Article {
     }
 
     pub fn update(id: i32, data: &ExistingArticle, conn: &SqliteConnection) -> usize {
-        diesel::update(articles_dsl::articles.filter(articles::id.eq(id)))
+        diesel::update(dsl::articles.filter(articles::id.eq(id)))
             .set(data)
             .execute(conn)
             .unwrap()
     }
 
     pub fn delete(id: i32, conn: &SqliteConnection) -> usize {
-        diesel::delete(articles_dsl::articles.filter(articles::id.eq(id)))
+        diesel::delete(dsl::articles.filter(articles::id.eq(id)))
             .execute(conn)
             .unwrap()
     }
@@ -85,23 +85,17 @@ impl Article {
 
 #[cfg(test)]
 mod tests {
-    use db::init_pool;
+    use tests::*;
     use super::*;
-    use r2d2::PooledConnection;
-    use r2d2_diesel::ConnectionManager;
 
-    fn connection() -> PooledConnection<ConnectionManager<SqliteConnection>> {
-        init_pool().get().unwrap()
-    }
-
-    fn clear_tables(conn: &SqliteConnection) {
+    fn clear_table(conn: &SqliteConnection) {
         diesel::delete(articles::table).execute(conn);
     }
 
     #[test]
     fn creates_new_article() {
         let conn = connection();
-        clear_tables(&*conn);
+        clear_table(&*conn);
         let all_articles = Article::select_all(&conn).len();
         let data = NewArticle {
             title: "test".to_string(),
@@ -110,7 +104,7 @@ mod tests {
             published: true,
         };
         let created_count = Article::insert(&data, &conn);
-        let subject: Article = articles_dsl::articles
+        let subject: Article = dsl::articles
             .order(articles::id.desc())
             .first::<Article>(&*conn)
             .unwrap();
@@ -120,13 +114,13 @@ mod tests {
         assert_eq!(&subject.content, &data.content);
         assert_eq!(&subject.published, &data.published);
         assert_eq!(Article::select_all(&conn).len(), all_articles + 1);
-        clear_tables(&*conn);
+        clear_table(&*conn);
     }
 
     #[test]
     fn updates_certain_article() {
         let conn = connection();
-        clear_tables(&*conn);
+        clear_table(&*conn);
         for x in vec![
             ("one", "o-n-e", "hoge", false),
             ("two", "t-w-o", "fuga", false),
@@ -138,7 +132,7 @@ mod tests {
                 published: x.3,
             }, &conn);
         }
-        let updated: Article = articles_dsl::articles
+        let updated: Article = dsl::articles
             .filter(articles::title.eq("one"))
             .get_result::<Article>(&*conn)
             .unwrap();
@@ -155,13 +149,13 @@ mod tests {
         assert_eq!(&target.slug, &subject.slug);
         assert_eq!(&target.content, &subject.content);
         assert_eq!(&target.published, &subject.published);
-        clear_tables(&*conn);
+        clear_table(&*conn);
     }
 
     #[test]
     fn deletes_an_artcile() {
         let conn = connection();
-        clear_tables(&*conn);
+        clear_table(&*conn);
         let title = "mirei";
         Article::insert(&NewArticle {
             title: title.to_string(),
@@ -169,13 +163,13 @@ mod tests {
             content: "go go mirei".to_string(),
             published: true,
         }, &conn);
-        let created_id: i32 = articles_dsl::articles
+        let created_id: i32 = dsl::articles
             .filter(articles::title.eq(title))
             .get_result::<Article>(&*conn)
             .unwrap()
             .id;
         Article::delete(created_id, &conn);
         assert_eq!(Article::select_all(&conn).len(), 0);
-        clear_tables(&*conn);
+        clear_table(&*conn);
     }
 }
