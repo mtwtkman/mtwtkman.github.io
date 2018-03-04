@@ -1,0 +1,17 @@
+{
+  "name": "editor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "hoge.js",
+  "scripts": {
+    "i": "elm-package install",
+    "make": "elm-make src/Main.elm --output dist/main.js",
+    "repl": "elm-repl"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "elm": "^0.18.0"
+  },
+  "dependencies": {}
+}
