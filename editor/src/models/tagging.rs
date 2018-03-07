@@ -11,7 +11,6 @@ mod schema {
 }
 
 use self::schema::taggings;
-use self::schema::taggings::dsl;
 
 #[derive(Identifiable, Serialize, Queryable, Associations)]
 #[belongs_to(Article, foreign_key = "article_id")]

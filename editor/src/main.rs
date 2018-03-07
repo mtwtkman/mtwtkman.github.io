@@ -24,7 +24,7 @@ fn main() {
     let pool = db::init_pool();
     rocket::ignite()
         .manage(pool)
-        .mount("/", routes![handlers::index::handler])
+        .mount("/", routes![handlers::page::index::handler])
         .mount("/asset/", routes![
             handlers::asset::javascripts::handler,
             handlers::asset::styles::handler,
@@ -34,6 +34,7 @@ fn main() {
             handlers::api::articles::one,
             handlers::api::articles::create,
             handlers::api::articles::update,
+            handlers::api::articles::delete,
         ])
         .launch();
 }
