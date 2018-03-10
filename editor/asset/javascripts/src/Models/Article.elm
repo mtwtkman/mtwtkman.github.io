@@ -1,5 +1,6 @@
 module Models exposing(Article
 
+import Html exposing (Html, Attribute)
 import Json.Decode exposing(int, string, bool)
 import Json.Decode.Pipeline exposing(decode, required, hardcoded)
 import Markdown
@@ -11,7 +12,7 @@ type alias Article a =
   , slug : String
   , published : Bool
   , created_at : String
-  , content: a
+  , body: a
   }
 
 
@@ -28,7 +29,7 @@ decoder =
 decoderWithContent : Decode (Article Content)
 decoderWithContent =
   baseArticleDecoder
-    |> required "content" contentDecoder
+    |> required "body" bodyDecoder
 
 
 baseArticleDecoder : Decode (a -> Article a)
@@ -53,6 +54,16 @@ type alias Markdown
   = String
 
 
-contentDecoder : Decoder Content
-contentDecoder =
+bodyToHtml : Content -> List (Attribute msg) -> Html msg
+bodyToHtml (Content markdown) attributes =
+  Markdown.toHtml attributes markdown
+
+
+bodyToMarkdownString : Content -> String
+bodyToMarkdownString (Content markdown) =
+  markdown
+
+
+bodyDecoder : Decoder Content
+bodyDecoder =
   Decoder.map Content Decoder.string

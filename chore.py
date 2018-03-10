@@ -239,7 +239,7 @@ def sql():
             article = (i, x['title'], x['slug'], x['publish'], x['body'], d)
             print(article)
             cursor.execute(
-                'insert into articles(id, title, slug, published, content, created_at) values (?, ?, ?, ?, ?, ?)',
+                'insert into articles(id, title, slug, published, body, created_at) values (?, ?, ?, ?, ?, ?)',
                 article
             )
             if not all(x['tags']):

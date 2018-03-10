@@ -8,7 +8,7 @@ mod schema {
             id -> Integer,
             title -> Text,
             slug -> Text,
-            content -> Text,
+            body -> Text,
             published -> Bool,
             created_at -> Timestamp,
         }
@@ -24,7 +24,7 @@ pub struct Article {
     pub id: i32,
     pub title: String,
     pub slug: String,
-    pub content: String,
+    pub body: String,
     pub published: bool,
     pub created_at: NaiveDateTime,
 }
@@ -34,7 +34,7 @@ pub struct Article {
 pub struct ExistingArticle {
     pub title: String,
     pub slug: String,
-    pub content: String,
+    pub body: String,
     pub published: bool,
 }
 
@@ -43,7 +43,7 @@ pub struct ExistingArticle {
 pub struct NewArticle {
     pub title: String,
     pub slug: String,
-    pub content: String,
+    pub body: String,
     pub published: bool,
 }
 
@@ -100,7 +100,7 @@ mod tests {
         let data = NewArticle {
             title: "test".to_string(),
             slug: "a-h-o".to_string(),
-            content: "uoooo".to_string(),
+            body: "uoooo".to_string(),
             published: true,
         };
         let created_count = Article::insert(&data, &conn);
@@ -111,7 +111,7 @@ mod tests {
         assert_eq!(created_count, 1);
         assert_eq!(&subject.title, &data.title);
         assert_eq!(&subject.slug, &data.slug);
-        assert_eq!(&subject.content, &data.content);
+        assert_eq!(&subject.body, &data.body);
         assert_eq!(&subject.published, &data.published);
         assert_eq!(Article::select_all(&conn).len(), all_articles + 1);
         clear_table(&*conn);
@@ -128,7 +128,7 @@ mod tests {
             Article::insert(&NewArticle {
                 title: x.0.to_owned(),
                 slug: x.1.to_owned(),
-                content: x.2.to_owned(),
+                body: x.2.to_owned(),
                 published: x.3,
             }, &conn);
         }
@@ -139,7 +139,7 @@ mod tests {
         let target = ExistingArticle {
             title: "updated".to_string(),
             slug: "u-p-dated".to_string(),
-            content: "hi".to_string(),
+            body: "hi".to_string(),
             published: true,
         };
         let result = Article::update(*&updated.id, &target, &conn);
@@ -147,7 +147,7 @@ mod tests {
         assert_eq!(result, 1);
         assert_eq!(&target.title, &subject.title);
         assert_eq!(&target.slug, &subject.slug);
-        assert_eq!(&target.content, &subject.content);
+        assert_eq!(&target.body, &subject.body);
         assert_eq!(&target.published, &subject.published);
         clear_table(&*conn);
     }
@@ -160,7 +160,7 @@ mod tests {
         Article::insert(&NewArticle {
             title: title.to_string(),
             slug: "3-7-3".to_string(),
-            content: "go go mirei".to_string(),
+            body: "go go mirei".to_string(),
             published: true,
         }, &conn);
         let created_id: i32 = dsl::articles

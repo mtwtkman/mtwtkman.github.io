@@ -9,3 +9,4 @@ __pycache__
 *.sqlite3
 package-lock.json
 test.db
+elm-stuff

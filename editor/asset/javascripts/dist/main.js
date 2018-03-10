@@ -8340,8 +8340,8 @@ var _elm_lang$html$Html_Attributes$dropzone = function (value) {
 var _elm_lang$html$Html_Attributes$lang = function (value) {
 	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'lang', value);
 };
-var _elm_lang$html$Html_Attributes$content = function (value) {
-	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'content', value);
+var _elm_lang$html$Html_Attributes$body = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'body', value);
 };
 var _elm_lang$html$Html_Attributes$httpEquiv = function (value) {
 	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'httpEquiv', value);
@@ -8482,8 +8482,8 @@ var _elm_lang$html$Html_Attributes$boolProperty = F2(
 var _elm_lang$html$Html_Attributes$hidden = function (bool) {
 	return A2(_elm_lang$html$Html_Attributes$boolProperty, 'hidden', bool);
 };
-var _elm_lang$html$Html_Attributes$contenteditable = function (bool) {
-	return A2(_elm_lang$html$Html_Attributes$boolProperty, 'contentEditable', bool);
+var _elm_lang$html$Html_Attributes$bodyeditable = function (bool) {
+	return A2(_elm_lang$html$Html_Attributes$boolProperty, 'bodyEditable', bool);
 };
 var _elm_lang$html$Html_Attributes$spellcheck = function (bool) {
 	return A2(_elm_lang$html$Html_Attributes$boolProperty, 'spellcheck', bool);
