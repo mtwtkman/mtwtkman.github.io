@@ -10,5 +10,5 @@ pub fn asset(t: &str, p: PathBuf) -> Option<NamedFile> {
     ).ok()
 }
 
-pub mod javascripts;
-pub mod styles;
+pub mod javascript;
+pub mod style;

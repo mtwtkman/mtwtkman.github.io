@@ -3,6 +3,8 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
 import Json.Decode as Decode
+import Models.Article exposing(Article)
+import Constant exposing (apiBaseUrl)
 
 
 main =
@@ -16,17 +18,6 @@ main =
 
 
 -- MODEL
-
-
-type alias Article =
-  { id : Int
-  , title : String
-  , slug : String
-  , published : Bool
-  , created_at : String
-  }
-
-
 type alias Model =
   List Article
 
@@ -66,7 +57,7 @@ update msg model =
 getArticles : Cmd Msg
 getArticles =
   Http.send GetArticles
-    <| Http.get "http://localhost:3000/api/articles/" decodeArticles
+    <| Http.get (apiBaseURL ++ "articles/") decodeArticles
 
 
 decodeArticle : Decode.Decoder Article
@@ -99,7 +90,15 @@ view model =
 toList : Model -> Html Msg
 toList articles =
   ul []
-    <| List.map (\l -> li [] [ text l.title ]) articles
+    <| List.map articleLink articles
+
+
+articleLink : Article -> Html Msg
+articleLink article =
+  li []
+    [ a [ href (baseURL ++ "/article/" ++ (toString article.id)) ]
+      [ text article.title ]
+    ]
 
 
 

@@ -26,15 +26,17 @@ fn main() {
         .manage(pool)
         .mount("/", routes![handlers::page::index::handler])
         .mount("/asset/", routes![
-            handlers::asset::javascripts::handler,
-            handlers::asset::styles::handler,
+            handlers::asset::javascript::handler,
+            handlers::asset::style::handler,
         ])
         .mount("/api/", routes![
-            handlers::api::articles::fetch,
-            handlers::api::articles::one,
-            handlers::api::articles::create,
-            handlers::api::articles::update,
-            handlers::api::articles::delete,
+            handlers::api::article::fetch,
+            handlers::api::article::tags,
+            handlers::api::article::one,
+            handlers::api::article::create,
+            handlers::api::article::update,
+            handlers::api::article::delete,
+            handlers::api::tag::fetch,
         ])
         .launch();
 }

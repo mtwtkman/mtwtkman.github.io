@@ -11,6 +11,7 @@ mod schema {
 }
 
 use self::schema::taggings;
+use self::schema::taggings::dsl;
 
 #[derive(Identifiable, Serialize, Queryable, Associations)]
 #[belongs_to(Article, foreign_key = "article_id")]
@@ -23,10 +24,14 @@ pub struct Tagging {
 }
 
 impl Tagging {
-    pub fn tags_by_article(article: Article, conn: &SqliteConnection) -> Vec<String> {
-        Tagging::belonging_to(&article)
+    pub fn tags_by_article(article_id: i32, conn: &SqliteConnection) -> Vec<Tag> {
+        dsl::taggings
+            .filter(taggings::article_id.eq(article_id))
             .select(taggings::tag_name)
             .load::<String>(conn)
             .unwrap()
+            .iter()
+            .map(|t| Tag {name: t.to_string()})
+            .collect()
     }
 }

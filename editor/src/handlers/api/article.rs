@@ -1,6 +1,5 @@
 use rocket_contrib::Json;
-
-use models::{Article, NewArticle, ExistingArticle};
+use models::{Article, NewArticle, ExistingArticle, Tagging, Tag};
 use db::Conn;
 
 #[get("/articles")]
@@ -11,6 +10,11 @@ fn fetch(conn: Conn) -> Json<Vec<Article>> {
 #[get("/articles/<id>")]
 fn one(id: i32, conn: Conn) -> Json<Article> {
     Json(Article::select(id, &conn))
+}
+
+#[get("/articles/<id>/tags")]
+fn tags(id: i32, conn: Conn) -> Json<Vec<Tag>> {
+    Json(Tagging::tags_by_article(id, &conn))
 }
 
 #[post("/articles", format = "application/json", data = "<article>")]

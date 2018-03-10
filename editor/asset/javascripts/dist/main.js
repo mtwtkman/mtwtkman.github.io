@@ -9036,23 +9036,51 @@ var _elm_lang$http$Http$stringPart = _elm_lang$http$Http$StringPart;
 var _user$project$Main$subscriptions = function (model) {
 	return _elm_lang$core$Platform_Sub$none;
 };
+var _user$project$Main$update = F2(
+	function (msg, model) {
+		var _p0 = msg;
+		if (_p0._0.ctor === 'Ok') {
+			return {ctor: '_Tuple2', _0: _p0._0._0, _1: _elm_lang$core$Platform_Cmd$none};
+		} else {
+			return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+		}
+	});
+var _user$project$Main$model = {ctor: '[]'};
+var _user$project$Main$baseURL = 'http://localhost:3000';
+var _user$project$Main$apiBaseURL = A2(_elm_lang$core$Basics_ops['++'], _user$project$Main$baseURL, '/api/');
+var _user$project$Main$articleLink = function (article) {
+	return A2(
+		_elm_lang$html$Html$li,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$a,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$href(
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							_user$project$Main$baseURL,
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								'/article/',
+								_elm_lang$core$Basics$toString(article.id)))),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(article.title),
+					_1: {ctor: '[]'}
+				}),
+			_1: {ctor: '[]'}
+		});
+};
 var _user$project$Main$toList = function (articles) {
 	return A2(
 		_elm_lang$html$Html$ul,
 		{ctor: '[]'},
-		A2(
-			_elm_lang$core$List$map,
-			function (l) {
-				return A2(
-					_elm_lang$html$Html$li,
-					{ctor: '[]'},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(l.title),
-						_1: {ctor: '[]'}
-					});
-			},
-			articles));
+		A2(_elm_lang$core$List$map, _user$project$Main$articleLink, articles));
 };
 var _user$project$Main$view = function (model) {
 	return A2(
@@ -9075,16 +9103,6 @@ var _user$project$Main$view = function (model) {
 			}
 		});
 };
-var _user$project$Main$update = F2(
-	function (msg, model) {
-		var _p0 = msg;
-		if (_p0._0.ctor === 'Ok') {
-			return {ctor: '_Tuple2', _0: _p0._0._0, _1: _elm_lang$core$Platform_Cmd$none};
-		} else {
-			return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-		}
-	});
-var _user$project$Main$model = {ctor: '[]'};
 var _user$project$Main$Article = F5(
 	function (a, b, c, d, e) {
 		return {id: a, title: b, slug: c, published: d, created_at: e};
@@ -9104,7 +9122,10 @@ var _user$project$Main$GetArticles = function (a) {
 var _user$project$Main$getArticles = A2(
 	_elm_lang$http$Http$send,
 	_user$project$Main$GetArticles,
-	A2(_elm_lang$http$Http$get, 'http://localhost:3000/api/articles/', _user$project$Main$decodeArticles));
+	A2(
+		_elm_lang$http$Http$get,
+		A2(_elm_lang$core$Basics_ops['++'], _user$project$Main$apiBaseURL, 'articles/'),
+		_user$project$Main$decodeArticles));
 var _user$project$Main$init = {
 	ctor: '_Tuple2',
 	_0: {ctor: '[]'},
