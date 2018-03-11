@@ -1,10 +1,33 @@
 use rocket_contrib::Json;
 use models::{Article, NewArticle, ExistingArticle, Tagging, Tag};
 use db::Conn;
+use chrono::prelude::*;
+
+
+#[derive(Serialize)]
+struct ArticleWithoutTag {
+    id: i32,
+    title: String,
+    slug: String,
+    published: bool,
+    created_at: NaiveDateTime,
+}
 
 #[get("/articles")]
-fn fetch(conn: Conn) -> Json<Vec<Article>> {
-    Json(Article::select_all(&conn))
+fn fetch(conn: Conn) -> Json<Vec<ArticleWithoutTag>> {
+    let articles: Vec<ArticleWithoutTag> = Article::select_all(&conn)
+        .iter()
+        .map(|ref a|
+            ArticleWithoutTag {
+                id: a.clone().id,
+                title: a.clone().title.to_owned(),
+                slug: a.clone().slug.to_owned(),
+                published: a.clone().published,
+                created_at: a.clone().created_at,
+            }
+        )
+        .collect();
+    Json(articles)
 }
 
 #[get("/articles/<id>")]

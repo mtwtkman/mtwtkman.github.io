@@ -18,7 +18,7 @@ mod schema {
 pub use self::schema::articles;
 pub use self::schema::articles::dsl;
 
-#[derive(Serialize, Queryable, Identifiable)]
+#[derive(Clone, Serialize, Queryable, Identifiable)]
 #[table_name = "articles"]
 pub struct Article {
     pub id: i32,
