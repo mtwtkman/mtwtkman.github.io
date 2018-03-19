@@ -1,36 +1,40 @@
+module Main exposing (..)
+
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (..)
 import Http
-import Models.Article exposing(Article)
-import Constant exposing (apiBaseUrl)
+import Navigation exposing (Location)
+import View.Index exposing (indexView)
+import Data.Article exposing (Articles)
+import Request.Article
+
+
+-- MAIN
 
 
 main =
-  Html.program
-  { init = init
-  , update = update
-  , view = view
-  , subscriptions = subscriptions
-  }
+    Navigation.program UrlChange
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = (\_ -> Sub.none)
+        }
 
 
 
 -- MODEL
+
+
 type alias Model =
-  List Article
+    { articles : Articles
+    }
 
 
-model : Model
-model =
-  []
-
-
-init : (Model, Cmd Msg)
-init =
-  ( []
-  , getArticles
-  )
+init : Location -> ( Model, Cmd Msg )
+init location =
+    ( Model []
+    , Http.send LoadArticles <| Request.Article.getAll
+    )
 
 
 
@@ -38,72 +42,36 @@ init =
 
 
 type Msg
-  = GetArticles (Result Http.Error Model)
+    = UrlChange Location
+    | LoadArticles (Result Http.Error Articles)
 
 
-update : Msg -> Model -> (Model, Cmd Msg)
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-  case msg of
-    GetArticles(Ok articles) ->
-      (articles, Cmd.none)
+    case msg of
+        UrlChange location ->
+            ( model
+            , Cmd.none
+            )
 
-    GetArticles(Err _) ->
-      (model, Cmd.none)
+        LoadArticles (Ok articles) ->
+            ( Model articles
+            , Cmd.none
+            )
 
-
-
--- HTTP
-getArticles : Cmd Msg
-getArticles =
-  Http.send GetArticles
-    <| Http.get (apiBaseURL ++ "articles/") decodeArticles
-
-
-decodeArticle : Decode.Decoder Article
-decodeArticle =
-  Decode.map5 Article
-    (Decode.field "id" Decode.int)
-    (Decode.field "title" Decode.string)
-    (Decode.field "slug" Decode.string)
-    (Decode.field "published" Decode.bool)
-    (Decode.field "created_at" Decode.string)
-
-
-decodeArticles : Decode.Decoder Model
-decodeArticles =
-  Decode.list decodeArticle
+        LoadArticles (Err _) ->
+            ( model
+            , Cmd.none
+            )
 
 
 
 -- VIEW
 
 
-view : Model -> Html Msg
+view : Model -> Html msg
 view model =
-  div []
-    [ h2 [] [ text "記事一覧" ]
-    , toList model
-    ]
-
-
-toList : Model -> Html Msg
-toList articles =
-  ul []
-    <| List.map articleLink articles
-
-
-articleLink : Article -> Html Msg
-articleLink article =
-  li []
-    [ a [ href (baseURL ++ "/article/" ++ (toString article.id)) ]
-      [ text article.title ]
-    ]
-
-
-
--- SUBSCRIPTIONS
-
-
-subscriptions : Model -> Sub Msg
-subscriptions model =
-  Sub.none
+    div []
+        [ h1 [] [ text "Articles" ]
+        , indexView model.articles
+        ]
