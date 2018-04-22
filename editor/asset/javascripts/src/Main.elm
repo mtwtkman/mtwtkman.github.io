@@ -3,7 +3,7 @@ module Main exposing (..)
 import Html exposing (..)
 import Http
 import Navigation exposing (Location)
-import View.Index exposing (indexView)
+import Page.Index exposing (indexView)
 import Data.Article exposing (Articles)
 import Request.Article
 

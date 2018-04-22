@@ -1,4 +1,4 @@
-module View.Index exposing (..)
+module Page.Index exposing (..)
 
 import Data.Article exposing (Article, Articles, articleIdToString)
 import Html exposing (..)

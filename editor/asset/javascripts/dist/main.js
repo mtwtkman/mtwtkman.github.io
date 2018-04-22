@@ -10096,7 +10096,7 @@ var _user$project$Route$fromLocation = function (location) {
 	return _elm_lang$core$String$isEmpty(location.hash) ? _elm_lang$core$Maybe$Just(_user$project$Route$Root) : A2(_evancz$url_parser$UrlParser$parseHash, _user$project$Route$route, location);
 };
 
-var _user$project$View_Index$titleView = function (article) {
+var _user$project$Page_Index$titleView = function (article) {
 	return A2(
 		_elm_lang$html$Html$li,
 		{ctor: '[]'},
@@ -10118,7 +10118,7 @@ var _user$project$View_Index$titleView = function (article) {
 			_1: {ctor: '[]'}
 		});
 };
-var _user$project$View_Index$indexView = function (articles) {
+var _user$project$Page_Index$indexView = function (articles) {
 	return A2(
 		_elm_lang$html$Html$div,
 		{ctor: '[]'},
@@ -10127,7 +10127,7 @@ var _user$project$View_Index$indexView = function (articles) {
 			_0: A2(
 				_elm_lang$html$Html$ul,
 				{ctor: '[]'},
-				A2(_elm_lang$core$List$map, _user$project$View_Index$titleView, articles)),
+				A2(_elm_lang$core$List$map, _user$project$Page_Index$titleView, articles)),
 			_1: {ctor: '[]'}
 		});
 };
@@ -10153,7 +10153,7 @@ var _user$project$Main$view = function (model) {
 				}),
 			_1: {
 				ctor: '::',
-				_0: _user$project$View_Index$indexView(model.articles),
+				_0: _user$project$Page_Index$indexView(model.articles),
 				_1: {ctor: '[]'}
 			}
 		});
