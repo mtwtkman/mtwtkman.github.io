@@ -1,8 +1,9 @@
 module View.Index exposing (..)
 
-import Data.Article exposing (Article, Articles)
+import Data.Article exposing (Article, Articles, articleIdToString)
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Route 
 
 
 indexView : Articles -> Html msg
@@ -14,4 +15,4 @@ indexView articles =
 
 titleView : Article -> Html msg
 titleView article =
-    li [] [ a [ href ("#" ++ toString article.id) ] [ text article.title ] ]
+    li [] [ a [ Route.href(Route.Article article.id) ] [ text article.title ] ]

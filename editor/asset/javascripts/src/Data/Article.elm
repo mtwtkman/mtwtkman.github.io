@@ -2,7 +2,10 @@ module Data.Article
     exposing
         ( Article
         , Articles
+        , ArticleId
+        , articleIdParser
         , ArticleWithBody
+        , articleIdToString
         , Body
         , decoder
         , decoderArticles
@@ -16,10 +19,33 @@ import Html exposing (Html, Attribute)
 import Json.Decode as Decode exposing (Decoder, list)
 import Json.Decode.Pipeline exposing (decode, required, hardcoded)
 import Markdown
+import UrlParser
+
+
+-- IDENTIFIERS
+
+
+type ArticleId
+    = ArticleId Int
+
+
+articleIdParser : UrlParser.Parser (ArticleId -> a) a
+articleIdParser =
+    UrlParser.custom "ARTICLE_ID" stringToArticleId
+
+
+articleIdToString : ArticleId -> String
+articleIdToString (ArticleId id) =
+    toString id
+
+
+stringToArticleId : String -> Result.Result String ArticleId
+stringToArticleId id =
+    Result.map ArticleId (String.toInt id)
 
 
 type alias ArticleBase a =
-    { id : Int
+    { id : ArticleId
     , title : String
     , slug : String
     , published : Bool
@@ -64,7 +90,7 @@ decoderWithBody =
 baseArticleDecoder : Decoder (a -> ArticleBase a)
 baseArticleDecoder =
     decode ArticleBase
-        |> required "id" Decode.int
+        |> required "id" (Decode.map ArticleId Decode.int)
         |> required "title" Decode.string
         |> required "slug" Decode.string
         |> required "published" Decode.bool

@@ -2,7 +2,6 @@
   "name": "editor",
   "version": "1.0.0",
   "description": "",
-  "main": "hoge.js",
   "scripts": {
     "i": "elm-package install",
     "make": "elm-make src/Main.elm --output dist/main.js",
@@ -15,5 +14,7 @@
     "elm-format": "^0.6.1-alpha",
     "elm-oracle": "^1.1.1"
   },
-  "dependencies": {}
+  "dependencies": {
+    "npm": "^5.8.0"
+  }
 }

@@ -1,7 +1,6 @@
 module Main exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (..)
 import Http
 import Navigation exposing (Location)
 import View.Index exposing (indexView)
@@ -11,7 +10,7 @@ import Request.Article
 
 -- MAIN
 
-
+main : Program Never Model Msg
 main =
     Navigation.program UrlChange
         { init = init
