@@ -2,7 +2,6 @@ module Page.Index exposing (..)
 
 import Data.Article exposing (Article, Articles, articleIdToString)
 import Html exposing (..)
-import Html.Attributes exposing (..)
 import Route 
 
 
