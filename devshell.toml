@@ -1,0 +1,23 @@
+[[commands]]
+package = "devshell.cli"
+help = "Per project developer environments"
+
+[devshell]
+packages = [
+  "cabal-install",
+  "ghc",
+  "haskell-language-server",
+  "haskellPackages.ormolu",
+  "haskellPackages.cabal2nix",
+  "nodejs",
+  "elmPackages.elm-language-server",
+  "python3",
+]
+name = "dev"
+startup.alias.text = """
+  alias b="cabal build"
+  alias repl="cabal repl"
+  alias fmt="ormolu src/**/*.hs"
+  alias s="python3 -m http.server"
+  alias bjs:dev="bash -c 'cd js;npm run build:dev'"
+"""
