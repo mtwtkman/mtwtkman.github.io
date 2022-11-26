@@ -1,13 +1,12 @@
 module Page.Blog.Top exposing (Model, Msg, init, update, view)
 
 import Browser.Navigation exposing (Key)
-import Data.Blog.Article exposing (ArticleIndex, ArticleIndicies, articleIndicesDecoder)
-import Html exposing (Html, a, div, text)
+import Data.Blog.Article exposing (ArticleIndicies, articleIndicesDecoder)
+import Html exposing (text)
 import Http
 import Page exposing (Page)
+import Page.Blog.View exposing (articleIndicesView)
 import Resource.Blog exposing (articleIndexPath)
-import Route as Route
-import Route.Blog as BlogRoute
 
 
 navKey : Model -> Key
@@ -73,19 +72,3 @@ view model =
             Failed _ ->
                 text "Failed fetching articles"
     }
-
-
-articleIndexView : ArticleIndex -> Html Msg
-articleIndexView articleIndex =
-    let
-        href =
-            Route.href (Route.Blog (BlogRoute.Article articleIndex.year articleIndex.month articleIndex.day articleIndex.slug))
-    in
-    div []
-        [ a [ href ] [ text articleIndex.title ] ]
-
-
-articleIndicesView : ArticleIndicies -> Html Msg
-articleIndicesView articleIndices =
-    div []
-        (List.map articleIndexView articleIndices)

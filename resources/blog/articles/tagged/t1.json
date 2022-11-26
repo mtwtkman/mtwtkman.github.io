@@ -1,13 +1,5 @@
 [
   {
-    "title": "ほげ",
-    "tags": [],
-    "slug": "hoge",
-    "year": "2022",
-    "month": "01",
-    "day": "01"
-  },
-  {
     "title": "ふが",
     "tags": ["t1", "t2"],
     "slug": "fuga",

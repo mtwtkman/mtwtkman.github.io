@@ -27,17 +27,12 @@ tagsRoot =
     "tags"
 
 
-tagsParser : Parser a a
-tagsParser =
-    s tagsRoot
-
-
 parsers : List (Parser (Route -> a) a)
 parsers =
     [ Parser.map Top rootParser
     , Parser.map Article (rootParser </> string </> string </> string </> Parser.custom "SLUG" (Slug.Slug >> Just))
-    , Parser.map Tags (rootParser </> tagsParser)
-    , Parser.map TaggedArticles (rootParser </> tagsParser </> Parser.custom "TAG" (Tag.Tag >> Just))
+    , Parser.map Tags (rootParser </> s "tags")
+    , Parser.map TaggedArticles (rootParser </> s "tagged" </> Parser.custom "TAG" (Tag.Tag >> Just))
     ]
 
 
