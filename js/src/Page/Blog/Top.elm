@@ -1,10 +1,13 @@
 module Page.Blog.Top exposing (Model, Msg, init, update, view)
 
 import Browser.Navigation exposing (Key)
-import Data.Blog.Article exposing (ArticleTitles, articleTitlesDecoder)
-import Html exposing (div, text)
+import Data.Blog.Article exposing (ArticleIndex, ArticleIndicies, articleIndicesDecoder)
+import Html exposing (div, text, Html, a)
 import Http
 import Page exposing (Page)
+import Resource.Blog exposing (articleIndexPath)
+import Route as Route
+import Route.Blog as BlogRoute
 
 
 navKey : Model -> Key
@@ -23,18 +26,21 @@ navKey model =
 init : Key -> ( Model, Cmd Msg )
 init key =
     ( Fetching key
-    , Http.get { url = "./articles/titles.json", expect = Http.expectJson GotArticleTitles articleTitlesDecoder }
+    , Http.get
+        { url = articleIndexPath
+        , expect = Http.expectJson GotArticleIndices articleIndicesDecoder
+        }
     )
 
 
 type Model
     = Fetching Key
-    | Fetched Key ArticleTitles
+    | Fetched Key ArticleIndicies
     | Failed Key
 
 
 type Msg
-    = GotArticleTitles (Result Http.Error ArticleTitles)
+    = GotArticleIndices (Result Http.Error ArticleIndicies)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -44,10 +50,10 @@ update msg model =
             navKey model
     in
     case msg of
-        GotArticleTitles result ->
+        GotArticleIndices result ->
             case result of
-                Ok articleTitles ->
-                    ( Fetched key articleTitles, Cmd.none )
+                Ok articleIndices ->
+                    ( Fetched key articleIndices, Cmd.none )
 
                 Err _ ->
                     ( Failed key, Cmd.none )
@@ -55,6 +61,23 @@ update msg model =
 
 view : Model -> Page Msg
 view model =
-    { title = "blog-articles"
-    , content = div [] [ text "blog/articles" ]
+    { title = "Articles"
+    , content =
+      case model of
+        Fetching _ -> text "Fetching articles"
+        Fetched _ articleIndices -> articleIndicesView articleIndices
+        Failed _ -> text "Failed fetching articles"
     }
+
+articleIndexView : ArticleIndex -> Html Msg
+articleIndexView articleIndex =
+  let
+    href = Route.href (Route.Blog (BlogRoute.Article articleIndex.year articleIndex.month articleIndex.day articleIndex.slug))
+  in div []
+    [ a [href] [text articleIndex.title] ]
+
+articleIndicesView : ArticleIndicies -> Html Msg
+articleIndicesView articleIndices =
+  div []
+    (List.map articleIndexView articleIndices)
+

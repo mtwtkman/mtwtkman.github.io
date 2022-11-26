@@ -1,7 +1,7 @@
 module Page.Blog.TaggedArticles exposing (Model, Msg, init, update, view)
 
 import Browser.Navigation exposing (Key)
-import Data.Blog.Article exposing (ArticleTitles, articleTitlesDecoder)
+import Data.Blog.Article exposing (ArticleIndicies, articleIndicesDecoder)
 import Data.Blog.Tag exposing (Tag)
 import Html exposing (div, text)
 import Http
@@ -18,7 +18,7 @@ init key tag =
     ( Fetching key
     , Http.get
         { url = toAssetPath tag
-        , expect = Http.expectJson FetchedTaggedArticles articleTitlesDecoder
+        , expect = Http.expectJson FetchedTaggedArticles articleIndicesDecoder
         }
     )
 
@@ -38,12 +38,12 @@ navKey model =
 
 type Model
     = Fetching Key
-    | Fetched Key ArticleTitles
+    | Fetched Key ArticleIndicies
     | Failed Key
 
 
 type Msg
-    = FetchedTaggedArticles (Result Http.Error ArticleTitles)
+    = FetchedTaggedArticles (Result Http.Error ArticleIndicies)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

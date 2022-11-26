@@ -1,6 +1,6 @@
 module Data.Blog.Slug exposing (Slug, slugDecoder)
 
-import Json.Decode exposing (Decoder, field, string, map)
+import Json.Decode exposing (Decoder, string, map)
 
 type alias Slug =
     { unSlug : String
@@ -8,4 +8,4 @@ type alias Slug =
 
 slugDecoder : Decoder Slug
 slugDecoder =
-  map Slug (field "slug" string )
+  map Slug string

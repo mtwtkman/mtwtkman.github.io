@@ -1,6 +1,6 @@
 module Data.Blog.Tag exposing (Tag, tagDecoder)
 
-import Json.Decode exposing (Decoder, field, string, map)
+import Json.Decode exposing (Decoder, string, map)
 
 type alias Tag =
     { unTag : String
@@ -8,4 +8,4 @@ type alias Tag =
 
 tagDecoder : Decoder Tag
 tagDecoder =
-  map Tag (field "tag" string )
+  map Tag string

@@ -1,7 +1,7 @@
 module Page.Blog exposing (Model, Msg, init, update, view)
 
 import Browser.Navigation exposing (Key)
-import Html exposing (Html, text)
+import Html exposing (text)
 import Page exposing (Page)
 import Page.Blog.Article as ArticlePage
 import Page.Blog.TaggedArticles as TaggedArticlesPage

@@ -6,6 +6,7 @@ import Data.Blog.Slug exposing (Slug)
 import Html exposing (div, text)
 import Http
 import Page exposing (Page)
+import Resource.Blog exposing (buildArticlePath)
 
 
 type alias PathParam =
@@ -15,17 +16,11 @@ type alias PathParam =
     , slug : Slug
     }
 
-
-toAssetPath : PathParam -> String
-toAssetPath p =
-    String.join "/" [ ".", "articles", p.year, p.month, p.day, p.slug.unSlug ++ ".json" ]
-
-
 init : Key -> PathParam -> ( Model, Cmd Msg )
 init key pathParam =
     ( Fetching key
     , Http.get
-        { url = toAssetPath pathParam
+        { url = buildArticlePath pathParam.year pathParam.month pathParam.day pathParam.slug
         , expect = Http.expectJson FetchedArticle articleDecoder
         }
     )

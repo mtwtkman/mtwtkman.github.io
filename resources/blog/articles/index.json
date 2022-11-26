@@ -1,0 +1,18 @@
+[
+  {
+    "title": "ほげ",
+    "tags": [],
+    "slug": "hoge",
+    "year": "2022",
+    "month": "01",
+    "day": "01"
+  },
+  {
+    "title": "ほげ2",
+    "tags": ["t1", "t2"],
+    "slug": "hoge-2",
+    "year": "2023",
+    "month": "10",
+    "day": "11"
+  }
+]
