@@ -16,6 +16,7 @@ type alias PathParam =
     , slug : Slug
     }
 
+
 init : Key -> PathParam -> ( Model, Cmd Msg )
 init key pathParam =
     ( Fetching key

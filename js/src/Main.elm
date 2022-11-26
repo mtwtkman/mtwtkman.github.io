@@ -70,7 +70,7 @@ changeRouteTo maybeRoute model =
     in
     case maybeRoute of
         Nothing ->
-            ( NotFound key , Cmd.none )
+            ( NotFound key, Cmd.none )
 
         Just Route.Top ->
             TopPage.init key
@@ -93,7 +93,7 @@ update msg model =
 
                         Just _ ->
                             ( model
-                            , Nav.pushUrl (navKey model)  (Url.toString url)
+                            , Nav.pushUrl (navKey model) (Url.toString url)
                             )
 
                 Browser.External href ->
@@ -109,8 +109,9 @@ update msg model =
 
         ( GotBlogMsg subMsg, Blog key subModel ) ->
             BlogPage.update subMsg subModel |> updateWith GotBlogMsg (Blog key)
-        (_, _) ->
-          ( model, Cmd.none )
+
+        ( _, _ ) ->
+            ( model, Cmd.none )
 
 
 view : Model -> Document Msg

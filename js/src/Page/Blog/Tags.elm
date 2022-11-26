@@ -1,4 +1,4 @@
-module Page.Blog.Tags exposing (Model, Msg, update, view, init)
+module Page.Blog.Tags exposing (Model, Msg, init, update, view)
 
 import Browser.Navigation exposing (Key)
 import Data.Blog.Tag exposing (Tag, tagDecoder)

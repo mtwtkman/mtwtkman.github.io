@@ -2,7 +2,7 @@ module Page.Blog.Top exposing (Model, Msg, init, update, view)
 
 import Browser.Navigation exposing (Key)
 import Data.Blog.Article exposing (ArticleIndex, ArticleIndicies, articleIndicesDecoder)
-import Html exposing (div, text, Html, a)
+import Html exposing (Html, a, div, text)
 import Http
 import Page exposing (Page)
 import Resource.Blog exposing (articleIndexPath)
@@ -63,21 +63,29 @@ view : Model -> Page Msg
 view model =
     { title = "Articles"
     , content =
-      case model of
-        Fetching _ -> text "Fetching articles"
-        Fetched _ articleIndices -> articleIndicesView articleIndices
-        Failed _ -> text "Failed fetching articles"
+        case model of
+            Fetching _ ->
+                text "Fetching articles"
+
+            Fetched _ articleIndices ->
+                articleIndicesView articleIndices
+
+            Failed _ ->
+                text "Failed fetching articles"
     }
+
 
 articleIndexView : ArticleIndex -> Html Msg
 articleIndexView articleIndex =
-  let
-    href = Route.href (Route.Blog (BlogRoute.Article articleIndex.year articleIndex.month articleIndex.day articleIndex.slug))
-  in div []
-    [ a [href] [text articleIndex.title] ]
+    let
+        href =
+            Route.href (Route.Blog (BlogRoute.Article articleIndex.year articleIndex.month articleIndex.day articleIndex.slug))
+    in
+    div []
+        [ a [ href ] [ text articleIndex.title ] ]
+
 
 articleIndicesView : ArticleIndicies -> Html Msg
 articleIndicesView articleIndices =
-  div []
-    (List.map articleIndexView articleIndices)
-
+    div []
+        (List.map articleIndexView articleIndices)

@@ -1,26 +1,33 @@
-module Page.Top exposing (view, init, Model, update, Msg)
+module Page.Top exposing (Model, Msg, init, update, view)
 
-import Html exposing (div, text, a)
-import Page exposing (Page)
 import Browser.Navigation exposing (Key)
+import Html exposing (a, div, text)
+import Page exposing (Page)
 import Route
 import Route.Blog as BlogRoute
 
+
 type alias Model =
-  { key : Key
-  }
+    { key : Key
+    }
 
-type alias Msg = ()
 
-init : Key -> ( Model, Cmd Msg)
-init key = ( { key = key }, Cmd.none)
+type alias Msg =
+    ()
+
+
+init : Key -> ( Model, Cmd Msg )
+init key =
+    ( { key = key }, Cmd.none )
+
 
 update : Model -> ( Model, Cmd Msg )
 update model =
-   ( model, Cmd.none )
+    ( model, Cmd.none )
+
 
 view : Model -> Page Msg
 view _ =
-    { title = "top"
-    , content = div [] [ a [Route.href (Route.Blog (BlogRoute.Top))] [ text "blog" ]]
+    { title = "mtwtkman.github.io"
+    , content = div [] [ a [ Route.href (Route.Blog BlogRoute.Top) ] [ text "blog" ] ]
     }
