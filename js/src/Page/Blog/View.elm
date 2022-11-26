@@ -13,7 +13,7 @@ tagView tag =
         href =
             Route.href (Route.Blog (BlogRoute.TaggedArticles tag))
     in
-    a [ href ] [ text tag.unTag ]
+    a [ href ] [ text ("[" ++ tag.unTag) ]
 
 
 articleIndexView : ArticleIndex -> Html msg

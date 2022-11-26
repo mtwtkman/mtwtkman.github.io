@@ -2,7 +2,7 @@ module Route.Blog exposing (Route(..), parsers, routeToPieces)
 
 import Data.Blog.Slug as Slug
 import Data.Blog.Tag as Tag
-import Url.Parser as Parser exposing ((</>), Parser, int, s, string)
+import Url.Parser as Parser exposing ((</>), Parser, s, string)
 
 
 type Route
@@ -20,11 +20,6 @@ root =
 rootParser : Parser a a
 rootParser =
     s root
-
-
-tagsRoot : String
-tagsRoot =
-    "tags"
 
 
 parsers : List (Parser (Route -> a) a)
@@ -46,7 +41,7 @@ routeToPieces route =
             [ root, year, month, day, slug.unSlug ]
 
         Tags ->
-            [ root, tagsRoot ]
+            [ root, "tags" ]
 
         TaggedArticles tag ->
-            [ root, tagsRoot, tag.unTag ]
+            [ root, "tagged", tag.unTag ]
