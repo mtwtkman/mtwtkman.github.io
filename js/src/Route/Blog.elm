@@ -7,9 +7,9 @@ import Url.Parser as Parser exposing ((</>), Parser, s, string)
 
 type Route
     = Top
-    | Article String String String Slug.Slug
+    | Entry String String String Slug.Slug
     | Tags
-    | TaggedArticles Tag.Tag
+    | TaggedEntries Tag.Tag
 
 
 root : String
@@ -25,9 +25,9 @@ rootParser =
 parsers : List (Parser (Route -> a) a)
 parsers =
     [ Parser.map Top rootParser
-    , Parser.map Article (rootParser </> string </> string </> string </> Parser.custom "SLUG" (Slug.Slug >> Just))
+    , Parser.map Entry (rootParser </> string </> string </> string </> Parser.custom "SLUG" (Slug.Slug >> Just))
     , Parser.map Tags (rootParser </> s "tags")
-    , Parser.map TaggedArticles (rootParser </> s "tagged" </> Parser.custom "TAG" (Tag.Tag >> Just))
+    , Parser.map TaggedEntries (rootParser </> s "tagged" </> Parser.custom "TAG" (Tag.Tag >> Just))
     ]
 
 
@@ -37,11 +37,11 @@ routeToPieces route =
         Top ->
             [ root ]
 
-        Article year month day slug ->
+        Entry year month day slug ->
             [ root, year, month, day, slug.unSlug ]
 
         Tags ->
             [ root, "tags" ]
 
-        TaggedArticles tag ->
+        TaggedEntries tag ->
             [ root, "tagged", tag.unTag ]

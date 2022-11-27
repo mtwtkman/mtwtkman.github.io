@@ -1,12 +1,12 @@
 module Page.Blog.Top exposing (Model, Msg, init, update, view)
 
 import Browser.Navigation exposing (Key)
-import Data.Blog.Article exposing (ArticleIndicies, articleIndicesDecoder)
+import Data.Blog.Entry exposing (EntryIndicies, entryIndicesDecoder)
 import Html exposing (text)
 import Http
 import Page exposing (Page)
-import Page.Blog.View exposing (articleIndicesView)
-import Resource.Blog exposing (articleIndexPath)
+import Page.Blog.View exposing (entryIndicesView)
+import Resource.Blog exposing (entryIndexPath)
 
 
 navKey : Model -> Key
@@ -26,20 +26,20 @@ init : Key -> ( Model, Cmd Msg )
 init key =
     ( Fetching key
     , Http.get
-        { url = articleIndexPath
-        , expect = Http.expectJson GotArticleIndices articleIndicesDecoder
+        { url = entryIndexPath
+        , expect = Http.expectJson GotEntryIndices entryIndicesDecoder
         }
     )
 
 
 type Model
     = Fetching Key
-    | Fetched Key ArticleIndicies
+    | Fetched Key EntryIndicies
     | Failed Key
 
 
 type Msg
-    = GotArticleIndices (Result Http.Error ArticleIndicies)
+    = GotEntryIndices (Result Http.Error EntryIndicies)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -49,10 +49,10 @@ update msg model =
             navKey model
     in
     case msg of
-        GotArticleIndices result ->
+        GotEntryIndices result ->
             case result of
-                Ok articleIndices ->
-                    ( Fetched key articleIndices, Cmd.none )
+                Ok entryIndices ->
+                    ( Fetched key entryIndices, Cmd.none )
 
                 Err _ ->
                     ( Failed key, Cmd.none )
@@ -60,15 +60,15 @@ update msg model =
 
 view : Model -> Page Msg
 view model =
-    { title = "Articles"
+    { title = "Entries"
     , content =
         case model of
             Fetching _ ->
-                text "Fetching articles"
+                text "Fetching entries"
 
-            Fetched _ articleIndices ->
-                articleIndicesView articleIndices
+            Fetched _ entryIndices ->
+                entryIndicesView entryIndices
 
             Failed _ ->
-                text "Failed fetching articles"
+                text "Failed fetching entries"
     }

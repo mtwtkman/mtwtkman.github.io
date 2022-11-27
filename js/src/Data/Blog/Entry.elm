@@ -1,4 +1,4 @@
-module Data.Blog.Article exposing (Article, ArticleIndex, ArticleIndicies, articleDecoder, articleIndicesDecoder)
+module Data.Blog.Entry exposing (Entry, EntryIndex, EntryIndicies, entryDecoder, entryIndicesDecoder)
 
 import Data.Blog.Slug exposing (Slug, slugDecoder)
 import Data.Blog.Tag exposing (Tag, tagDecoder)
@@ -7,7 +7,7 @@ import Json.Decode exposing (Decoder, field, list, map5, map6, string)
 import Time exposing (Posix)
 
 
-type alias Article =
+type alias Entry =
     { title : String
     , body : String
     , slug : Slug
@@ -16,9 +16,9 @@ type alias Article =
     }
 
 
-articleDecoder : Decoder Article
-articleDecoder =
-    map5 Article
+entryDecoder : Decoder Entry
+entryDecoder =
+    map5 Entry
         (field "title" string)
         (field "body" string)
         (field "slug" slugDecoder)
@@ -26,7 +26,7 @@ articleDecoder =
         (field "publishedAt" Iso8601.decoder)
 
 
-type alias ArticleIndex =
+type alias EntryIndex =
     { title : String
     , tags : List Tag
     , year : String
@@ -36,13 +36,13 @@ type alias ArticleIndex =
     }
 
 
-type alias ArticleIndicies =
-    List ArticleIndex
+type alias EntryIndicies =
+    List EntryIndex
 
 
-articleIndexDecoder : Decoder ArticleIndex
-articleIndexDecoder =
-    map6 ArticleIndex
+entryIndexDecoder : Decoder EntryIndex
+entryIndexDecoder =
+    map6 EntryIndex
         (field "title" string)
         (field "tags" (list tagDecoder))
         (field "year" string)
@@ -51,6 +51,6 @@ articleIndexDecoder =
         (field "slug" slugDecoder)
 
 
-articleIndicesDecoder : Decoder ArticleIndicies
-articleIndicesDecoder =
-    list articleIndexDecoder
+entryIndicesDecoder : Decoder EntryIndicies
+entryIndicesDecoder =
+    list entryIndexDecoder

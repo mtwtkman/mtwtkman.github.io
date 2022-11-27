@@ -1,12 +1,12 @@
-module Page.Blog.TaggedArticles exposing (Model, Msg, init, update, view)
+module Page.Blog.TaggedEntries exposing (Model, Msg, init, update, view)
 
 import Browser.Navigation exposing (Key)
-import Data.Blog.Article exposing (ArticleIndicies, articleIndicesDecoder)
+import Data.Blog.Entry exposing (EntryIndicies, entryIndicesDecoder)
 import Data.Blog.Tag exposing (Tag)
 import Html exposing (text)
 import Http
 import Page exposing (Page)
-import Page.Blog.View exposing (articleIndicesView)
+import Page.Blog.View exposing (entryIndicesView)
 import Resource.Blog as BlogResource
 
 
@@ -15,7 +15,7 @@ init key tag =
     ( Fetching key
     , Http.get
         { url = BlogResource.buildTaggedPath tag
-        , expect = Http.expectJson FetchedTaggedArticles articleIndicesDecoder
+        , expect = Http.expectJson FetchedTaggedEntries entryIndicesDecoder
         }
     )
 
@@ -35,12 +35,12 @@ navKey model =
 
 type Model
     = Fetching Key
-    | Fetched Key ArticleIndicies
+    | Fetched Key EntryIndicies
     | Failed Key
 
 
 type Msg
-    = FetchedTaggedArticles (Result Http.Error ArticleIndicies)
+    = FetchedTaggedEntries (Result Http.Error EntryIndicies)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -50,10 +50,10 @@ update msg model =
             navKey model
     in
     case msg of
-        FetchedTaggedArticles result ->
+        FetchedTaggedEntries result ->
             case result of
-                Ok articleTitles ->
-                    ( Fetched key articleTitles, Cmd.none )
+                Ok entryTitles ->
+                    ( Fetched key entryTitles, Cmd.none )
 
                 Err _ ->
                     ( Failed key, Cmd.none )
@@ -65,11 +65,11 @@ view model =
     , content =
         case model of
             Fetching _ ->
-                text "Fetched tagged articles"
+                text "Fetched tagged entries"
 
-            Fetched _ articleIndicies ->
-                articleIndicesView articleIndicies
+            Fetched _ entryIndicies ->
+                entryIndicesView entryIndicies
 
             Failed _ ->
-                text "Failed fetching tagged articles"
+                text "Failed fetching tagged entries"
     }

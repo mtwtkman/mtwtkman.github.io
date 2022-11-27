@@ -3,8 +3,8 @@ module Page.Blog exposing (Model, Msg, init, update, view)
 import Browser.Navigation exposing (Key)
 import Html exposing (text)
 import Page exposing (Page)
-import Page.Blog.Article as ArticlePage
-import Page.Blog.TaggedArticles as TaggedArticlesPage
+import Page.Blog.Entry as EntryPage
+import Page.Blog.TaggedEntries as TaggedEntriesPage
 import Page.Blog.Tags as TagsPage
 import Page.Blog.Top as TopPage
 import Route.Blog as Route
@@ -20,19 +20,19 @@ init route key =
             in
             ( Top subModel, Cmd.map GotTopMsg subCmd )
 
-        Route.Article year month day slug ->
+        Route.Entry year month day slug ->
             let
                 ( subModel, subCmd ) =
-                    ArticlePage.init key (ArticlePage.PathParam year month day slug)
+                    EntryPage.init key (EntryPage.PathParam year month day slug)
             in
-            ( Article subModel, Cmd.map GotArticleMsg subCmd )
+            ( Entry subModel, Cmd.map GotEntryMsg subCmd )
 
-        Route.TaggedArticles tag ->
+        Route.TaggedEntries tag ->
             let
                 ( subModel, subCmd ) =
-                    TaggedArticlesPage.init key tag
+                    TaggedEntriesPage.init key tag
             in
-            ( TaggedArticles subModel, Cmd.map GotTaggedArticlesMsg subCmd )
+            ( TaggedEntries subModel, Cmd.map GotTaggedEntriesMsg subCmd )
 
         Route.Tags ->
             let
@@ -44,16 +44,16 @@ init route key =
 
 type Model
     = Top TopPage.Model
-    | Article ArticlePage.Model
-    | TaggedArticles TaggedArticlesPage.Model
+    | Entry EntryPage.Model
+    | TaggedEntries TaggedEntriesPage.Model
     | Tags TagsPage.Model
     | Unknown
 
 
 type Msg
     = GotTopMsg TopPage.Msg
-    | GotArticleMsg ArticlePage.Msg
-    | GotTaggedArticlesMsg TaggedArticlesPage.Msg
+    | GotEntryMsg EntryPage.Msg
+    | GotTaggedEntriesMsg TaggedEntriesPage.Msg
     | GotTagsMsg TagsPage.Msg
 
 
@@ -68,11 +68,11 @@ update msg model =
         ( GotTopMsg subMsg, Top subModel ) ->
             TopPage.update subMsg subModel |> updateWith GotTopMsg Top
 
-        ( GotArticleMsg subMsg, Article subModel ) ->
-            ArticlePage.update subMsg subModel |> updateWith GotArticleMsg Article
+        ( GotEntryMsg subMsg, Entry subModel ) ->
+            EntryPage.update subMsg subModel |> updateWith GotEntryMsg Entry
 
-        ( GotTaggedArticlesMsg subMsg, TaggedArticles subModel ) ->
-            TaggedArticlesPage.update subMsg subModel |> updateWith GotTaggedArticlesMsg TaggedArticles
+        ( GotTaggedEntriesMsg subMsg, TaggedEntries subModel ) ->
+            TaggedEntriesPage.update subMsg subModel |> updateWith GotTaggedEntriesMsg TaggedEntries
 
         ( GotTagsMsg subMsg, Tags subModel ) ->
             TagsPage.update subMsg subModel |> updateWith GotTagsMsg Tags
@@ -96,11 +96,11 @@ view model =
         Top subModel ->
             viewWith TopPage.view GotTopMsg subModel
 
-        Article subModel ->
-            viewWith ArticlePage.view GotArticleMsg subModel
+        Entry subModel ->
+            viewWith EntryPage.view GotEntryMsg subModel
 
-        TaggedArticles subModel ->
-            viewWith TaggedArticlesPage.view GotTaggedArticlesMsg subModel
+        TaggedEntries subModel ->
+            viewWith TaggedEntriesPage.view GotTaggedEntriesMsg subModel
 
         Tags subModel ->
             viewWith TagsPage.view GotTagsMsg subModel

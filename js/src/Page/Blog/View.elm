@@ -1,6 +1,6 @@
-module Page.Blog.View exposing (articleIndicesView)
+module Page.Blog.View exposing (entryIndicesView, tagView)
 
-import Data.Blog.Article exposing (ArticleIndex, ArticleIndicies)
+import Data.Blog.Entry exposing (EntryIndex, EntryIndicies)
 import Data.Blog.Tag exposing (Tag)
 import Html exposing (Html, a, div, text)
 import Route as Route
@@ -11,22 +11,22 @@ tagView : Tag -> Html msg
 tagView tag =
     let
         href =
-            Route.href (Route.Blog (BlogRoute.TaggedArticles tag))
+            Route.href (Route.Blog (BlogRoute.TaggedEntries tag))
     in
-    a [ href ] [ text ("[" ++ tag.unTag) ]
+    a [ href ] [ text (tag.unTag) ]
 
 
-articleIndexView : ArticleIndex -> Html msg
-articleIndexView articleIndex =
+entryIndexView : EntryIndex -> Html msg
+entryIndexView entryIndex =
     let
         href =
-            Route.href (Route.Blog (BlogRoute.Article articleIndex.year articleIndex.month articleIndex.day articleIndex.slug))
+            Route.href (Route.Blog (BlogRoute.Entry entryIndex.year entryIndex.month entryIndex.day entryIndex.slug))
     in
     div []
-        (a [ href ] [ text articleIndex.title ] :: List.map tagView articleIndex.tags)
+        (a [ href ] [ text entryIndex.title ] :: List.map tagView entryIndex.tags)
 
 
-articleIndicesView : ArticleIndicies -> Html msg
-articleIndicesView articleIndices =
+entryIndicesView : EntryIndicies -> Html msg
+entryIndicesView entryIndices =
     div []
-        (List.map articleIndexView articleIndices)
+        (List.map entryIndexView entryIndices)

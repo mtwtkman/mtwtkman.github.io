@@ -1,4 +1,4 @@
-module Resource.Blog exposing (articleIndexPath, buildArticlePath, buildTaggedPath)
+module Resource.Blog exposing (entryIndexPath, buildEntryPath, buildTaggedPath)
 
 import Data.Blog.Slug exposing (Slug)
 import Data.Blog.Tag exposing (Tag)
@@ -10,16 +10,16 @@ buildResourcePath paths =
     R.buildResourcePath ("blog" :: paths)
 
 
-articleIndexPath : String
-articleIndexPath =
-    buildResourcePath [ "articles", "index.json" ]
+entryIndexPath : String
+entryIndexPath =
+    buildResourcePath [ "meta", "index.json" ]
 
 
-buildArticlePath : String -> String -> String -> Slug -> String
-buildArticlePath year month day slug =
-    buildResourcePath [ "articles", year, month, day, slug.unSlug ++ ".json" ]
+buildEntryPath : String -> String -> String -> Slug -> String
+buildEntryPath year month day slug =
+    buildResourcePath [ "entries", year, month, day, slug.unSlug ++ ".json" ]
 
 
 buildTaggedPath : Tag -> String
 buildTaggedPath tag =
-    buildResourcePath [ "articles", "tagged", tag.unTag ++ ".json" ]
+    buildResourcePath [ "meta", "tagged", tag.unTag ++ ".json" ]
