@@ -5,13 +5,13 @@ import Data.Blog.Entry exposing (Entry, entryDecoder)
 import Data.Blog.Slug exposing (Slug)
 import Data.Blog.Tag exposing (Tag)
 import Html exposing (Html, div, text)
-import Html.Attributes exposing (property)
 import Http
 import Iso8601 exposing (fromTime)
-import Json.Encode exposing (string)
 import Page exposing (Page)
 import Page.Blog.View exposing (tagView)
 import Resource.Blog exposing (buildEntryPath)
+import Html.Parser as Parser
+import Html.Parser.Util exposing (toVirtualDom)
 
 
 type alias PathParam =
@@ -102,5 +102,8 @@ entryView entry =
         [ div [] [ text entry.title ]
         , div [] [ text (fromTime entry.publishedAt) ]
         , div [] (List.map tagView entry.tags)
-        , div [ property "innerHTML" <| string entry.body ] []
+        , div [] (case Parser.run entry.body of
+            Ok nodes -> toVirtualDom nodes
+            Err _ -> []
+        )
         ]
