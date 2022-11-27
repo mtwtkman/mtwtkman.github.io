@@ -1,7 +1,8 @@
 module Page.Blog exposing (Model, Msg, init, update, view)
 
 import Browser.Navigation exposing (Key)
-import Html exposing (text)
+import Html exposing (div, text)
+import Html.Attributes exposing (class)
 import Page exposing (Page)
 import Page.Blog.Entry as EntryPage
 import Page.Blog.TaggedEntries as TaggedEntriesPage
@@ -87,7 +88,13 @@ viewWith toView toMsg subModel =
         subView =
             toView subModel
     in
-    { title = subView.title, content = Html.map toMsg subView.content }
+    { title = subView.title
+    , content =
+        div
+            [ class "blog-wrapper" ]
+            [ Html.map toMsg subView.content
+            ]
+    }
 
 
 view : Model -> Page Msg

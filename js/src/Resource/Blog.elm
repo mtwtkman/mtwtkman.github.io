@@ -1,4 +1,4 @@
-module Resource.Blog exposing (entryIndexPath, buildEntryPath, buildTaggedPath)
+module Resource.Blog exposing (buildEntryPath, buildTaggedPath, entryIndexPath)
 
 import Data.Blog.Slug exposing (Slug)
 import Data.Blog.Tag exposing (Tag)

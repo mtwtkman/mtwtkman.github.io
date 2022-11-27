@@ -1,7 +1,7 @@
 module Page.Top exposing (Model, Msg, init, update, view)
 
 import Browser.Navigation exposing (Key)
-import Html exposing (a, div, text)
+import Html exposing (a, div, h1, text)
 import Page exposing (Page)
 import Route
 import Route.Blog as BlogRoute
@@ -29,5 +29,10 @@ update model =
 view : Model -> Page Msg
 view _ =
     { title = "mtwtkman.github.io"
-    , content = div [] [ a [ Route.href (Route.Blog BlogRoute.Top) ] [ text "blog" ] ]
+    , content =
+        div
+            []
+            [ h1 [] [ text "mtwtkman" ]
+            , a [ Route.href (Route.Blog BlogRoute.Top) ] [ text "blog" ]
+            ]
     }
