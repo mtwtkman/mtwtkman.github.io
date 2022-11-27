@@ -2,7 +2,8 @@ module Page.Blog.Top exposing (Model, Msg, init, update, view)
 
 import Browser.Navigation exposing (Key)
 import Data.Blog.Entry exposing (EntryIndicies, entryIndicesDecoder)
-import Html exposing (text)
+import Html exposing (div, h1, text)
+import Html.Attributes exposing (class)
 import Http
 import Page exposing (Page)
 import Page.Blog.View exposing (entryIndicesView)
@@ -67,7 +68,10 @@ view model =
                 text "Fetching entries"
 
             Fetched _ entryIndices ->
-                entryIndicesView entryIndices
+                div [ class "blog-top" ]
+                    [ h1 [] [ text "Entries" ]
+                      , entryIndicesView entryIndices
+                    ]
 
             Failed _ ->
                 text "Failed fetching entries"

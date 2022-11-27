@@ -6,6 +6,7 @@ import Html exposing (Html, a, div, text)
 import Html.Attributes exposing (class)
 import Route as Route
 import Route.Blog as BlogRoute
+import View exposing (iconView)
 
 
 tagView : Tag -> Html msg
@@ -18,8 +19,16 @@ tagView tag =
         [ href
         , class "tagname"
         ]
-        [ text tag.unTag
+        [ iconView "sell"
+          , text tag.unTag
         ]
+
+
+tagsView : List Tag -> Html msg
+tagsView tags =
+    div
+        [ class ".tagnames-wrapper" ]
+        (List.map tagView tags)
 
 
 entryIndexView : EntryIndex -> Html msg
@@ -28,8 +37,11 @@ entryIndexView entryIndex =
         href =
             Route.href (Route.Blog (BlogRoute.Entry entryIndex.year entryIndex.month entryIndex.day entryIndex.slug))
     in
-    div [ class "entry-title" ]
-        (a [ href ] [ text entryIndex.title ] :: List.map tagView entryIndex.tags)
+    div
+        [ class "entry-title" ]
+        [ a [ href, class "entry-title-link" ] [ text entryIndex.title ]
+        , tagsView entryIndex.tags
+        ]
 
 
 entryIndicesView : EntryIndicies -> Html msg
