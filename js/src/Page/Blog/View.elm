@@ -2,7 +2,7 @@ module Page.Blog.View exposing (entryIndicesView, tagView)
 
 import Data.Blog.Entry exposing (EntryIndex, EntryIndicies)
 import Data.Blog.Tag exposing (Tag)
-import Html exposing (Html, a, div, text)
+import Html exposing (Html, a, div, span, text)
 import Html.Attributes exposing (class)
 import Route as Route
 import Route.Blog as BlogRoute
@@ -20,7 +20,7 @@ tagView tag =
         , class "tagname"
         ]
         [ iconView "sell"
-          , text tag.unTag
+        , text tag.unTag
         ]
 
 
@@ -40,6 +40,7 @@ entryIndexView entryIndex =
     div
         [ class "entry-title" ]
         [ a [ href, class "entry-title-link" ] [ text entryIndex.title ]
+        , span [class "entry-published-date" ] [ text ("(" ++ String.join "/" [ entryIndex.year, entryIndex.month, entryIndex.day ] ++ ")") ]
         , tagsView entryIndex.tags
         ]
 

@@ -12,6 +12,11 @@
   height: 30px;
 }
 
+.entry-published-date {
+  margin: 0 2px 0 2px;
+  color: #898989;
+}
+
 .entry-title-link {
   margin-right: 2px;
 }
@@ -24,8 +29,8 @@
   display: flex;
   justify-content: center;
   display: inline-block;
-  font-size: 10pt;
-  background: #d7d7d7;
+  font-size: 9pt;
+  background: #f1dede;
   border-radius: 3px;
   padding: 0 5px 0 5px;
   margin-left: 3px;
