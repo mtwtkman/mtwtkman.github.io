@@ -2,6 +2,7 @@ module Page.Top exposing (Model, Msg, init, update, view)
 
 import Browser.Navigation exposing (Key)
 import Html exposing (a, div, h1, text)
+import Html.Attributes exposing (class)
 import Page exposing (Page)
 import Route
 import Route.Blog as BlogRoute
@@ -31,7 +32,7 @@ view _ =
     { title = "mtwtkman.github.io"
     , content =
         div
-            []
+            [ class "top-wrapper" ]
             [ h1 [] [ text "mtwtkman" ]
             , a [ Route.href (Route.Blog BlogRoute.Top) ] [ text "blog" ]
             ]
