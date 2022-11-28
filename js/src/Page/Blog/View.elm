@@ -1,4 +1,4 @@
-module Page.Blog.View exposing (entryIndicesView, tagView)
+module Page.Blog.View exposing (entryIndicesView, tagsView)
 
 import Data.Blog.Entry exposing (EntryIndex, EntryIndicies)
 import Data.Blog.Tag exposing (Tag)

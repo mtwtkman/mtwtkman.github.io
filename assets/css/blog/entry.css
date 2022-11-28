@@ -1,0 +1,15 @@
+.entry-published-at {
+  margin-bottom: 5px;
+}
+
+.entry-published-at > i {
+  font-size: 11pt;
+}
+
+.entry-title-header {
+  margin-bottom: 5px;
+}
+
+.entry-body {
+  margin-top: 8px;
+}

@@ -1,5 +1,8 @@
+@import url('./blog/entry.css');
+
 .blog-wrapper {
   display: flex;
+  width: 100%;
 }
 
 .entries-wrapper {

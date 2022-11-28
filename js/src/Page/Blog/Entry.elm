@@ -3,15 +3,16 @@ module Page.Blog.Entry exposing (Model, Msg, PathParam, init, update, view)
 import Browser.Navigation exposing (Key)
 import Data.Blog.Entry exposing (Entry, entryDecoder)
 import Data.Blog.Slug exposing (Slug)
-import Data.Blog.Tag exposing (Tag)
-import Html exposing (Html, div, text)
+import Html exposing (Html, div, h1, text)
+import Html.Attributes exposing (class)
 import Html.Parser as Parser
 import Html.Parser.Util exposing (toVirtualDom)
 import Http
 import Iso8601 exposing (fromTime)
 import Page exposing (Page)
-import Page.Blog.View exposing (tagView)
+import Page.Blog.View exposing (tagsView)
 import Resource.Blog exposing (buildEntryPath)
+import View exposing (iconView)
 
 
 type alias PathParam =
@@ -98,11 +99,15 @@ view model =
 entryView : Entry -> Html Msg
 entryView entry =
     div
-        []
-        [ div [] [ text entry.title ]
-        , div [] [ text (fromTime entry.publishedAt) ]
-        , div [] (List.map tagView entry.tags)
-        , div []
+        [ class "entry-wrapper" ]
+        [ h1 [ class "entry-title-header" ] [ text entry.title ]
+        , div
+            [ class "entry-published-at" ]
+            [ iconView "calendar_month"
+            , text (fromTime entry.publishedAt)
+            ]
+        , tagsView entry.tags
+        , div [ class "entry-body" ]
             (case Parser.run entry.body of
                 Ok nodes ->
                     toVirtualDom nodes
