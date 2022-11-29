@@ -4,16 +4,11 @@ help = "Per project developer environments"
 
 [devshell]
 packages = [
-  "cabal-install",
-  "ghc",
-  "haskell-language-server",
-  "haskellPackages.ormolu",
-  "haskellPackages.cabal2nix",
   "nodejs",
   "elmPackages.elm-language-server",
   "python3",
   "sqlite",
-  "python3Packages.virtualenv",
+  "python3Packages.poetry",
 ]
 name = "dev"
 startup.alias.text = """
