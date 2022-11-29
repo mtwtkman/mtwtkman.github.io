@@ -12,6 +12,8 @@ packages = [
   "nodejs",
   "elmPackages.elm-language-server",
   "python3",
+  "sqlite",
+  "python3Packages.virtualenv",
 ]
 name = "dev"
 startup.alias.text = """
@@ -22,4 +24,5 @@ startup.alias.text = """
   alias js:dev="bash -c 'cd js;npm run build:dev'"
   alias js:fmt="bash -c 'cd js;npm run fmt'"
   alias js:pub="bash -c 'cd js;npm run build:prod'"
+  alias db="sqlite3 db"
 """
