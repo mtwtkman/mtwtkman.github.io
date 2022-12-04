@@ -20,3 +20,5 @@ executable gh
     default-language: Haskell2010
     other-modules:
       Blog.Entity
+      Blog.UseCase.CreateDraft
+      Blog.Datastore.Sqlite
