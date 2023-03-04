@@ -13,6 +13,7 @@ packages = [
   "elmPackages.elm-language-server",
   "python3",
   "sqlite",
+  "pyright",
 ]
 name = "dev"
 startup.alias.text = """
